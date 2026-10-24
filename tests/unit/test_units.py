@@ -1,6 +1,6 @@
 import math
 
-from rasdrive.units import M_PER_FT, ft_to_m, m_to_ft
+from flowfield2d.units import M_PER_FT, ft_to_m, m_to_ft
 
 
 def test_exact_foot() -> None:

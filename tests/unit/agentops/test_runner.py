@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from rasdrive.agentops import ledger, runner
-from rasdrive.agentops.config import AgentOpsConfig
-from rasdrive.agentops.queue import Card, CardError, Queue
+from flowfield2d.agentops import ledger, runner
+from flowfield2d.agentops.config import AgentOpsConfig
+from flowfield2d.agentops.queue import Card, CardError, Queue
 
 FAKE = Path(__file__).resolve().parents[2] / "fixtures" / "fake_agy.py"
 ACCEPT = ('python -c "import pathlib,sys; '

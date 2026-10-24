@@ -16,7 +16,7 @@ import h5py.h5s
 import h5py.h5t
 import numpy as np
 
-from rasdrive.engine.ras2025 import h5schema
+from flowfield2d.engines.ras2025 import h5schema
 
 # ---------------------------------------------------------------------------
 # Time constants
@@ -147,7 +147,7 @@ def read_fixed_string(obj: Any, name: str) -> str:
 # Dataset recreation
 # ---------------------------------------------------------------------------
 
-_TMP_SUFFIX = ".__rasdrive_new"
+_TMP_SUFFIX = ".__flowfield2d_new"
 
 
 def _snapshot_attrs(obj: Any) -> list[tuple[bytes, Any, Any, np.ndarray[Any, np.dtype[Any]]]]:
@@ -243,7 +243,7 @@ def guarded(
     """Open *path* for writing only after passing the schema guard.
 
     Calls :func:`h5schema.guard` before opening the file (so a mismatch raises
-    :class:`~rasdrive.engine.ras2025.h5schema.SchemaMismatch` without touching
+    :class:`~flowfield2d.engines.ras2025.h5schema.SchemaMismatch` without touching
     the file), then yields an ``h5py.File`` opened in ``"r+"`` mode and closes
     it on exit.
 

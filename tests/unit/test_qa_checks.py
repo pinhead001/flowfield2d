@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from rasdrive.qa.checks import (
+from flowfield2d.qa.checks import (
     CheckResult,
     bc_sensitivity,
     convergence,

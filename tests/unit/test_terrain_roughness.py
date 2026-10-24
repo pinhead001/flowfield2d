@@ -6,8 +6,8 @@ import pytest
 import rasterio
 from rasterio.transform import from_origin
 
-from rasdrive.roughness import map_classes, roughness_from_classes
-from rasdrive.terrain import TerrainMeta, clip_mosaic, read_sidecar, void_fraction
+from flowfield2d.roughness import map_classes, roughness_from_classes
+from flowfield2d.terrain import TerrainMeta, clip_mosaic, read_sidecar, void_fraction
 
 CRS = "EPSG:3857"
 

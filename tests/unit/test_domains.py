@@ -1,7 +1,7 @@
 import pytest
 from shapely.geometry import LineString
 
-from rasdrive.domains import (
+from flowfield2d.domains import (
     Domain,
     bc_line,
     downstream_extension,

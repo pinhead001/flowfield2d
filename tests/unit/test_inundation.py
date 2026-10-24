@@ -7,7 +7,7 @@ import rasterio
 from rasterio.transform import from_origin
 from shapely.geometry import shape
 
-from rasdrive.post.inundation import inundation_polygons, write_geojson
+from flowfield2d.post.inundation import inundation_polygons, write_geojson
 
 
 def _depth(tmp_path: Path) -> Path:

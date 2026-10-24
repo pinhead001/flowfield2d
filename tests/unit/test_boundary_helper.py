@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from rasdrive.boundary import load_terms, scan
+from flowfield2d.boundary import load_terms, scan
 
 
 def _write(p: Path, text: str) -> Path:

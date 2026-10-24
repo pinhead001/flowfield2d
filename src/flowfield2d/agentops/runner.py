@@ -20,9 +20,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from rasdrive.agentops import cooldown, ledger
-from rasdrive.agentops.config import AgentOpsConfig
-from rasdrive.agentops.queue import Card, Queue
+from flowfield2d.agentops import cooldown, ledger
+from flowfield2d.agentops.config import AgentOpsConfig
+from flowfield2d.agentops.queue import Card, Queue
 
 QUOTA_RE = re.compile(r"quota|rate.?limit|resource.?exhausted|\b429\b", re.IGNORECASE)
 TAIL = 4000

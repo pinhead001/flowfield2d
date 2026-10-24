@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from rasdrive.qa.calibration import Observation, best_n, compare, modeled_wse_at
+from flowfield2d.qa.calibration import Observation, best_n, compare, modeled_wse_at
 
 
 def test_modeled_wse_interpolates_rating_and_refuses_extrapolation() -> None:

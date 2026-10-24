@@ -1,5 +1,5 @@
 [project]
-name = "rasdrive"
+name = "flowfield2d"
 version = "0.0.1"
 description = "Location-agnostic driver for HEC-RAS 2025 2D models"
 readme = "README.md"
@@ -15,8 +15,8 @@ dependencies = [
 ]
 
 [project.scripts]
-rasdrive = "rasdrive.cli:app"
-agentops = "rasdrive.agentops.cli:main"
+flowfield2d = "flowfield2d.cli:app"
+agentops = "flowfield2d.agentops.cli:main"
 
 [dependency-groups]
 dev = [

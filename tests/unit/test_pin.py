@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from rasdrive.engine.ras2025.pin import PinMismatch, load_pin, sha256_file, verify
+from flowfield2d.engines.ras2025.pin import PinMismatch, load_pin, sha256_file, verify
 
 
 def _h(b: bytes) -> str:

@@ -2,8 +2,8 @@ import io
 import json
 from datetime import UTC, datetime
 
-from rasdrive.agentops import hooks
-from rasdrive.agentops.config import AgentOpsConfig
+from flowfield2d.agentops import hooks
+from flowfield2d.agentops.config import AgentOpsConfig
 
 NOW = datetime(2026, 10, 23, 12, 0, tzinfo=UTC)
 

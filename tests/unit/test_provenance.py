@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-import rasdrive
-from rasdrive.provenance import (
+import flowfield2d
+from flowfield2d.provenance import (
     REQUIRED,
     ManifestError,
     build_manifest,
@@ -65,7 +65,7 @@ def test_build_validate_write(tmp_path: Path) -> None:
     m = _build(tmp_path, extra={"flow_source": "x"})
     assert set(REQUIRED) <= set(m)
     assert m["manifest_version"] == 1 and m["created"] == "2026-10-24T07:00:00Z"
-    assert m["rasdrive_version"] == rasdrive.__version__
+    assert m["flowfield2d_version"] == flowfield2d.__version__
     assert m["lockfiles"] == {"uv.lock": hashlib.sha256(b"lock").hexdigest()}
     assert m["extra"] == {"flow_source": "x"}
     out = tmp_path / "manifest.json"

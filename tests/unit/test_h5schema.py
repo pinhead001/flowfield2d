@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import pytest
 
-from rasdrive.engine.ras2025.h5schema import (
+from flowfield2d.engines.ras2025.h5schema import (
     SchemaMismatch,
     diff,
     fingerprint,

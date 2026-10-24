@@ -2,8 +2,8 @@ import io
 import json
 from datetime import UTC, datetime
 
-from rasdrive.agentops import governor, ledger, statusline
-from rasdrive.agentops.config import AgentOpsConfig
+from flowfield2d.agentops import governor, ledger, statusline
+from flowfield2d.agentops.config import AgentOpsConfig
 
 NOW = datetime(2026, 10, 23, 12, 0, tzinfo=UTC)
 T = int(NOW.timestamp())

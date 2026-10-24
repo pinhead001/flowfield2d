@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 import pytest
 
-from rasdrive.engine.ras2025.h5edit import (
+from flowfield2d.engines.ras2025.h5edit import (
     DOTNET_EPOCH,
     from_ticks,
     guarded,
@@ -14,7 +14,7 @@ from rasdrive.engine.ras2025.h5edit import (
     to_ticks,
     write_fixed_string_attr,
 )
-from rasdrive.engine.ras2025.h5schema import SchemaMismatch, fingerprint, walk
+from flowfield2d.engines.ras2025.h5schema import SchemaMismatch, fingerprint, walk
 
 
 def test_ticks() -> None:

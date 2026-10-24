@@ -12,8 +12,8 @@ import json
 from datetime import UTC, datetime
 from typing import Any, TextIO
 
-from rasdrive.agentops.config import AgentOpsConfig
-from rasdrive.agentops.ledger import write_json_atomic
+from flowfield2d.agentops.config import AgentOpsConfig
+from flowfield2d.agentops.ledger import write_json_atomic
 
 UNKNOWN = "unknown"
 
@@ -47,7 +47,7 @@ def run(cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO, now: datetime | None
         v = usage[key]["used_percentage"]
         parts.append(f"{label} {v:.0f}%" if v != UNKNOWN else f"{label} ?")
     try:
-        from rasdrive.agentops import governor
+        from flowfield2d.agentops import governor
 
         parts.append(f"gov {governor.status(cfg, now=now).mode}")
     except Exception:  # noqa: BLE001 - status line must not fail

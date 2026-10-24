@@ -20,8 +20,8 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from rasdrive.agentops import cooldown, ledger
-from rasdrive.agentops.config import AgentOpsConfig
+from flowfield2d.agentops import cooldown, ledger
+from flowfield2d.agentops.config import AgentOpsConfig
 
 WEEK_S = 7 * 86400
 

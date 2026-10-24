@@ -11,9 +11,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from rasdrive.agentops import governor, hooks, ledger, runner, statusline
-from rasdrive.agentops.config import AgentOpsConfig, load_config
-from rasdrive.agentops.queue import STATES, Queue
+from flowfield2d.agentops import governor, hooks, ledger, runner, statusline
+from flowfield2d.agentops.config import AgentOpsConfig, load_config
+from flowfield2d.agentops.queue import STATES, Queue
 
 
 def _next(cfg: AgentOpsConfig) -> str:

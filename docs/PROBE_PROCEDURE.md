@@ -35,7 +35,7 @@ Scratch copies of projects go to `$SCRATCH` and are never committed.
 
 ## 2. Steps
 
-Run these from the `rasdrive` repo root with these variables set:
+Run these from the `flowfield2d` repo root with these variables set:
 
 | Variable | Meaning | Example |
 |---|---|---|
@@ -98,7 +98,7 @@ This records:
 - dtypes, shapes, chunking and compression
 - fixed-length string padding (NULLTERM, NULLPAD or SPACEPAD) and size
 
-The fingerprint covers structure only, so the same file type compares across projects. This baseline is what `engine.ras2025.h5schema` guards against later (REQUIREMENTS §3.3).
+The fingerprint covers structure only, so the same file type compares across projects. This baseline is what `engines.ras2025.h5schema` guards against later (REQUIREMENTS §3.3).
 
 ### E — Smoke tests (one operation at a time, each on a fresh copy)
 

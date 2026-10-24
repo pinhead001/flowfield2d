@@ -12,8 +12,8 @@ import re
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from rasdrive.agentops.config import AgentOpsConfig
-from rasdrive.agentops.ledger import write_json_atomic
+from flowfield2d.agentops.config import AgentOpsConfig
+from flowfield2d.agentops.ledger import write_json_atomic
 
 RESET_RE = re.compile(r"resets?\s+in\s+((?:\d+\s*[dhms]\s*)+)", re.IGNORECASE)
 UNIT_S = {"d": 86400, "h": 3600, "m": 60, "s": 1}

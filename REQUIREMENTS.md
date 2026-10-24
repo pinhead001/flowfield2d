@@ -1,4 +1,4 @@
-# rasdrive — Requirements
+# flowfield2d — Requirements
 
 | | |
 |---|---|
@@ -12,7 +12,7 @@
 
 ## 1. Purpose and boundary
 
-`rasdrive` turns a set of inputs into HEC-RAS 2025 2D results and hydraulic metrics, under script or agent control, for any river. Every project-specific choice arrives as an input or a parameter:
+`flowfield2d` turns a set of inputs into HEC-RAS 2025 2D results and hydraulic metrics, under script or agent control, for any river. Every project-specific choice arrives as an input or a parameter:
 - reach geometry and IDs
 - terrain
 - land-cover classes and Manning's n table
@@ -34,10 +34,10 @@ If a function only makes sense for one project, it belongs in that project's rep
 ## 2. Package layout
 
 ```
-rasdrive/
+flowfield2d/
   REQUIREMENTS.md  CLAUDE.md  AGENTS.md  README.md  CHANGELOG.md  pyproject.toml  uv.lock
-  src/rasdrive/
-    engine/ras2025/   cli.py h5edit.py h5schema.py results.py templates.py pin.py
+  src/flowfield2d/
+    engines/ras2025/   cli.py h5edit.py h5schema.py results.py templates.py pin.py
     domains.py        segment a stream network at flow-change points; extents; BC line placement
     terrain.py        clip/mosaic DEM tiles per domain; void-mask summaries
     roughness.py      class raster/polygons + n table -> roughness layer
@@ -46,7 +46,7 @@ rasdrive/
     post/             rasters.py inundation.py metrics.py (per-polygon/per-centerline stats)
     qa/               checks.py calibration.py report.py
     provenance.py     run manifests
-    cli.py            `rasdrive` command (typer)
+    cli.py            `flowfield2d` command (typer)
   agentops/           statusline, ledger, queue, runner, governor, hooks (any project)
   tools/probe/        cliprobe.py rasprobe.py + tests
   docs/               PROBE_PROCEDURE.md adr/ methods/
@@ -90,7 +90,7 @@ To adopt a new build:
 2. Re-run probe steps A, B and D.
 3. Run the golden regression, i.e. a consumer's pilot domain.
 4. Write an ADR addendum.
-5. Release a new `rasdrive` version that records the build it was tested against.
+5. Release a new `flowfield2d` version that records the build it was tested against.
 
 ## 4. Modeling building blocks
 

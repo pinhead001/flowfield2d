@@ -17,8 +17,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, TextIO
 
-from rasdrive.agentops import governor
-from rasdrive.agentops.config import AgentOpsConfig
+from flowfield2d.agentops import governor
+from flowfield2d.agentops.config import AgentOpsConfig
 
 
 def _read(stdin: TextIO) -> dict[str, Any]:

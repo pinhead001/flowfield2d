@@ -14,7 +14,7 @@ from typing import Any
 
 from filelock import FileLock
 
-from rasdrive.agentops.config import AgentOpsConfig
+from flowfield2d.agentops.config import AgentOpsConfig
 
 STATES = ("pending", "running", "done", "escalated")
 REQUIRED = ("id", "repo", "title", "prompt", "acceptance")

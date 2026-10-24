@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from rasdrive.agentops.config import AgentOpsConfig, load_config
+from flowfield2d.agentops.config import AgentOpsConfig, load_config
 
 CONFIG = """
 [paths]

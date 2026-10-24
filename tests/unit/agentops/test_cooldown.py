@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from rasdrive.agentops import cooldown, governor, runner
-from rasdrive.agentops.config import AgentOpsConfig
-from rasdrive.agentops.queue import Queue
+from flowfield2d.agentops import cooldown, governor, runner
+from flowfield2d.agentops.config import AgentOpsConfig
+from flowfield2d.agentops.queue import Queue
 
 from .test_runner import FAKE, _card, repo_cfg  # noqa: F401  (fixture re-export)
 
@@ -70,7 +70,7 @@ def test_runner_requeues_without_calling_when_all_cooling(
 
 def test_unparseable_quota_uses_default_cooldown(repo_cfg: AgentOpsConfig,  # noqa: F811
                                                 monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(sys.modules["rasdrive.agentops.cooldown"], "parse_reset",
+    monkeypatch.setattr(sys.modules["flowfield2d.agentops.cooldown"], "parse_reset",
                         lambda text: None)
     monkeypatch.setenv("FAKE_AGY_QUOTA_MODELS", "m1,m2")
     res = runner.run_card(repo_cfg, _card(repo_cfg))

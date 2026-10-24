@@ -1,16 +1,18 @@
-# CLAUDE.md — rasdrive
+# CLAUDE.md — flowfield2d
 
 General HEC-RAS 2025 2D driver. Spec: `REQUIREMENTS.md` (wins over this file). Probe: `docs/PROBE_PROCEDURE.md`.
-The checkout directory is `flowfield`; the package is `rasdrive` (final name: open item O9).
+Library name `flowfield2d` (distribution, import and folder; ADR-0003). Scope here: HEC-RAS 2025 only, behind an
+engine-adapter layout (`engines/ras2025/`, neutral core) so other engines can be added later.
+`tests/test_rename_guard.py` fails on the retired working names outside ADR-0003 and CHANGELOG.
 
 ## Boundary rule (hard)
 No place, stream or agency names, reach-layer schemas, CRS codes, file paths, habitat-model vocabulary,
 or basin-tuned defaults in `src/`, `tools/`, `docs/`. Every project choice is a parameter or config input.
-`tests/test_boundary.py` scans with the consumer term lists in `RASDRIVE_BOUNDARY_TERMS` (os.pathsep list).
+`tests/test_boundary.py` scans with the consumer term lists in `FLOWFIELD2D_BOUNDARY_TERMS` (os.pathsep list).
 If a function only makes sense for one project, say so and put it in that project's repo.
 
 ## Layout
-- `src/rasdrive/` per REQUIREMENTS 2. Deviation: agent ops live at `src/rasdrive/agentops/`
+- `src/flowfield2d/` per REQUIREMENTS 2. Deviation: agent ops live at `src/flowfield2d/agentops/`
   (importable by consumers; CLI `agentops`), not a top-level `agentops/`.
 - `tools/probe/` — tested probe tools. Don't rewrite; fix real bugs with a test each.
 - `tests/unit`, `tests/integration` (marker `ras`, deselected by default), `tests/fixtures` (synthetic only).

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from rasdrive.post.metrics import METRIC_COLUMNS, feature_metrics, shear_stress
+from flowfield2d.post.metrics import METRIC_COLUMNS, feature_metrics, shear_stress
 
 
 def test_shear_stress_hand_calculations() -> None:

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from rasdrive.runs import BadTransition, DuplicateRun, Registry, RunState
+from flowfield2d.runs import BadTransition, DuplicateRun, Registry, RunState
 
 
 def _reg(tmp_path: Path) -> Registry:

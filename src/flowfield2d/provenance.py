@@ -1,4 +1,4 @@
-"""Run manifests: build, validate, and write provenance records for rasdrive runs."""
+"""Run manifests: build, validate, and write provenance records for flowfield2d runs."""
 
 import json
 import subprocess
@@ -7,14 +7,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import rasdrive
-from rasdrive.engine.ras2025.pin import sha256_file
+import flowfield2d
+from flowfield2d.engines.ras2025.pin import sha256_file
 
 REQUIRED: tuple[str, ...] = (
     "manifest_version",
     "created",
     "run_id",
-    "rasdrive_version",
+    "flowfield2d_version",
     "repos",
     "lockfiles",
     "engine",
@@ -126,7 +126,7 @@ def build_manifest(
         "manifest_version": 1,
         "created": created,
         "run_id": run_id,
-        "rasdrive_version": rasdrive.__version__,
+        "flowfield2d_version": flowfield2d.__version__,
         "repos": {name: git_state(path) for name, path in repos.items()},
         "lockfiles": file_hashes(lockfiles),
         "engine": engine,

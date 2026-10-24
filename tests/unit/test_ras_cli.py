@@ -5,7 +5,7 @@ from pathlib import Path
 import psutil
 import pytest
 
-from rasdrive.engine.ras2025.cli import RasCli, RasCliError
+from flowfield2d.engines.ras2025.cli import RasCli, RasCliError
 
 FAKE = Path(__file__).resolve().parents[1] / "fixtures" / "fake_ras.py"
 

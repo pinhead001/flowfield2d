@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from rasdrive.hydrograph import (
+from flowfield2d.hydrograph import (
     LateralInflowWarning,
     Plateau,
     breakpoints,
