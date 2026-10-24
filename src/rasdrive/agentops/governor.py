@@ -20,7 +20,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from rasdrive.agentops import ledger
+from rasdrive.agentops import cooldown, ledger
 from rasdrive.agentops.config import AgentOpsConfig
 
 WEEK_S = 7 * 86400
@@ -41,6 +41,7 @@ class Status:
     agy_errors_recent: int
     agy_concurrency: int
     usage_updated_at: str | None
+    agy_cooldowns: dict[str, str]
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -125,10 +126,13 @@ def status(cfg: AgentOpsConfig, now: datetime | None = None) -> Status:
     conc = max(1, conc) if cfg.agy.concurrency_start > 0 else 0
     if agy_remaining is not None and agy_remaining < cfg.agy.stop_below_pct:
         conc = 0
+    cooling = cooldown.active(cfg, now)
+    if cooldown.choose_model(cfg, None, now) is None and (cfg.agy.models or cooling):
+        conc = 0
 
     return Status(mode, reason, five, five_reset, seven, seven_reset, pace_ok, agy_remaining,
                   cal["ts"] if cal else None, tokens_since, errors, conc,
-                  usage.get("updated_at"))
+                  usage.get("updated_at"), {k: v.isoformat() for k, v in cooling.items()})
 
 
 def _fmt_reset(epoch: int | None) -> str:
@@ -152,5 +156,7 @@ def render(s: Status) -> str:
         f"weekly pace {pace}",
         f"agy remaining {agy}; recent errors {s.agy_errors_recent}; "
         f"concurrency {s.agy_concurrency}",
+        "agy cooldowns: " + (", ".join(f"{k} until {v[:16]}" for k, v in s.agy_cooldowns.items())
+                             or "none"),
         f"meter updated {s.usage_updated_at or 'never'}",
     ])

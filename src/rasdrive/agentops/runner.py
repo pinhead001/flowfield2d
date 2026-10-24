@@ -20,7 +20,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from rasdrive.agentops import ledger
+from rasdrive.agentops import cooldown, ledger
 from rasdrive.agentops.config import AgentOpsConfig
 from rasdrive.agentops.queue import Card, Queue
 
@@ -66,9 +66,9 @@ def ensure_worktree(cfg: AgentOpsConfig, card: Card) -> tuple[Path, str]:
     return wt, branch
 
 
-def agy_argv(cfg: AgentOpsConfig, card: Card, prompt: str) -> list[str]:
+def agy_argv(cfg: AgentOpsConfig, card: Card, prompt: str, model: str | None = None) -> list[str]:
     argv = [*cfg.agy.command, "-p", prompt, "--output-format", "json"]
-    model = card.model or cfg.agy.model
+    model = model or card.model or cfg.agy.model
     if model:
         argv += ["--model", model]
     argv += ["--print-timeout", card.print_timeout or cfg.agy.print_timeout, *cfg.agy.extra_args]
@@ -102,8 +102,14 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
     result: RunResult | None = None
     attempt = 0
     while attempt <= max_retries:
+        model = cooldown.choose_model(cfg, card.model)
+        if model is None and (card.model or cfg.agy.models):
+            q.move(card.id, "pending")
+            result = RunResult(card.id, "quota", attempt, wt, branch,
+                               f"all delegate pools cooling: {cooldown.active(cfg)}")
+            break
         attempt += 1
-        argv = agy_argv(cfg, card, prompt)
+        argv = agy_argv(cfg, card, prompt, model)
         t0 = time.monotonic()
         p = subprocess.run(argv, cwd=wt, capture_output=True, text=True, encoding="utf-8",
                            errors="replace", env=_child_env())
@@ -115,7 +121,7 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
                    and bool(response.strip()))
         rec: dict[str, Any] = {
             "ts": datetime.now(UTC).isoformat(), "kind": "agy", "card": card.id,
-            "repo": card.repo, "attempt": attempt, "model": card.model or cfg.agy.model,
+            "repo": card.repo, "attempt": attempt, "model": model or "",
             "exit": p.returncode, "status": env.get("status"), "ok": ok_call,
             "total_tokens": usage.get("total_tokens") if usage else None,
             "duration_seconds": env.get("duration_seconds"),
@@ -128,11 +134,19 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
         ledger.append(cfg.ledger_path, rec)
 
         if not ok_call and QUOTA_RE.search(p.stderr + p.stdout):
+            until = cooldown.record_quota(cfg, model or "", p.stderr + p.stdout)
+            rec_q = {"ts": datetime.now(UTC).isoformat(), "kind": "quota", "card": card.id,
+                     "model": model, "pool": cooldown.pool_of(cfg, model or ""),
+                     "until": until.isoformat()}
+            ledger.append(cfg.ledger_path, rec_q)
             cfg.quota_events_dir.mkdir(parents=True, exist_ok=True)
             stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
             ledger.write_json_atomic(cfg.quota_events_dir / f"{stamp}-{card.id}.json",
                                      {"argv_tail": argv[3:], "exit": p.returncode,
                                       "stdout": p.stdout, "stderr": p.stderr})
+            if cooldown.choose_model(cfg, card.model) is not None:
+                attempt -= 1  # another pool is free: a quota hit is not a failed attempt
+                continue
             q.move(card.id, "pending")
             result = RunResult(card.id, "quota", attempt, wt, branch, p.stderr[-500:])
             break

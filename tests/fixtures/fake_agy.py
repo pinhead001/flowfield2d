@@ -17,6 +17,10 @@ if log:
     with open(log, "a", encoding="utf-8") as f:
         f.write(json.dumps({"argv": args, "prompt": prompt}) + "\n")
 mode = os.environ.get("FAKE_AGY_MODE", "")
+model = args[args.index("--model") + 1] if "--model" in args else ""
+quota_models = [m for m in os.environ.get("FAKE_AGY_QUOTA_MODELS", "").split(",") if m]
+if quota_models:
+    mode = "quota" if model in quota_models else ""
 if mode == "denied":  # observed: headless auto-deny still reports SUCCESS, exit 0
     sys.stderr.write("no output produced - a tool required the \"command\" permission that "
                      "headless mode cannot prompt for, so it was auto-denied.\n")
@@ -25,7 +29,8 @@ if mode == "denied":  # observed: headless auto-deny still reports SUCCESS, exit
     sys.exit(0)
 if mode in ("quota", "error"):
     if mode == "quota":
-        sys.stderr.write("Error 429: RESOURCE_EXHAUSTED quota exceeded\n")
+        sys.stderr.write("Error 429: RESOURCE_EXHAUSTED Individual quota reached. "
+                         "Resets in 2h30m5s.\n")
     print(json.dumps({"status": "ERROR", "response": "", "usage": {"total_tokens": 0},
                       "duration_seconds": 0.1}))
     sys.exit(1)

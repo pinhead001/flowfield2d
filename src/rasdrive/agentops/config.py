@@ -26,7 +26,9 @@ class GovernorConfig:
 @dataclass
 class AgyConfig:
     command: list[str]
-    model: str
+    models: list[str]
+    pools: dict[str, list[str]]
+    default_cooldown_min: float
     print_timeout: str
     extra_args: list[str]
     max_retries: int
@@ -34,6 +36,11 @@ class AgyConfig:
     error_window_min: float
     stop_below_pct: float
     tokens_per_pct: float
+
+    @property
+    def model(self) -> str:
+        """Default model: first in preference order ("" = the delegate's own default)."""
+        return self.models[0] if self.models else ""
 
 
 @dataclass
@@ -111,7 +118,10 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
         ),
         agy=AgyConfig(
             command=list(exe) if isinstance(exe, list) else [str(exe)],
-            model=str(a.get("model", "")),
+            models=([str(m) for m in a.get("models", [])]
+                    or ([str(a["model"])] if a.get("model") else [])),
+            pools={str(k): [str(m) for m in v] for k, v in a.get("pools", {}).items()},
+            default_cooldown_min=float(a.get("default_cooldown_min", 60)),
             print_timeout=str(a["print_timeout"]),
             extra_args=[str(x) for x in a.get("extra_args", [])],
             max_retries=int(a["max_retries"]),

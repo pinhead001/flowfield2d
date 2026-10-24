@@ -21,7 +21,9 @@ unknown_mode = "conserve"
 
 [agy]
 exe = "agy"
-model = "m1"
+models = ["m1", "m2"]
+pools = { a = ["m1"], b = ["m2"] }
+default_cooldown_min = 60
 print_timeout = "1m"
 extra_args = []
 max_retries = 1

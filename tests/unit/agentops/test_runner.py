@@ -126,4 +126,6 @@ def test_quota_event_requeues_and_saves_raw(repo_cfg: AgentOpsConfig,
     assert Queue(repo_cfg).state_of("c1") == "pending"
     events = list(repo_cfg.quota_events_dir.glob("*.json"))
     assert events and "RESOURCE_EXHAUSTED" in events[0].read_text()
-    assert ledger.read(repo_cfg.ledger_path)[-1]["ok"] is False
+    recs = ledger.read(repo_cfg.ledger_path)
+    assert [r for r in recs if r["kind"] == "agy"][-1]["ok"] is False
+    assert recs[-1]["kind"] == "quota" and recs[-1]["pool"] == "b"
