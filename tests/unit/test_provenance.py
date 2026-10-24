@@ -21,7 +21,8 @@ from rasdrive.provenance import (
 def _repo(tmp_path: Path) -> Path:
     r = tmp_path / "repo"
     r.mkdir()
-    for a in (["init", "-q"], ["config", "user.email", "t@example.com"], ["config", "user.name", "T"]):
+    for a in (["init", "-q"], ["config", "user.email", "t@example.com"],
+              ["config", "user.name", "T"]):
         subprocess.run(["git", *a], cwd=r, check=True)
     (r / "f.txt").write_text("x")
     subprocess.run(["git", "add", "-A"], cwd=r, check=True)
@@ -83,3 +84,9 @@ def test_validate_names_every_problem() -> None:
     msg = str(e.value)
     for key in ("created", "inputs", "convergence", "manifest_version", "repos"):
         assert key in msg
+
+
+def test_created_is_converted_to_utc(tmp_path: Path) -> None:
+    from datetime import timedelta, timezone
+    m = _build(tmp_path, now=datetime(2026, 10, 24, 0, 0, tzinfo=timezone(timedelta(hours=-7))))
+    assert m["created"] == "2026-10-24T07:00:00Z"

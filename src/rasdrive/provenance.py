@@ -130,7 +130,7 @@ def build_manifest(
     if now is None:
         now = datetime.now(UTC)
 
-    created: str = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    created: str = now.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     manifest: dict[str, Any] = {
         "manifest_version": 1,
