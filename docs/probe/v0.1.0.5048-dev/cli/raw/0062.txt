@@ -1,5 +1,5 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "help", "h5", "diff"]
-exit_code: 0
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "sample", "push", "--help"]
+exit_code: 4294967295
 timed_out: False
 window_seen: False
 duration_s: 0.078
@@ -9,7 +9,40 @@ duration_s: 0.078
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-  --help       Display this help screen.
+  -d, --directory    Required. Project directory to scan and upload.
 
-  --version    Display version information.
+  -s, --server       S3 server. Defaults to https://s3.hecdev.net
+
+  -b, --bucket       S3 bucket. Defaults to ras-public-examples
+
+  -u, --user         Required. Username for S3 authentication.
+
+  -p, --password     Required. Password for S3 authentication.
+
+  -g, --global       Global JSON manifest key to update. Defaults to
+                     'globalmanifest.json'.
+
+  --skip-global      If set, files are uploaded but the global manifest is not
+                     updated. Useful for staging.
+
+  --minver           Minimum compatible software version. Expect SemVer 2.0,
+                     e.g. '2.0.0.412-beta2'.
+
+  --maxver           Maximum compatible software version. Expect SemVer 2.0,
+                     e.g. '2.0.0.412-beta2'.
+
+  --date             Publish date. Defaults to the current date/time.
+
+  --write-to         If set, also writes the generated manifest JSON to this
+                     local path. Works with --dry-run.
+
+  -f, --force        If set, any pre-existing remote manifest with the same key
+                     will be overwritten.
+
+  --dry-run          Builds the manifest and walks through the upload without
+                     writing any remote files.
+
+  --help             Display this help screen.
+
+  --version          Display version information.
 

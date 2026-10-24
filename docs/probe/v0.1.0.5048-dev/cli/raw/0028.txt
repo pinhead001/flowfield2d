@@ -1,4 +1,4 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "mesh", "-?"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "h5", "explore", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
@@ -9,16 +9,9 @@ duration_s: 0.078
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option '?' is unknown.
-  Required option 's, source' is missing.
-
-  -s, --source    Required. Input RAS Geometry file (*.h5).
-
-  --squeeze       If set, will squeeze the file after successfully generating a
-                  mesh.
-
   --help          Display this help screen.
 
   --version       Display version information.
+
+  value pos. 0    Required. HDF5 file to explore (*.hdf, *.h5)
 

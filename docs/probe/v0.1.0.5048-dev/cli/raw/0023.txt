@@ -1,27 +1,30 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "info", "-h"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "geometry", "info", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.078
+duration_s: 0.062
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option 'h' is unknown.
-  A required value not bound to option name is missing.
+  --format                     Output format: Text (default), Json, Markdown, or
+                               Properties (grep-friendly key=value).
 
-  --format           Output format: Text (default), Json, Markdown, or
-                     Properties (grep-friendly key=value).
+  --get                        Print only the value(s) at a flattened key path
+                               (e.g. 'name' or 'layers[0].count'). Ignores
+                               --format.
 
-  --get              Print only the value(s) at a flattened key path (e.g.
-                     'name'). Ignores --format.
+  --verify-table-signatures    Locate the owning project and verify each mesh's
+                               stored property-table terrain signature against
+                               the associated terrain. Prints SUCCESS or FAILURE
+                               instead of the info dump. Also works on a
+                               geometry embedded in a result file.
 
-  --help             Display this help screen.
+  --help                       Display this help screen.
 
-  --version          Display version information.
+  --version                    Display version information.
 
-  source (pos. 0)    Required. Input file.
+  geometry (pos. 0)            Required. Geometry file (*.h5).
 

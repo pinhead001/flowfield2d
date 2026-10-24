@@ -1,4 +1,4 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "hash", "-h"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "prepare", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
@@ -9,21 +9,22 @@ duration_s: 0.078
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option 'h' is unknown.
+  --if-exists        What to do when a plan's ready-to-run file already exists:
+                      'force': delete the existing file and overwrite it.
+                      'append': write to a numbered copy instead (e.g. 'Plan
+                      (1).r2r.h5'), Windows convention.
+                      'error': report a message and skip that plan.
+                      'default' (default): append a numbered copy (ready-to-run
+                      filenames are always auto-derived here).
 
-  --file-size     Set the file size to use. Units must be one of {B, KB, MB, GB,
-                  TB, KiB, MiB, GiB, TiB}.Ex: '1MB', '1.2 GiB', etc. Defaults to
-                  1GB.
+  --help             Display this help screen.
 
-  --file          Compute hashes on this specific file, instead a randomly
-                  generated file.
+  --version          Display version information.
 
-  --rash-block    Set the RASH block-size to this value (see 'file-size' for
-                  acceptable argument formatting). Defaults to 1MiB. Other block
-                  sizes will produce different RASH values.
+  source (pos. 0)    Required. Project file (*.ras) or directory containing one.
+                     Every plan in the project will be prepared.
 
-  --help          Display this help screen.
-
-  --version       Display version information.
+  output (pos. 1)    Destination directory for the ready-to-run files. If
+                     unspecified, writes to each plan's default location in the
+                     project.
 

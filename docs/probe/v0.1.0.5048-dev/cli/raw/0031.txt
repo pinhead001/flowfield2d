@@ -1,4 +1,4 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "prepare", "-h"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "helpers", "zip", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
@@ -9,34 +9,17 @@ duration_s: 0.078
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option 'h' is unknown.
-  A required value not bound to option name is missing.
+  -f, --force        Force overwrite existing target file. Defaults to false.
 
-  --if-exists        What to do when an output file already exists. See 'ras
-                     plan prepare' / 'ras project prepare' for the per-strategy
-                     details.
-                      'force': delete the existing file and overwrite it.
-                      'append': write to a numbered copy instead (e.g. 'output
-                      (3).r2r.h5'), Windows convention.
-                      'error': report a message and refuse to overwrite.
-                      'default' (default): error when you name the output
-                      explicitly, append when it's auto-derived.
+  -l, --level        Compression level: Optimal (default), Fastest,
+                     NoCompression, or SmallestSize.
 
   --help             Display this help screen.
 
   --version          Display version information.
 
-  source (pos. 0)    Required. Source to prepare. This goes through a multi-step
-                     resolution process.
-                      If the given source is a directory or project file
-                      (*.ras), forwards to 'ras project prepare' with default
-                      options.
-                      If the given source is a plan file (*.h5), forwards to
-                      'ras plan prepare' with default options.
+  source (pos. 0)    Required. Source directory to compress.
 
-  output (pos. 1)    Output file or directory to write the prepared result.
-                      If unspecified, ready-to-run file(s) will be written to
-                      the locations specified in 'ras plan prepare' or 'ras
-                      project prepare'.
+  output (pos. 1)    Required. Output .zip filename. If file already exists,
+                     must be combined with --force argument.
 

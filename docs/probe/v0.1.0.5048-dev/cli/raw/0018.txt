@@ -1,15 +1,38 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "healthcheck", "--help"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "prepare", "--help"]
 exit_code: 0
 timed_out: False
 window_seen: False
-duration_s: 0.062
+duration_s: 0.063
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-  --help       Display this help screen.
+  --if-exists        What to do when an output file already exists. See 'ras
+                     plan prepare' / 'ras project prepare' for the per-strategy
+                     details.
+                      'force': delete the existing file and overwrite it.
+                      'append': write to a numbered copy instead (e.g. 'output
+                      (3).r2r.h5'), Windows convention.
+                      'error': report a message and refuse to overwrite.
+                      'default' (default): error when you name the output
+                      explicitly, append when it's auto-derived.
 
-  --version    Display version information.
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  source (pos. 0)    Required. Source to prepare. This goes through a multi-step
+                     resolution process.
+                      If the given source is a directory or project file
+                      (*.ras), forwards to 'ras project prepare' with default
+                      options.
+                      If the given source is a plan file (*.h5), forwards to
+                      'ras plan prepare' with default options.
+
+  output (pos. 1)    Output file or directory to write the prepared result.
+                      If unspecified, ready-to-run file(s) will be written to
+                      the locations specified in 'ras plan prepare' or 'ras
+                      project prepare'.
 

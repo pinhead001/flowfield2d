@@ -1,29 +1,38 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "hash", "-?"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "cleanup", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.094
+duration_s: 0.062
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option '?' is unknown.
+  -f, --force         Skip per-file prompts, delete all candidates.
 
-  --file-size     Set the file size to use. Units must be one of {B, KB, MB, GB,
-                  TB, KiB, MiB, GiB, TiB}.Ex: '1MB', '1.2 GiB', etc. Defaults to
-                  1GB.
+  --dry-run           Show what would be deleted without actually deleting.
 
-  --file          Compute hashes on this specific file, instead a randomly
-                  generated file.
+  --set-policy        Save the policy to the project file without executing
+                      cleanup. Combine with --keep-all-days, --hourly-days, etc.
 
-  --rash-block    Set the RASH block-size to this value (see 'file-size' for
-                  acceptable argument formatting). Defaults to 1MiB. Other block
-                  sizes will produce different RASH values.
+  --keep-all-days     (Default: -1) Days to keep all backups (default: 7).
 
-  --help          Display this help screen.
+  --hourly-days       (Default: -1) Days for hourly retention window (default:
+                      30).
 
-  --version       Display version information.
+  --daily-days        (Default: -1) Days for daily retention window (default:
+                      365).
+
+  --verbose           Show detailed evaluation of every file explaining why it
+                      would or would not be cleaned.
+
+  --skip-auxiliary    Don't clean result auxiliary files (export directories).
+
+  --help              Display this help screen.
+
+  --version           Display version information.
+
+  project (pos. 0)    Required. Path to the project file (*.ras) or a directory
+                      containing one.
 

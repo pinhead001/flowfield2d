@@ -1,24 +1,21 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "solver", "-?"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "raster", "explore", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.094
+duration_s: 0.062
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option '?' is unknown.
+  -d, --driver    (Default: Default) Reading/editing stack: 'native' (our
+                  TiffBinaryReader, GeoTIFF only), 'gdal' (any GDAL format), or
+                  'default' (native for a plain TIFF we parse, otherwise gdal).
 
-  --end-time    Simulation end-time in seconds. Lower this to shorten each
-                solve. Defaults to 20000 (~20 timesteps).
+  --help          Display this help screen.
 
-  --cores       Comma-separated list of core counts to benchmark, in order.
-                Defaults to '1,4,16'.
+  --version       Display version information.
 
-  --help        Display this help screen.
-
-  --version     Display version information.
+  value pos. 0    Required. Raster file to explore (e.g. a GeoTIFF).
 

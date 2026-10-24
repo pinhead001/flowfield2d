@@ -7,9 +7,9 @@
   ],
   "platform": "Windows-10-10.0.19041-SP0",
   "python": "3.12.15",
-  "started": "2026-10-23T23:37:47",
-  "finished": "2026-10-23T23:38:03",
-  "calls": 198,
+  "started": "2026-10-24T00:06:06",
+  "finished": "2026-10-24T00:06:11",
+  "calls": 66,
   "truncated": false,
   "version": {
     "args": [
@@ -123,6 +123,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -136,7 +137,7 @@
           ],
           "status": "help",
           "exit_code": 0,
-          "duration_s": 0.094,
+          "duration_s": 0.078,
           "window_seen": false,
           "raw": "0001.txt"
         }
@@ -179,6 +180,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -194,7 +196,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.063,
           "window_seen": false,
           "raw": "0003.txt"
         }
@@ -206,8 +208,34 @@
         "benchmark",
         "h5"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--preserve",
+            "description": "Preserves the written H5 file. Defaults to false."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "benchmark",
+        "h5",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -215,47 +243,11 @@
             "h5",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0038.txt"
-        },
-        {
-          "args": [
-            "benchmark",
-            "h5",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0039.txt"
-        },
-        {
-          "args": [
-            "benchmark",
-            "h5",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0040.txt"
-        },
-        {
-          "args": [
-            "help",
-            "benchmark",
-            "h5"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0041.txt"
+          "raw": "0020.txt"
         }
       ],
       "window_seen": false
@@ -265,8 +257,42 @@
         "benchmark",
         "hash"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--file-size",
+            "description": "Set the file size to use. Units must be one of {B, KB, MB, GB, TB, KiB, MiB, GiB, TiB}.Ex: '1MB', '1.2 GiB', etc. Defaults to 1GB."
+          },
+          {
+            "flags": "--file",
+            "description": "Compute hashes on this specific file, instead a randomly generated file."
+          },
+          {
+            "flags": "--rash-block",
+            "description": "Set the RASH block-size to this value (see 'file-size' for acceptable argument formatting). Defaults to 1MiB. Other block sizes will produce different RASH values."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "benchmark",
+        "hash",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -274,47 +300,11 @@
             "hash",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0042.txt"
-        },
-        {
-          "args": [
-            "benchmark",
-            "hash",
-            "-h"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0043.txt"
-        },
-        {
-          "args": [
-            "benchmark",
-            "hash",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0044.txt"
-        },
-        {
-          "args": [
-            "help",
-            "benchmark",
-            "hash"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0045.txt"
+          "raw": "0021.txt"
         }
       ],
       "window_seen": false
@@ -324,8 +314,38 @@
         "benchmark",
         "solver"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--end-time",
+            "description": "Simulation end-time in seconds. Lower this to shorten each solve. Defaults to 20000 (~20 timesteps)."
+          },
+          {
+            "flags": "--cores",
+            "description": "Comma-separated list of core counts to benchmark, in order. Defaults to '1,4,16'."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "benchmark",
+        "solver",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -333,47 +353,11 @@
             "solver",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0046.txt"
-        },
-        {
-          "args": [
-            "benchmark",
-            "solver",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0047.txt"
-        },
-        {
-          "args": [
-            "benchmark",
-            "solver",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0048.txt"
-        },
-        {
-          "args": [
-            "help",
-            "benchmark",
-            "solver"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0049.txt"
+          "raw": "0022.txt"
         }
       ],
       "window_seen": false
@@ -382,52 +366,64 @@
       "path": [
         "clone"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --source",
+            "description": "Required. Source filename to clone. Expected to be one of our core file types, Geometry/Plan/BC/Result/Terrain/NV."
+          },
+          {
+            "flags": "-o, --output",
+            "description": "Required. Destination filename. Should not exist. E.G. \"./TerrainOut.h5\""
+          },
+          {
+            "flags": "-f, --force",
+            "description": "If set, destination file will be deleted if necessary. Defaults to false."
+          },
+          {
+            "flags": "--geometry-only",
+            "description": "Saves only the geometry portion of a result file. Only valid if source file is a result. Defaults to false."
+          },
+          {
+            "flags": "--regenerate-mesh",
+            "description": "Force regenerate the mesh from inputs. Only valid if the output is a geometry file. Defaults to false."
+          },
+          {
+            "flags": "--clean-mesh",
+            "description": "Removes the computed mesh (and property tables) from the file. Only valid if the output is a geometry file. Defaults to false."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "clone",
+        "--help"
+      ],
+      "exit_code": 0,
       "attempts": [
         {
           "args": [
             "clone",
             "--help"
           ],
-          "status": "other",
+          "status": "help",
           "exit_code": 0,
-          "duration_s": 0.078,
+          "duration_s": 0.094,
           "window_seen": false,
           "raw": "0014.txt"
-        },
-        {
-          "args": [
-            "clone",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0015.txt"
-        },
-        {
-          "args": [
-            "clone",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0016.txt"
-        },
-        {
-          "args": [
-            "help",
-            "clone"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0017.txt"
         }
       ],
       "window_seen": false
@@ -468,6 +464,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -483,7 +480,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.062,
           "window_seen": false,
           "raw": "0004.txt"
         }
@@ -495,8 +492,41 @@
         "geometry",
         "generate-mesh"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--squeeze",
+            "description": "If set, will squeeze the file after successfully generating a mesh."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "geometry",
+            "index": 0,
+            "required": true,
+            "description": "Required. Geometry file (*.h5)."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "geometry",
+        "generate-mesh",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -504,47 +534,11 @@
             "generate-mesh",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0055.txt"
-        },
-        {
-          "args": [
-            "geometry",
-            "generate-mesh",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0056.txt"
-        },
-        {
-          "args": [
-            "geometry",
-            "generate-mesh",
-            "-?"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.094,
           "window_seen": false,
-          "raw": "0057.txt"
-        },
-        {
-          "args": [
-            "help",
-            "geometry",
-            "generate-mesh"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0058.txt"
+          "raw": "0025.txt"
         }
       ],
       "window_seen": false
@@ -554,8 +548,49 @@
         "geometry",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'name' or 'layers[0].count'). Ignores --format."
+          },
+          {
+            "flags": "--verify-table-signatures",
+            "description": "Locate the owning project and verify each mesh's stored property-table terrain signature against the associated terrain. Prints SUCCESS or FAILURE instead of the info dump. Also works on a geometry embedded in a result file."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "geometry",
+            "index": 0,
+            "required": true,
+            "description": "Required. Geometry file (*.h5)."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "geometry",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -563,47 +598,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.094,
+          "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0050.txt"
-        },
-        {
-          "args": [
-            "geometry",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0051.txt"
-        },
-        {
-          "args": [
-            "geometry",
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0052.txt"
-        },
-        {
-          "args": [
-            "help",
-            "geometry",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0053.txt"
+          "raw": "0023.txt"
         }
       ],
       "window_seen": false
@@ -615,7 +614,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "List the default set of fields you can target/set (no file needed):",
           "ras geometry modify --grammar",
@@ -656,7 +655,46 @@
           "cartesian].cellsize.scale(2)\""
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "--grammar",
+            "description": "List every path and field you can target in this geometry (no changes made), then exit."
+          },
+          {
+            "flags": "--case-sensitive",
+            "description": "Make string comparisons in the inline filter case-sensitive."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Report what would change without writing the file."
+          },
+          {
+            "flags": "--format",
+            "description": "Output format for the change report: Text (default), Json, or Properties (grep-friendly key=value). Errors always go to stderr as text, so stdout stays parseable."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "geometry",
+            "index": 0,
+            "required": false,
+            "description": "Geometry file (*.h5). Optional with --grammar (omit it to print the default schema)."
+          },
+          {
+            "name": "set",
+            "index": 1,
+            "required": false,
+            "description": "One or more selectors: a path to a collection (region/arc) with an optional [predicate], ending in either an assignment (= value) or a numeric operation (.scale(x)/.add(x)/.set(x)). The [predicate] picks which elements change. E.g. \"topology.region[type = quad AND cellsize < 10].cellsize.scale(0.5)\" (operation) or \"topology.region[area < 10000].type = cartesian\" (assignment). Operations are numeric-only; use = value for enum/bool/string fields. Pass several to change several things in one save. See the examples above. Not required with --grammar."
+          }
+        ],
         "sections": [
           "usage"
         ]
@@ -676,9 +714,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.094,
           "window_seen": false,
-          "raw": "0054.txt"
+          "raw": "0024.txt"
         }
       ],
       "window_seen": false
@@ -729,6 +767,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -744,7 +783,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.063,
           "window_seen": false,
           "raw": "0005.txt"
         }
@@ -756,8 +795,58 @@
         "h5",
         "create-patch"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --source",
+            "description": "Required. Source HDF5 file to decompose (must exist)."
+          },
+          {
+            "flags": "-b, --base",
+            "description": "Required. Base hash-store file (created if absent, appended if exists)."
+          },
+          {
+            "flags": "-p, --patch",
+            "description": "Required. Output patch file path."
+          },
+          {
+            "flags": "--min-size",
+            "description": "(Default: 65536) Minimum compressed bytes for a dataset to be extracted to base."
+          },
+          {
+            "flags": "--allowed-paths",
+            "description": "Pipe-delimited path prefixes to include, e.g. /Results|/Geometry"
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Validate inputs and print plan without writing any files."
+          },
+          {
+            "flags": "--verbose",
+            "description": "Print each extracted dataset (path, hash, size)."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "h5",
+        "create-patch",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -765,47 +854,11 @@
             "create-patch",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.094,
           "window_seen": false,
-          "raw": "0071.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "create-patch",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.079,
-          "window_seen": false,
-          "raw": "0072.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "create-patch",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0073.txt"
-        },
-        {
-          "args": [
-            "help",
-            "h5",
-            "create-patch"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0074.txt"
+          "raw": "0029.txt"
         }
       ],
       "window_seen": false
@@ -815,8 +868,34 @@
         "h5",
         "diff"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--filter",
+            "description": "Filter options. String is pipe-delimited. Entries use '!' to disinclude and '+' to include in the output.E.G. '-/Results' to disinclude the /Results group, or '+/Geometry' to ONLY search the /Geometry group."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "h5",
+        "diff",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -824,47 +903,11 @@
             "diff",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0059.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "diff",
-            "-h"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0060.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "diff",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.125,
-          "window_seen": false,
-          "raw": "0061.txt"
-        },
-        {
-          "args": [
-            "help",
-            "h5",
-            "diff"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0062.txt"
+          "raw": "0026.txt"
         }
       ],
       "window_seen": false
@@ -874,8 +917,30 @@
         "h5",
         "explore"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "h5",
+        "explore",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -883,47 +948,11 @@
             "explore",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0067.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "explore",
-            "-h"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0068.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "explore",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0069.txt"
-        },
-        {
-          "args": [
-            "help",
-            "h5",
-            "explore"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.047,
-          "window_seen": false,
-          "raw": "0070.txt"
+          "raw": "0028.txt"
         }
       ],
       "window_seen": false
@@ -933,8 +962,50 @@
         "h5",
         "restore-patch"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-b, --base",
+            "description": "Required. Base hash-store file (must exist)."
+          },
+          {
+            "flags": "-p, --patch",
+            "description": "Required. Patch file (must exist)."
+          },
+          {
+            "flags": "-o, --output",
+            "description": "Required. Output restored HDF5 file path."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Read patch instructions and print plan without writing any files."
+          },
+          {
+            "flags": "--verbose",
+            "description": "Print detailed restore info."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "h5",
+        "restore-patch",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -942,47 +1013,11 @@
             "restore-patch",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0075.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "restore-patch",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0076.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "restore-patch",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0077.txt"
-        },
-        {
-          "args": [
-            "help",
-            "h5",
-            "restore-patch"
-          ],
-          "status": "other",
-          "exit_code": 0,
           "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0078.txt"
+          "raw": "0030.txt"
         }
       ],
       "window_seen": false
@@ -992,8 +1027,38 @@
         "h5",
         "squeeze"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --source",
+            "description": "Required. HDF5 file to squeeze OR a directory. Expected extension (*.hdf, *.h5)."
+          },
+          {
+            "flags": "--recurse",
+            "description": "If source is a directory, this option will recurse through subdirectories for the"
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "h5",
+        "squeeze",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1001,47 +1066,11 @@
             "squeeze",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0063.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "squeeze",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0064.txt"
-        },
-        {
-          "args": [
-            "h5",
-            "squeeze",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0065.txt"
-        },
-        {
-          "args": [
-            "help",
-            "h5",
-            "squeeze"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0066.txt"
+          "raw": "0027.txt"
         }
       ],
       "window_seen": false
@@ -1050,52 +1079,40 @@
       "path": [
         "healthcheck"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "healthcheck",
+        "--help"
+      ],
+      "exit_code": 0,
       "attempts": [
         {
           "args": [
             "healthcheck",
             "--help"
           ],
-          "status": "other",
+          "status": "help",
           "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0018.txt"
-        },
-        {
-          "args": [
-            "healthcheck",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0019.txt"
-        },
-        {
-          "args": [
-            "healthcheck",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.079,
-          "window_seen": false,
-          "raw": "0020.txt"
-        },
-        {
-          "args": [
-            "help",
-            "healthcheck"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0021.txt"
+          "raw": "0015.txt"
         }
       ],
       "window_seen": false
@@ -1136,6 +1153,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -1151,7 +1169,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.062,
           "window_seen": false,
           "raw": "0006.txt"
         }
@@ -1163,8 +1181,47 @@
         "helpers",
         "extract"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-f, --force",
+            "description": "Overwrite existing files in the output directory. Defaults to false."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Source .zip archive to extract."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": true,
+            "description": "Required. Output directory. Created if missing. If non-empty, must be combined with --force argument."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "helpers",
+        "extract",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1172,47 +1229,11 @@
             "extract",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.063,
+          "duration_s": 0.079,
           "window_seen": false,
-          "raw": "0083.txt"
-        },
-        {
-          "args": [
-            "helpers",
-            "extract",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0084.txt"
-        },
-        {
-          "args": [
-            "helpers",
-            "extract",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0085.txt"
-        },
-        {
-          "args": [
-            "help",
-            "helpers",
-            "extract"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0086.txt"
+          "raw": "0032.txt"
         }
       ],
       "window_seen": false
@@ -1222,8 +1243,38 @@
         "helpers",
         "hash"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --source",
+            "description": "Required. File to compute hashes on."
+          },
+          {
+            "flags": "-a, --algorithm",
+            "description": "Algorithm to compute. If blank, will compute and print all, separated by newlines. Expected one of {RashXX3, SHA256, MD5}."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "helpers",
+        "hash",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1231,47 +1282,11 @@
             "hash",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.094,
+          "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0087.txt"
-        },
-        {
-          "args": [
-            "helpers",
-            "hash",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0088.txt"
-        },
-        {
-          "args": [
-            "helpers",
-            "hash",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0089.txt"
-        },
-        {
-          "args": [
-            "help",
-            "helpers",
-            "hash"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0090.txt"
+          "raw": "0033.txt"
         }
       ],
       "window_seen": false
@@ -1281,8 +1296,51 @@
         "helpers",
         "zip"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-f, --force",
+            "description": "Force overwrite existing target file. Defaults to false."
+          },
+          {
+            "flags": "-l, --level",
+            "description": "Compression level: Optimal (default), Fastest, NoCompression, or SmallestSize."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Source directory to compress."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": true,
+            "description": "Required. Output .zip filename. If file already exists, must be combined with --force argument."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "helpers",
+        "zip",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1290,47 +1348,11 @@
             "zip",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0079.txt"
-        },
-        {
-          "args": [
-            "helpers",
-            "zip",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0080.txt"
-        },
-        {
-          "args": [
-            "helpers",
-            "zip",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0081.txt"
-        },
-        {
-          "args": [
-            "help",
-            "helpers",
-            "zip"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0082.txt"
+          "raw": "0031.txt"
         }
       ],
       "window_seen": false
@@ -1339,52 +1361,55 @@
       "path": [
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'name'). Ignores --format."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Input file."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "info",
+        "--help"
+      ],
+      "exit_code": 0,
       "attempts": [
         {
           "args": [
             "info",
             "--help"
           ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0022.txt"
-        },
-        {
-          "args": [
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0023.txt"
-        },
-        {
-          "args": [
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0024.txt"
-        },
-        {
-          "args": [
-            "help",
-            "info"
-          ],
-          "status": "other",
+          "status": "help",
           "exit_code": 0,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0025.txt"
+          "raw": "0016.txt"
         }
       ],
       "window_seen": false
@@ -1393,52 +1418,48 @@
       "path": [
         "mesh"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --source",
+            "description": "Required. Input RAS Geometry file (*.h5)."
+          },
+          {
+            "flags": "--squeeze",
+            "description": "If set, will squeeze the file after successfully generating a mesh."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "mesh",
+        "--help"
+      ],
+      "exit_code": 0,
       "attempts": [
         {
           "args": [
             "mesh",
             "--help"
           ],
-          "status": "other",
+          "status": "help",
           "exit_code": 0,
-          "duration_s": 0.094,
+          "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0026.txt"
-        },
-        {
-          "args": [
-            "mesh",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0027.txt"
-        },
-        {
-          "args": [
-            "mesh",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0028.txt"
-        },
-        {
-          "args": [
-            "help",
-            "mesh"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0029.txt"
+          "raw": "0017.txt"
         }
       ],
       "window_seen": false
@@ -1484,6 +1505,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -1511,8 +1533,45 @@
         "plan",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'name'). Ignores --format."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "plan",
+            "index": 0,
+            "required": true,
+            "description": "Required. Plan file (*.h5)."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "plan",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1520,47 +1579,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0091.txt"
-        },
-        {
-          "args": [
-            "plan",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0092.txt"
-        },
-        {
-          "args": [
-            "plan",
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.079,
-          "window_seen": false,
-          "raw": "0093.txt"
-        },
-        {
-          "args": [
-            "help",
-            "plan",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
           "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0094.txt"
+          "raw": "0034.txt"
         }
       ],
       "window_seen": false
@@ -1572,7 +1595,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "List the fields you can target/set (no file needed):",
           "ras plan modify --grammar",
@@ -1594,7 +1617,46 @@
           "ras plan modify --format Json Plan.p01.hdf \"corecount = 8\""
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "--grammar",
+            "description": "List every field you can target in this plan (no changes made), then exit."
+          },
+          {
+            "flags": "--case-sensitive",
+            "description": "Make string comparisons in assignment values case-sensitive."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Report what would change without writing the file."
+          },
+          {
+            "flags": "--format",
+            "description": "Output format for the change report: Text (default), Json, or Properties (grep-friendly key=value). Errors always go to stderr as text, so stdout stays parseable."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "plan",
+            "index": 0,
+            "required": false,
+            "description": "Plan file (*.h5). Optional with --grammar (omit it to print the default schema)."
+          },
+          {
+            "name": "set",
+            "index": 1,
+            "required": false,
+            "description": "One or more assignments, each \"<field> = value\" (e.g. \"corecount = 8\"). The field names come from the plan's settings - run --grammar to list them. Enum and bool values are case-insensitive (\"solvertype = gpu\", \"usefbf = true\"). Not required with --grammar."
+          }
+        ],
         "sections": [
           "usage"
         ]
@@ -1614,9 +1676,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.094,
+          "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0095.txt"
+          "raw": "0035.txt"
         }
       ],
       "window_seen": false
@@ -1626,8 +1688,67 @@
         "plan",
         "prepare"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--if-exists",
+            "description": "What to do when the output file already exists: 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'output (3).h5') (Windows convention) 'error': report a message and refuse to overwrite. 'default' (default): error when you name the output explicitly, append when it's auto-derived."
+          },
+          {
+            "flags": "--core-count",
+            "description": "Overwrite core-count saved on the plan. 0 := Use plan value, -1 := Use all-available."
+          },
+          {
+            "flags": "--processor",
+            "description": "Override the plan's hardware target: 'CPU' or 'GPU'. GPU implies SWE + Explicit time-stepping; combining 'gpu' with '--equation dwe' or '--time-stepping implicit' is rejected currently."
+          },
+          {
+            "flags": "--equation",
+            "description": "Override the plan's equation set: 'SWE' (Shallow Water Equations) or 'DWE' (Diffusion Wave Equation). DWE only supports implicit time-stepping and CPU currently."
+          },
+          {
+            "flags": "--time-stepping",
+            "description": "Override the plan's time-stepping scheme: 'Explicit' or 'Implicit'. Only valid for the CPU SWE processor."
+          },
+          {
+            "flags": "--name",
+            "description": "Set the plan name embedded in the output result. If not provided, the source plan's name is kept."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Plan file (*.h5) to prepare."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Destination ready-to-run (*.r2r.h5) file. If not provided, writes to the plan's default ready-to-run location within the project."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "plan",
+        "prepare",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1635,47 +1756,11 @@
             "prepare",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0100.txt"
-        },
-        {
-          "args": [
-            "plan",
-            "prepare",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0101.txt"
-        },
-        {
-          "args": [
-            "plan",
-            "prepare",
-            "-?"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.079,
           "window_seen": false,
-          "raw": "0102.txt"
-        },
-        {
-          "args": [
-            "help",
-            "plan",
-            "prepare"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0103.txt"
+          "raw": "0037.txt"
         }
       ],
       "window_seen": false
@@ -1685,8 +1770,71 @@
         "plan",
         "solve"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--print-graph",
+            "description": "Print the solve dependency graph instead of running it."
+          },
+          {
+            "flags": "--if-exists",
+            "description": "What to do when the output file already exists: 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'output (3).h5') (Windows convention) 'error': report a message and refuse to overwrite. 'default' (default): error when you name the output explicitly, append when it's auto-derived."
+          },
+          {
+            "flags": "--core-count",
+            "description": "Overwrite core-count saved on the plan. 0 := Use plan value, -1 := Use all-available."
+          },
+          {
+            "flags": "--processor",
+            "description": "Override the plan's hardware target: 'CPU' or 'GPU'. GPU implies SWE + Explicit time-stepping; combining 'gpu' with '--equation dwe' or '--time-stepping implicit' is rejected currently."
+          },
+          {
+            "flags": "--equation",
+            "description": "Override the plan's equation set: 'SWE' (Shallow Water Equations) or 'DWE' (Diffusion Wave Equation). DWE only supports implicit time-stepping and CPU currently."
+          },
+          {
+            "flags": "--time-stepping",
+            "description": "Override the plan's time-stepping scheme: 'Explicit' or 'Implicit'. Only valid for the CPU SWE processor."
+          },
+          {
+            "flags": "--name",
+            "description": "Set the plan name embedded in the output result. If not provided, the source plan's name is kept."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Plan file (*.h5) or ready-to-run result (*.r2r.h5) to solve. For a plan file, the parent project MUST exist with the expected directory structure, and is opened automatically for projection and associations. For a ready-to-run (*.r2r.h5) file, the project does not have to exist."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Destination result (*.h5) file. If not provided, output filename will be assumed based on the file type. For a plan file, the output filename will go to ../Results/[PlanName].h5, with an automatic count appended for file duplicates (e.g. '../Results/Plan (4).h5'). For a ready-to-run file, the output filename will be in the same directory, changing the 'r2r' for 'res' (e.g. './[BaseName].res.h5')."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "plan",
+        "solve",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1694,47 +1842,11 @@
             "solve",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0096.txt"
-        },
-        {
-          "args": [
-            "plan",
-            "solve",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0097.txt"
-        },
-        {
-          "args": [
-            "plan",
-            "solve",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0098.txt"
-        },
-        {
-          "args": [
-            "help",
-            "plan",
-            "solve"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0099.txt"
+          "raw": "0036.txt"
         }
       ],
       "window_seen": false
@@ -1743,52 +1855,57 @@
       "path": [
         "prepare"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--if-exists",
+            "description": "What to do when an output file already exists. See 'ras plan prepare' / 'ras project prepare' for the per-strategy details. 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'output (3).r2r.h5'), Windows convention. 'error': report a message and refuse to overwrite. 'default' (default): error when you name the output explicitly, append when it's auto-derived."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Source to prepare. This goes through a multi-step resolution process. If the given source is a directory or project file (*.ras), forwards to 'ras project prepare' with default options. If the given source is a plan file (*.h5), forwards to 'ras plan prepare' with default options."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Output file or directory to write the prepared result. If unspecified, ready-to-run file(s) will be written to the locations specified in 'ras plan prepare' or 'ras project prepare'."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "prepare",
+        "--help"
+      ],
+      "exit_code": 0,
       "attempts": [
         {
           "args": [
             "prepare",
             "--help"
           ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0030.txt"
-        },
-        {
-          "args": [
-            "prepare",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0031.txt"
-        },
-        {
-          "args": [
-            "prepare",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0032.txt"
-        },
-        {
-          "args": [
-            "help",
-            "prepare"
-          ],
-          "status": "other",
+          "status": "help",
           "exit_code": 0,
           "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0033.txt"
+          "raw": "0018.txt"
         }
       ],
       "window_seen": false
@@ -1859,6 +1976,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -1874,7 +1992,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.094,
+          "duration_s": 0.063,
           "window_seen": false,
           "raw": "0008.txt"
         }
@@ -1886,8 +2004,38 @@
         "project",
         "add"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-p, --project",
+            "description": "Path to the target project (*.ras) or directory containing one. When omitted, the current working directory is searched."
+          },
+          {
+            "flags": "-f, --file",
+            "description": "Required. Source layer file (*.h5) to add. Layer type (Terrain/Geometry/Plan/Result/BoundaryCondition) is detected from the file contents."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "add",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1895,47 +2043,11 @@
             "add",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.063,
+          "duration_s": 0.079,
           "window_seen": false,
-          "raw": "0109.txt"
-        },
-        {
-          "args": [
-            "project",
-            "add",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.125,
-          "window_seen": false,
-          "raw": "0110.txt"
-        },
-        {
-          "args": [
-            "project",
-            "add",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0111.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "add"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0112.txt"
+          "raw": "0040.txt"
         }
       ],
       "window_seen": false
@@ -1945,8 +2057,42 @@
         "project",
         "add-new"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-p, --project",
+            "description": "Path to the target project (*.ras) or directory containing one. When omitted, the current working directory is searched."
+          },
+          {
+            "flags": "-t, --type",
+            "description": "Required. Layer type to create. One of: terrain, geometry, plan, boundarycondition (alias 'bc'). Results are not user-creatable."
+          },
+          {
+            "flags": "-n, --name",
+            "description": "Required. Layer name. Becomes the filename basename (e.g. 'MyTerrain' -> '<project>/Terrains/MyTerrain.h5')."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "add-new",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -1954,47 +2100,11 @@
             "add-new",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.093,
           "window_seen": false,
-          "raw": "0113.txt"
-        },
-        {
-          "args": [
-            "project",
-            "add-new",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0114.txt"
-        },
-        {
-          "args": [
-            "project",
-            "add-new",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0115.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "add-new"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0116.txt"
+          "raw": "0041.txt"
         }
       ],
       "window_seen": false
@@ -2004,8 +2114,69 @@
         "project",
         "cleanup"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-f, --force",
+            "description": "Skip per-file prompts, delete all candidates."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Show what would be deleted without actually deleting."
+          },
+          {
+            "flags": "--set-policy",
+            "description": "Save the policy to the project file without executing cleanup. Combine with --keep-all-days, --hourly-days, etc."
+          },
+          {
+            "flags": "--keep-all-days",
+            "description": "(Default: -1) Days to keep all backups (default: 7)."
+          },
+          {
+            "flags": "--hourly-days",
+            "description": "(Default: -1) Days for hourly retention window (default: 30)."
+          },
+          {
+            "flags": "--daily-days",
+            "description": "(Default: -1) Days for daily retention window (default: 365)."
+          },
+          {
+            "flags": "--verbose",
+            "description": "Show detailed evaluation of every file explaining why it would or would not be cleaned."
+          },
+          {
+            "flags": "--skip-auxiliary",
+            "description": "Don't clean result auxiliary files (export directories)."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "project",
+            "index": 0,
+            "required": true,
+            "description": "Required. Path to the project file (*.ras) or a directory containing one."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "cleanup",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2013,47 +2184,11 @@
             "cleanup",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0125.txt"
-        },
-        {
-          "args": [
-            "project",
-            "cleanup",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0126.txt"
-        },
-        {
-          "args": [
-            "project",
-            "cleanup",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0127.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "cleanup"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0128.txt"
+          "raw": "0044.txt"
         }
       ],
       "window_seen": false
@@ -2065,7 +2200,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Create a project with an EPSG projection:",
           "ras project create --projection EPSG:900913 --output ./MyProject.ras",
@@ -2073,7 +2208,25 @@
           "ras project create --projection ./projection.prj --output ./MyProject.ras"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "-o, --output",
+            "description": "Required. Destination project filename, e.g. './MyProject.ras'. The project name is the filename basename. Parent directory must exist."
+          },
+          {
+            "flags": "-j, --projection",
+            "description": "Required. Project projection. ESRI .prj filename, EPSG code ('EPSG:900913'), or PROJ string ('PROJ:+proj=aea ...')."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
         "sections": [
           "usage"
         ]
@@ -2095,7 +2248,7 @@
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0104.txt"
+          "raw": "0038.txt"
         }
       ],
       "window_seen": false
@@ -2105,8 +2258,30 @@
         "project",
         "explore"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "explore",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2114,47 +2289,11 @@
             "explore",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0129.txt"
-        },
-        {
-          "args": [
-            "project",
-            "explore",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0130.txt"
-        },
-        {
-          "args": [
-            "project",
-            "explore",
-            "-?"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.079,
           "window_seen": false,
-          "raw": "0131.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "explore"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0132.txt"
+          "raw": "0045.txt"
         }
       ],
       "window_seen": false
@@ -2164,8 +2303,42 @@
         "project",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-p, --project",
+            "description": "Path to a project (*.ras) or directory containing one. When omitted, the current working directory is searched."
+          },
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'name' or 'plans[0].name'). Ignores --format."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2173,47 +2346,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.047,
+          "duration_s": 0.093,
           "window_seen": false,
-          "raw": "0105.txt"
-        },
-        {
-          "args": [
-            "project",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0106.txt"
-        },
-        {
-          "args": [
-            "project",
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0107.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.047,
-          "window_seen": false,
-          "raw": "0108.txt"
+          "raw": "0039.txt"
         }
       ],
       "window_seen": false
@@ -2223,8 +2360,47 @@
         "project",
         "prepare"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--if-exists",
+            "description": "What to do when a plan's ready-to-run file already exists: 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'Plan (1).r2r.h5'), Windows convention. 'error': report a message and skip that plan. 'default' (default): append a numbered copy (ready-to-run filenames are always auto-derived here)."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Project file (*.ras) or directory containing one. Every plan in the project will be prepared."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Destination directory for the ready-to-run files. If unspecified, writes to each plan's default location in the project."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "prepare",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2232,47 +2408,11 @@
             "prepare",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0121.txt"
-        },
-        {
-          "args": [
-            "project",
-            "prepare",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0122.txt"
-        },
-        {
-          "args": [
-            "project",
-            "prepare",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.11,
-          "window_seen": false,
-          "raw": "0123.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "prepare"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0124.txt"
+          "raw": "0043.txt"
         }
       ],
       "window_seen": false
@@ -2282,8 +2422,59 @@
         "project",
         "solve"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--if-exists",
+            "description": "What to do when a plan's result file already exists: 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'Plan (1).h5'), Windows convention. 'error': report a message and skip that plan. 'default' (default): append a numbered copy (plan result filenames are always auto-derived here)."
+          },
+          {
+            "flags": "--max-cores",
+            "description": "Total CPU core budget the scheduler is allowed to use across all in-flight plans. Default (0) uses all logical processors."
+          },
+          {
+            "flags": "--gpu-slots",
+            "description": "Number of GPU plans allowed to run concurrently. Defaults to 1."
+          },
+          {
+            "flags": "--print-graph",
+            "description": "Print the solve dependency graph instead of running it."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Project file (*.ras) or directory containing one. Every plan in the project will be solved."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Destination directory for the solved result files. If unspecified, writes to the default location in the project."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "solve",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2291,47 +2482,11 @@
             "solve",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0117.txt"
-        },
-        {
-          "args": [
-            "project",
-            "solve",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0118.txt"
-        },
-        {
-          "args": [
-            "project",
-            "solve",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0119.txt"
-        },
-        {
-          "args": [
-            "help",
-            "project",
-            "solve"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0120.txt"
+          "raw": "0042.txt"
         }
       ],
       "window_seen": false
@@ -2382,6 +2537,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -2397,7 +2553,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.062,
           "window_seen": false,
           "raw": "0009.txt"
         }
@@ -2411,7 +2567,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Subtract Depth (with NoData checks):",
           "ras calc --equation \"if(r1 == ndv and r2 == ndv, ndv, if(r1 == ndv, 0, r1) -",
@@ -2419,7 +2575,37 @@
           "C:\\Path\\output.tif"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "-i, --input",
+            "description": "Required. Input raster file(s). Can be specified multiple times. Referenced as r1, r2, r3, etc. in the equation."
+          },
+          {
+            "flags": "-o, --output",
+            "description": "Required. Output filename. If file already exists, must be combined with --force argument."
+          },
+          {
+            "flags": "-e, --equation",
+            "description": "Required. Mathematical expression combining the rasters. Uses r1, r2, r3, etc. for inputs. Supports: +, -, *, /, ^, sqrt, abs, min, max, sin, cos, tan, log, pow, lerp, etc. Examples: '(r1 + r2) / 2' (average), 'max(r1, r2)', 'r1 - r2' (difference)."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "Force overwrite existing target file. Defaults to false."
+          },
+          {
+            "flags": "--ndv-behavior",
+            "description": "(Default: Allow) How to handle NoData values in the output. Allow: NoData propagates through calculations. WriteNDV: Write NoData as the output when any input is NoData. WriteZero: Write zero as the output when any input is NoData."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
         "sections": [
           "usage",
           "examples"
@@ -2440,9 +2626,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.079,
+          "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0137.txt"
+          "raw": "0047.txt"
         }
       ],
       "window_seen": false
@@ -2452,8 +2638,34 @@
         "raster",
         "explore"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-d, --driver",
+            "description": "(Default: Default) Reading/editing stack: 'native' (our TiffBinaryReader, GeoTIFF only), 'gdal' (any GDAL format), or 'default' (native for a plain TIFF we parse, otherwise gdal)."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "raster",
+        "explore",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2461,47 +2673,11 @@
             "explore",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.093,
+          "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0138.txt"
-        },
-        {
-          "args": [
-            "raster",
-            "explore",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0139.txt"
-        },
-        {
-          "args": [
-            "raster",
-            "explore",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0140.txt"
-        },
-        {
-          "args": [
-            "help",
-            "raster",
-            "explore"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0141.txt"
+          "raw": "0048.txt"
         }
       ],
       "window_seen": false
@@ -2511,8 +2687,42 @@
         "raster",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-d, --driver",
+            "description": "(Default: Default) Reading stack: 'native' (our TiffBinaryReader, GeoTIFF only), 'gdal' (any GDAL format), or 'default' (native for a plain TIFF we parse, otherwise gdal)."
+          },
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'width' or 'pyramidLevels[0].cellSize'). Ignores --format."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "raster",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2520,47 +2730,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0142.txt"
-        },
-        {
-          "args": [
-            "raster",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.079,
-          "window_seen": false,
-          "raw": "0143.txt"
-        },
-        {
-          "args": [
-            "raster",
-            "info",
-            "-?"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0144.txt"
-        },
-        {
-          "args": [
-            "help",
-            "raster",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0145.txt"
+          "raw": "0049.txt"
         }
       ],
       "window_seen": false
@@ -2572,7 +2746,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Palette auto-ranged across the raster's own value distribution:",
           "ras raster render --palette Rainbow depth.tif",
@@ -2610,7 +2784,118 @@
           "ras raster render --list-palettes"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "--if-exists",
+            "description": "What to do when the output file already exists. 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'output (3).tif'), Windows convention. 'error': report a message and refuse to overwrite. 'default' (default): error when you name the output explicitly, append when it's auto-derived."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "Alias for '--if-exists force': overwrite the output file if it already exists."
+          },
+          {
+            "flags": "--ramp",
+            "description": "Explicit color ramp as 'V=R,G,B[,A]|V=R,G,B[,A]|...', e.g. '0=255,0,0|2.5=40,255,40|15=40,80,255' where 'V' is the value and R/G/B(/A) are 0-255 color channel components. Requires at least two entries."
+          },
+          {
+            "flags": "--palette",
+            "description": "Named color palette (e.g. 'Terrain', 'WaterSurface', 'Rainbow'). Combine with --values, with --min/--max, or with neither (auto-ranges from the raster histogram). See --list-palettes."
+          },
+          {
+            "flags": "--colors",
+            "description": "Inline color list, '|'-separated, used like a --palette (combine with --values, --min/--max, or neither). Each color is a System.Drawing name (e.g. 'SteelBlue'), an 'R,G,B' or 'R,G,B,A' triple (0-255), or a '#RRGGBB' hex. Sample: 'Red|0,128,0|0,0,255'. Mutually exclusive with --palette."
+          },
+          {
+            "flags": "--surface-fill",
+            "description": "Named, ready-made surface fill that carries both colors and values (e.g. 'Courant', 'Hazard', 'Precip Inches'). See --list-fills."
+          },
+          {
+            "flags": "--values",
+            "description": "Comma-separated stop values to pair with --palette, e.g. '0,1,2,5,10'. Provide exactly one value per palette color (see --list-palettes); use --min/--max to spread the palette linearly instead."
+          },
+          {
+            "flags": "--min",
+            "description": "Low value of a linear range spread across --palette. Use together with --max."
+          },
+          {
+            "flags": "--max",
+            "description": "High value of a linear range spread across --palette. Use together with --min."
+          },
+          {
+            "flags": "--discrete",
+            "description": "Render a stepped/classified ramp (flat color per band) instead of interpolating between stops."
+          },
+          {
+            "flags": "--hillshade",
+            "description": "Overlay shaded relief computed from the elevation surface. Works on its own (grayscale relief) or blended over a color ramp. Requires a floating-point (elevation) raster."
+          },
+          {
+            "flags": "--azimuth",
+            "description": "Hillshade light direction in degrees (0=N, 90=E, clockwise), default 315. Only with --hillshade."
+          },
+          {
+            "flags": "--altitude",
+            "description": "Hillshade light angle above the horizon in degrees (0-90), default 45. Only with --hillshade."
+          },
+          {
+            "flags": "--z-factor",
+            "description": "Hillshade vertical exaggeration, default 3. Higher values deepen the relief. Only with --hillshade."
+          },
+          {
+            "flags": "--alpha",
+            "description": "(Default: 255) Global opacity 0-255 applied to the ramp. Values below 255 imply --rgba."
+          },
+          {
+            "flags": "--rgba",
+            "description": "Write a 4-band RGBA image so NoData pixels stay transparent. Default is 3-band RGB (NoData collapses to black)."
+          },
+          {
+            "flags": "--interp",
+            "description": "(Default: Nearest) Resampling interpolation: Nearest (default), Linear, etc. Only matters when --cell-size differs from the source resolution."
+          },
+          {
+            "flags": "--cell-size",
+            "description": "Output cell size (native units). Defaults to the source raster's resolution."
+          },
+          {
+            "flags": "--use-gdal",
+            "description": "Force the GDAL driver stack for reading the source raster."
+          },
+          {
+            "flags": "--list-palettes",
+            "description": "Print the available named palettes and exit."
+          },
+          {
+            "flags": "--list-fills",
+            "description": "Print the available named surface fills and exit."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Print the resolved settings (ramp, range, projection, output) without rendering."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": false,
+            "description": "Input raster file (e.g. a GeoTIFF). Any format our GDAL build reads. Not required when only listing palettes/fills."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Output image filename. The format is inferred from its extension: '.tif' (tiled GeoTIFF, the default) or '.png' (Windows-friendly, georeferenced via a sidecar world file). If not provided, defaults to a '.image.tif' file next to the source."
+          }
+        ],
         "sections": [
           "usage"
         ]
@@ -2630,9 +2915,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.11,
+          "duration_s": 0.125,
           "window_seen": false,
-          "raw": "0146.txt"
+          "raw": "0050.txt"
         }
       ],
       "window_seen": false
@@ -2642,8 +2927,46 @@
         "raster",
         "translate"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --source",
+            "description": "Required. Input raster file."
+          },
+          {
+            "flags": "-o, --output",
+            "description": "Required. Output .tif filename. If file already exists, must be combined with --force argument."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "Force overwrite existing target file. Defaults to false."
+          },
+          {
+            "flags": "--use-gdal",
+            "description": "Force use the GDAL driver stack for reading the raster file."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "raster",
+        "translate",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2651,47 +2974,11 @@
             "translate",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0133.txt"
-        },
-        {
-          "args": [
-            "raster",
-            "translate",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.125,
-          "window_seen": false,
-          "raw": "0134.txt"
-        },
-        {
-          "args": [
-            "raster",
-            "translate",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0135.txt"
-        },
-        {
-          "args": [
-            "help",
-            "raster",
-            "translate"
-          ],
-          "status": "other",
-          "exit_code": 0,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0136.txt"
+          "raw": "0046.txt"
         }
       ],
       "window_seen": false
@@ -2732,6 +3019,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -2747,7 +3035,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.063,
           "window_seen": false,
           "raw": "0010.txt"
         }
@@ -2759,8 +3047,45 @@
         "result",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'name' or 'outputBlocks[0].name'). Ignores --format."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "result",
+            "index": 0,
+            "required": true,
+            "description": "Required. Result file (*.h5)."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "result",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2768,47 +3093,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0147.txt"
-        },
-        {
-          "args": [
-            "result",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0148.txt"
-        },
-        {
-          "args": [
-            "result",
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0149.txt"
-        },
-        {
-          "args": [
-            "help",
-            "result",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
           "duration_s": 0.079,
           "window_seen": false,
-          "raw": "0150.txt"
+          "raw": "0051.txt"
         }
       ],
       "window_seen": false
@@ -2818,8 +3107,83 @@
         "result",
         "map"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--type",
+            "description": "Required. Type of map to create, e.g. 'depth', 'velocity', 'watersurface'"
+          },
+          {
+            "flags": "-p, --profile",
+            "description": "Map profile to export. Required for single-profile map types (e.g. depth, velocity). Can be an integer index (0 to #Profiles-1, counted from the start) or a string name ('01JAN1900'). Also accepts 'max'/'min' (envelope), 'last' or '^N' (N-th from the end, so last := '^1' := 'last')."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "If set, automatically overwrite the OutputFilename. Defaults to false."
+          },
+          {
+            "flags": "--no-infer",
+            "description": "Do not open the result's parent project for projection or associations. When set, the terrain and output file must be provided explicitly (cell-size is still derived from the terrain)."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Print the resolved inputs (terrain, output file, cell-size, projection, etc.) without generating the map."
+          },
+          {
+            "flags": "--terrain",
+            "description": "Terrain file to provide elevations. May be a HEC-RAS terrain (.h5) or a single .tif file. If not provided, inferred from the result's parent project. Required when there is no parent project or '--no-infer' is set."
+          },
+          {
+            "flags": "--cell-size",
+            "description": "Output file resolution (cell size). Value is in native (pre-projected) units. If not provided, defaults to the finest resolution found across the terrain's input files."
+          },
+          {
+            "flags": "--projection",
+            "description": "Output projection. Can be a filename (interpreted as an ESRI .prj), an EPSG code provided as a string, e.g. 'EPSG:900913', or a 'PROJ:' proj4 string."
+          },
+          {
+            "flags": "--calculation",
+            "description": "If set, will calculate a map over time for the given parameter at the mapping output timestepvalid calculations are \"max,\" \"duration-over,\" and \"arrival-time.\""
+          },
+          {
+            "flags": "--context",
+            "description": "Context value for the calculation. For example, the threshold depth a duration calculation, or the threshold of depth at which arrival time should be calculated"
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "result",
+            "index": 0,
+            "required": true,
+            "description": "Required. RAS 2025 Result file (*.h5)."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Destination filename. Should not exist. E.G. \"./out.tif\". If not provided, defaults to a name derived from the map type beneath the result's export folder."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "result",
+        "map",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2827,47 +3191,11 @@
             "map",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0151.txt"
-        },
-        {
-          "args": [
-            "result",
-            "map",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0152.txt"
-        },
-        {
-          "args": [
-            "result",
-            "map",
-            "-?"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0153.txt"
-        },
-        {
-          "args": [
-            "help",
-            "result",
-            "map"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0154.txt"
+          "raw": "0052.txt"
         }
       ],
       "window_seen": false
@@ -2877,8 +3205,41 @@
         "result",
         "postprocess"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--force",
+            "description": "Delete any existing post-process file and recompute it from scratch. Without this, an existing post-process file that matches the result is left untouched."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "result",
+            "index": 0,
+            "required": true,
+            "description": "Required. Result file (*.h5) to post-process."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "result",
+        "postprocess",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -2886,47 +3247,11 @@
             "postprocess",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0155.txt"
-        },
-        {
-          "args": [
-            "result",
-            "postprocess",
-            "-h"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0156.txt"
-        },
-        {
-          "args": [
-            "result",
-            "postprocess",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0157.txt"
-        },
-        {
-          "args": [
-            "help",
-            "result",
-            "postprocess"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0158.txt"
+          "raw": "0053.txt"
         }
       ],
       "window_seen": false
@@ -2977,6 +3302,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -2992,7 +3318,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.063,
+          "duration_s": 0.078,
           "window_seen": false,
           "raw": "0011.txt"
         }
@@ -3004,8 +3330,65 @@
         "s3",
         "list-bucket"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --server",
+            "description": "S3 server. Defaults to https://s3.hecdev.net"
+          },
+          {
+            "flags": "--prefix",
+            "description": "If set, only keys with this prefix are listed."
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Username for S3 authentication. Optional - list attempts anonymous access if omitted."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Password for S3 authentication. Optional - list attempts anonymous access if omitted."
+          },
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default, one entry per line), Json, or Markdown."
+          },
+          {
+            "flags": "--delimiter",
+            "description": "Delimiter between entries when --format is Text. Defaults to newline. Accepts escape sequences \\n, \\r, \\t, \\0."
+          },
+          {
+            "flags": "--detailed",
+            "description": "If set, emits per-key metadata (size, last-modified, etag, storage class) instead of just key names."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "bucket",
+            "index": 0,
+            "required": true,
+            "description": "Required. S3 bucket to list keys from."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "s3",
+        "list-bucket",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3013,47 +3396,11 @@
             "list-bucket",
             "--help"
           ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0163.txt"
-        },
-        {
-          "args": [
-            "s3",
-            "list-bucket",
-            "-h"
-          ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0164.txt"
-        },
-        {
-          "args": [
-            "s3",
-            "list-bucket",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0165.txt"
-        },
-        {
-          "args": [
-            "help",
-            "s3",
-            "list-bucket"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0166.txt"
+          "raw": "0055.txt"
         }
       ],
       "window_seen": false
@@ -3063,8 +3410,42 @@
         "s3",
         "list-buckets"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-s, --server",
+            "description": "S3 server. Defaults to https://s3.hecdev.net"
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Username for S3 authentication. Optional - list attempts anonymous access if omitted."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Password for S3 authentication. Optional - list attempts anonymous access if omitted."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "s3",
+        "list-buckets",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3072,47 +3453,11 @@
             "list-buckets",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.094,
           "window_seen": false,
-          "raw": "0159.txt"
-        },
-        {
-          "args": [
-            "s3",
-            "list-buckets",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.11,
-          "window_seen": false,
-          "raw": "0160.txt"
-        },
-        {
-          "args": [
-            "s3",
-            "list-buckets",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0161.txt"
-        },
-        {
-          "args": [
-            "help",
-            "s3",
-            "list-buckets"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0162.txt"
+          "raw": "0054.txt"
         }
       ],
       "window_seen": false
@@ -3124,7 +3469,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Presign a GET URL for download:",
           "ras s3 presign --password secret --user alice s3://my-bucket/folder/file.h5",
@@ -3133,7 +3478,40 @@
           "s3://my-bucket/uploads/new.h5"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "-s, --server",
+            "description": "(Default: https://s3.hecdev.net) S3 server. Defaults to https://s3.hecdev.net"
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Required. Username for S3 authentication."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Required. Password for S3 authentication."
+          },
+          {
+            "flags": "--verb",
+            "description": "(Default: get) HTTP verb for the presigned URL: get or put. (post is not supported by the AWS SDK's GetPreSignedURL API.)"
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "s3-uri",
+            "index": 0,
+            "required": true,
+            "description": "Required. Object in s3://bucket/key form, e.g. s3://my-bucket/folder/file.h5."
+          }
+        ],
         "sections": [
           "usage"
         ]
@@ -3153,9 +3531,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.063,
+          "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0167.txt"
+          "raw": "0056.txt"
         }
       ],
       "window_seen": false
@@ -3167,7 +3545,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Pull a public object:",
           "ras s3 pull s3://ras-public-examples/Muncie/manifest.json ./manifest.json",
@@ -3176,7 +3554,46 @@
           "./data.h5"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "-s, --server",
+            "description": "(Default: https://s3.hecdev.net) S3 server. Defaults to https://s3.hecdev.net"
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Username for S3 authentication. Optional - pull attempts anonymous access if omitted."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Password for S3 authentication. Optional - pull attempts anonymous access if omitted."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "If set, overwrite the local file if it already exists."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Source object in s3://bucket/key form, e.g. s3://my-bucket/folder/file.h5."
+          },
+          {
+            "name": "destination",
+            "index": 1,
+            "required": true,
+            "description": "Required. Local file path to write the downloaded object to."
+          }
+        ],
         "sections": [
           "usage"
         ]
@@ -3198,7 +3615,7 @@
           "exit_code": 4294967295,
           "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0168.txt"
+          "raw": "0057.txt"
         }
       ],
       "window_seen": false
@@ -3210,7 +3627,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Push a local file to a bucket:",
           "ras s3 push --password secret --user alice ./report.json",
@@ -3220,7 +3637,42 @@
           "./data.h5 s3://my-bucket/data/data.h5"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "-s, --server",
+            "description": "(Default: https://s3.hecdev.net) S3 server. Defaults to https://s3.hecdev.net"
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Required. Username for S3 authentication."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Required. Password for S3 authentication."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Local file path to upload."
+          },
+          {
+            "name": "destination",
+            "index": 1,
+            "required": true,
+            "description": "Required. Destination object in s3://bucket/key form, e.g. s3://my-bucket/reports/today.json."
+          }
+        ],
         "sections": [
           "usage"
         ]
@@ -3240,9 +3692,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.093,
+          "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0169.txt"
+          "raw": "0058.txt"
         }
       ],
       "window_seen": false
@@ -3288,6 +3740,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -3315,8 +3768,45 @@
         "sample",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'details.title' or 'files[0].filename'). Ignores --format."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "title",
+            "index": 0,
+            "required": true,
+            "description": "Required. Title of the sample project, as shown by 'ras sample list'. Matched case-insensitively. If multiple entries share the title, the most recently published is used."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "sample",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3324,47 +3814,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0174.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0175.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0176.txt"
-        },
-        {
-          "args": [
-            "help",
-            "sample",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
           "duration_s": 0.062,
           "window_seen": false,
-          "raw": "0177.txt"
+          "raw": "0060.txt"
         }
       ],
       "window_seen": false
@@ -3374,8 +3828,42 @@
         "sample",
         "list"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-t, --tag",
+            "description": "If set, only lists samples that include this tag (case-insensitive). May be specified multiple times; a sample matches if any tag matches."
+          },
+          {
+            "flags": "--filter",
+            "description": "Substring filter (case-insensitive) matched against the sample title and description. Combines with --tag."
+          },
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, or Markdown."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "sample",
+        "list",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3383,47 +3871,11 @@
             "list",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0170.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "list",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0171.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "list",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0172.txt"
-        },
-        {
-          "args": [
-            "help",
-            "sample",
-            "list"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0173.txt"
+          "raw": "0059.txt"
         }
       ],
       "window_seen": false
@@ -3433,8 +3885,75 @@
         "sample",
         "pull"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-m, --manifest",
+            "description": "S3 manifest key to pull directly. Mutually exclusive with the positional title. Use this to pull a sample that isn't listed in the global manifest."
+          },
+          {
+            "flags": "-s, --server",
+            "description": "S3 server. Defaults to the sample's manifest entry (or https://s3.hecdev.net when used with --manifest)."
+          },
+          {
+            "flags": "-b, --bucket",
+            "description": "S3 bucket. Defaults to the sample's manifest entry (or ras-public-examples when used with --manifest)."
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Username for S3 authentication. Public buckets do not require this."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Password for S3 authentication. Public buckets do not require this."
+          },
+          {
+            "flags": "-c, --cache",
+            "description": "Cache directory for downloaded blobs. Defaults to the standard RAS example-project cache."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "If set, the destination directory will be wiped before pulling."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Walks through the pull without writing any files."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "title",
+            "index": 0,
+            "required": false,
+            "description": "Title of the sample project to pull, as shown by 'ras sample list'. Mutually exclusive with --manifest."
+          },
+          {
+            "name": "directory",
+            "index": 1,
+            "required": false,
+            "description": "Destination directory. Must be empty (or pass --force to overwrite). When omitted, defaults to the 'DefaultProjectFolder' AppData override (if set) or '{MyDocuments}/RAS Projects', with a per-sample subfolder appended."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "sample",
+        "pull",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3442,47 +3961,11 @@
             "pull",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0178.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "pull",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.079,
-          "window_seen": false,
-          "raw": "0179.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "pull",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0180.txt"
-        },
-        {
-          "args": [
-            "help",
-            "sample",
-            "pull"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.093,
-          "window_seen": false,
-          "raw": "0181.txt"
+          "raw": "0061.txt"
         }
       ],
       "window_seen": false
@@ -3492,8 +3975,82 @@
         "sample",
         "push"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "-d, --directory",
+            "description": "Required. Project directory to scan and upload."
+          },
+          {
+            "flags": "-s, --server",
+            "description": "S3 server. Defaults to https://s3.hecdev.net"
+          },
+          {
+            "flags": "-b, --bucket",
+            "description": "S3 bucket. Defaults to ras-public-examples"
+          },
+          {
+            "flags": "-u, --user",
+            "description": "Required. Username for S3 authentication."
+          },
+          {
+            "flags": "-p, --password",
+            "description": "Required. Password for S3 authentication."
+          },
+          {
+            "flags": "-g, --global",
+            "description": "Global JSON manifest key to update. Defaults to 'globalmanifest.json'."
+          },
+          {
+            "flags": "--skip-global",
+            "description": "If set, files are uploaded but the global manifest is not updated. Useful for staging."
+          },
+          {
+            "flags": "--minver",
+            "description": "Minimum compatible software version. Expect SemVer 2.0, e.g. '2.0.0.412-beta2'."
+          },
+          {
+            "flags": "--maxver",
+            "description": "Maximum compatible software version. Expect SemVer 2.0, e.g. '2.0.0.412-beta2'."
+          },
+          {
+            "flags": "--date",
+            "description": "Publish date. Defaults to the current date/time."
+          },
+          {
+            "flags": "--write-to",
+            "description": "If set, also writes the generated manifest JSON to this local path. Works with --dry-run."
+          },
+          {
+            "flags": "-f, --force",
+            "description": "If set, any pre-existing remote manifest with the same key will be overwritten."
+          },
+          {
+            "flags": "--dry-run",
+            "description": "Builds the manifest and walks through the upload without writing any remote files."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
+        "sections": []
+      },
+      "help_args": [
+        "sample",
+        "push",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3501,47 +4058,11 @@
             "push",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.11,
-          "window_seen": false,
-          "raw": "0182.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "push",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0183.txt"
-        },
-        {
-          "args": [
-            "sample",
-            "push",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.11,
-          "window_seen": false,
-          "raw": "0184.txt"
-        },
-        {
-          "args": [
-            "help",
-            "sample",
-            "push"
-          ],
-          "status": "other",
-          "exit_code": 0,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0185.txt"
+          "raw": "0062.txt"
         }
       ],
       "window_seen": false
@@ -3550,52 +4071,57 @@
       "path": [
         "solve"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--if-exists",
+            "description": "What to do when an output file already exists. See 'ras plan solve' / 'ras project solve' for the per-strategy details. 'force': delete the existing file and overwrite it. 'append': write to a numbered copy instead (e.g. 'output (3).h5'), Windows convention. 'error': report a message and refuse to overwrite. 'default' (default): error when you name the output explicitly, append when it's auto-derived."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "source",
+            "index": 0,
+            "required": true,
+            "description": "Required. Source to solve. This goes through a multi-step resolution process. If the given source is a directory or project file (*.ras), forwards to 'ras project solve' with default options. If the given source is a plan file (*.h5) or ready-to-run (*.r2r.h5) file, forwards to 'ras plan solve' with default options."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": false,
+            "description": "Output file or directory to write the solved result. If unspecified, solved result file(s) will be written to the locations specified in 'ras plan solve' or 'ras project solve'."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "solve",
+        "--help"
+      ],
+      "exit_code": 0,
       "attempts": [
         {
           "args": [
             "solve",
             "--help"
           ],
-          "status": "other",
+          "status": "help",
           "exit_code": 0,
-          "duration_s": 0.078,
+          "duration_s": 0.063,
           "window_seen": false,
-          "raw": "0034.txt"
-        },
-        {
-          "args": [
-            "solve",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0035.txt"
-        },
-        {
-          "args": [
-            "solve",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.109,
-          "window_seen": false,
-          "raw": "0036.txt"
-        },
-        {
-          "args": [
-            "help",
-            "solve"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0037.txt"
+          "raw": "0019.txt"
         }
       ],
       "window_seen": false
@@ -3646,6 +4172,7 @@
           }
         ],
         "options": [],
+        "positionals": [],
         "sections": []
       },
       "help_args": [
@@ -3661,7 +4188,7 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.094,
+          "duration_s": 0.078,
           "window_seen": false,
           "raw": "0013.txt"
         }
@@ -3673,8 +4200,45 @@
         "terrain",
         "add"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--files",
+            "description": "Required. Input raster files to add, ordered from high to low priority."
+          },
+          {
+            "flags": "-r, --rounding",
+            "description": "Desired rounding, as an integer base-2 value. 0 := no rounding, default."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "terrain",
+            "index": 0,
+            "required": true,
+            "description": "Required. Existing terrain file (*.h5) to add rasters to."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "terrain",
+        "add",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3682,47 +4246,11 @@
             "add",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0187.txt"
-        },
-        {
-          "args": [
-            "terrain",
-            "add",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0188.txt"
-        },
-        {
-          "args": [
-            "terrain",
-            "add",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0189.txt"
-        },
-        {
-          "args": [
-            "help",
-            "terrain",
-            "add"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.062,
-          "window_seen": false,
-          "raw": "0190.txt"
+          "raw": "0064.txt"
         }
       ],
       "window_seen": false
@@ -3734,7 +4262,7 @@
       ],
       "status": "help",
       "help": {
-        "format": "generic",
+        "format": "commandlineparser",
         "usage": [
           "Valid - project mode, project discovered in current directory:",
           "ras terrain create --name MyTerrain",
@@ -3752,7 +4280,33 @@
           "ras terrain create --output ./MyTerrain.h5"
         ],
         "commands": [],
-        "options": [],
+        "options": [
+          {
+            "flags": "-n, --name",
+            "description": "Terrain name. Implies project mode: the new terrain is placed in the project's Terrains directory and inherits its projection."
+          },
+          {
+            "flags": "-o, --output",
+            "description": "Exact destination terrain filename (*.h5). Requires --projection."
+          },
+          {
+            "flags": "-p, --project",
+            "description": "Path to a project (*.ras) or a directory containing one. When omitted alongside --name, the current working directory is searched."
+          },
+          {
+            "flags": "-j, --projection",
+            "description": "Terrain projection. ESRI .prj filename, EPSG code ('EPSG:900913'), or PROJ string ('PROJ:+proj=aea +lat_0=23 +lat_1=29.5 +lat_2=42.5 +lon_0=-96'). Only valid alongside --output."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [],
         "sections": [
           "usage"
         ]
@@ -3772,9 +4326,9 @@
           ],
           "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.078,
+          "duration_s": 0.094,
           "window_seen": false,
-          "raw": "0186.txt"
+          "raw": "0063.txt"
         }
       ],
       "window_seen": false
@@ -3784,8 +4338,51 @@
         "terrain",
         "export"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--clip",
+            "description": "Optional clip extent as 'minX,maxX,minY,maxY'. If omitted, exports a full copy."
+          },
+          {
+            "flags": "--cellsize",
+            "description": "Optional resample cell size when clipping. Ignored without --clip."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "terrain",
+            "index": 0,
+            "required": true,
+            "description": "Required. Source terrain file (*.h5)."
+          },
+          {
+            "name": "output",
+            "index": 1,
+            "required": true,
+            "description": "Required. Destination terrain filename (*.h5). Must not already exist."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "terrain",
+        "export",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3793,47 +4390,11 @@
             "export",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
           "duration_s": 0.078,
           "window_seen": false,
-          "raw": "0195.txt"
-        },
-        {
-          "args": [
-            "terrain",
-            "export",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0196.txt"
-        },
-        {
-          "args": [
-            "terrain",
-            "export",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.078,
-          "window_seen": false,
-          "raw": "0197.txt"
-        },
-        {
-          "args": [
-            "help",
-            "terrain",
-            "export"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.063,
-          "window_seen": false,
-          "raw": "0198.txt"
+          "raw": "0066.txt"
         }
       ],
       "window_seen": false
@@ -3843,8 +4404,49 @@
         "terrain",
         "info"
       ],
-      "status": "other",
-      "help": null,
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [],
+        "options": [
+          {
+            "flags": "--format",
+            "description": "Output format: Text (default), Json, Markdown, or Properties (grep-friendly key=value)."
+          },
+          {
+            "flags": "--get",
+            "description": "Print only the value(s) at a flattened key path (e.g. 'projection' or 'layers[0].cellSize'). Ignores --format."
+          },
+          {
+            "flags": "--verify-signature",
+            "description": "Recompute the terrain signature (input file sizes and hashes) and verify it against the stored signature. Prints SUCCESS or FAILURE instead of the info dump."
+          },
+          {
+            "flags": "--help",
+            "description": "Display this help screen."
+          },
+          {
+            "flags": "--version",
+            "description": "Display version information."
+          }
+        ],
+        "positionals": [
+          {
+            "name": "terrain",
+            "index": 0,
+            "required": true,
+            "description": "Required. Terrain file (*.h5) to inspect."
+          }
+        ],
+        "sections": []
+      },
+      "help_args": [
+        "terrain",
+        "info",
+        "--help"
+      ],
+      "exit_code": 4294967295,
       "attempts": [
         {
           "args": [
@@ -3852,47 +4454,11 @@
             "info",
             "--help"
           ],
-          "status": "error",
+          "status": "help",
           "exit_code": 4294967295,
-          "duration_s": 0.062,
+          "duration_s": 0.079,
           "window_seen": false,
-          "raw": "0191.txt"
-        },
-        {
-          "args": [
-            "terrain",
-            "info",
-            "-h"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0192.txt"
-        },
-        {
-          "args": [
-            "terrain",
-            "info",
-            "-?"
-          ],
-          "status": "error",
-          "exit_code": 4294967295,
-          "duration_s": 0.141,
-          "window_seen": false,
-          "raw": "0193.txt"
-        },
-        {
-          "args": [
-            "help",
-            "terrain",
-            "info"
-          ],
-          "status": "other",
-          "exit_code": 0,
-          "duration_s": 0.094,
-          "window_seen": false,
-          "raw": "0194.txt"
+          "raw": "0065.txt"
         }
       ],
       "window_seen": false

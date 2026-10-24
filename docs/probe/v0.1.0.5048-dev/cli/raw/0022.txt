@@ -1,23 +1,21 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "info", "--help"]
-exit_code: 0
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "solver", "--help"]
+exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.094
+duration_s: 0.063
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-  --format           Output format: Text (default), Json, Markdown, or
-                     Properties (grep-friendly key=value).
+  --end-time    Simulation end-time in seconds. Lower this to shorten each
+                solve. Defaults to 20000 (~20 timesteps).
 
-  --get              Print only the value(s) at a flattened key path (e.g.
-                     'name'). Ignores --format.
+  --cores       Comma-separated list of core counts to benchmark, in order.
+                Defaults to '1,4,16'.
 
-  --help             Display this help screen.
+  --help        Display this help screen.
 
-  --version          Display version information.
-
-  source (pos. 0)    Required. Input file.
+  --version     Display version information.
 

@@ -1,26 +1,38 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "hash", "--help"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "solve", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.062
+duration_s: 0.063
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-  --file-size     Set the file size to use. Units must be one of {B, KB, MB, GB,
-                  TB, KiB, MiB, GiB, TiB}.Ex: '1MB', '1.2 GiB', etc. Defaults to
-                  1GB.
+  --if-exists        What to do when a plan's result file already exists:
+                      'force': delete the existing file and overwrite it.
+                      'append': write to a numbered copy instead (e.g. 'Plan
+                      (1).h5'), Windows convention.
+                      'error': report a message and skip that plan.
+                      'default' (default): append a numbered copy (plan result
+                      filenames are always auto-derived here).
 
-  --file          Compute hashes on this specific file, instead a randomly
-                  generated file.
+  --max-cores        Total CPU core budget the scheduler is allowed to use
+                     across all in-flight plans. Default (0) uses all logical
+                     processors.
 
-  --rash-block    Set the RASH block-size to this value (see 'file-size' for
-                  acceptable argument formatting). Defaults to 1MiB. Other block
-                  sizes will produce different RASH values.
+  --gpu-slots        Number of GPU plans allowed to run concurrently. Defaults
+                     to 1.
 
-  --help          Display this help screen.
+  --print-graph      Print the solve dependency graph instead of running it.
 
-  --version       Display version information.
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  source (pos. 0)    Required. Project file (*.ras) or directory containing one.
+                     Every plan in the project will be solved.
+
+  output (pos. 1)    Destination directory for the solved result files. If
+                     unspecified, writes to the default location in the project.
 

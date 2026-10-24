@@ -1,80 +1,23 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "geometry", "modify", "--help"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "s3", "list-buckets", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.062
+duration_s: 0.094
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
-USAGE:
-List the default set of fields you can target/set (no file needed):
-  ras geometry modify --grammar
-List what's settable in a specific geometry (real element counts):
-  ras geometry modify --grammar Geometry.h5
-Coarsen every region 1.5x (preview first with --dry-run):
-  ras geometry modify --dry-run Geometry.h5 topology.region.cellsize.scale(1.5)
-Refine just the quad channel regions to half their cell size:
-  ras geometry modify Geometry.h5 "topology.region[type =
-  quad].cellsize.scale(0.5)"
-Refine only the large quad regions (compound filter on a derived field):
-  ras geometry modify Geometry.h5 "topology.region[type = quad AND area >
-  500000].cellsize.scale(0.75)"
-Enforce a minimum cell size of 5 (select the too-small ones, then set):
-  ras geometry modify Geometry.h5 "topology.region[cellsize <
-  5].cellsize.set(5)"
-Nudge quad orientation by 15 degrees (add onto the current value):
-  ras geometry modify Geometry.h5 "topology.region[type =
-  quad].RotationDegrees.add(15)"
-Switch tiny regions to a Cartesian patch (enum field - assignment, not an
-operation):
-  ras geometry modify Geometry.h5 "topology.region[area < 10000].type =
-  cartesian"
-Denser point spacing along long breakline arcs:
-  ras geometry modify Geometry.h5 "topology.arc[length >
-  1000].cellsize.scale(0.5)"
-Coarsen specific arcs by index:
-  ras geometry modify Geometry.h5 "topology.arc[index IN (0, 1,
-  2)].cellsize.scale(1.5)"
-Pin an explicit point count on arcs that have no constant size set:
-  ras geometry modify Geometry.h5 "topology.arc[cellsize IS NULL].count.set(40)"
-Make the longer breaklines follow the terrain exactly (bool field - assignment):
-  ras geometry modify Geometry.h5 "topology.arc[length > 500].FollowExactly =
-  true"
-Refine the channel and coarsen the overbanks in one save (several selectors):
-  ras geometry modify Geometry.h5 "topology.region[type =
-  quad].cellsize.scale(0.5)" "topology.region[type =
-  cartesian].cellsize.scale(2)"
 
-  --grammar            List every path and field you can target in this geometry
-                       (no changes made), then exit.
+  -s, --server      S3 server. Defaults to https://s3.hecdev.net
 
-  --case-sensitive     Make string comparisons in the inline filter
-                       case-sensitive.
+  -u, --user        Username for S3 authentication. Optional - list attempts
+                    anonymous access if omitted.
 
-  --dry-run            Report what would change without writing the file.
+  -p, --password    Password for S3 authentication. Optional - list attempts
+                    anonymous access if omitted.
 
-  --format             Output format for the change report: Text (default),
-                       Json, or Properties (grep-friendly key=value). Errors
-                       always go to stderr as text, so stdout stays parseable.
+  --help            Display this help screen.
 
-  --help               Display this help screen.
-
-  --version            Display version information.
-
-  geometry (pos. 0)    Geometry file (*.h5). Optional with --grammar (omit it to
-                       print the default schema).
-
-  set (pos. 1)         One or more selectors: a path to a collection
-                       (region/arc) with an optional [predicate], ending in
-                       either an assignment (= value) or a numeric operation
-                       (.scale(x)/.add(x)/.set(x)). The [predicate] picks which
-                       elements change. E.g. "topology.region[type = quad AND
-                       cellsize < 10].cellsize.scale(0.5)" (operation) or
-                       "topology.region[area < 10000].type = cartesian"
-                       (assignment). Operations are numeric-only; use = value
-                       for enum/bool/string fields. Pass several to change
-                       several things in one save. See the examples above. Not
-                       required with --grammar.
+  --version         Display version information.
 

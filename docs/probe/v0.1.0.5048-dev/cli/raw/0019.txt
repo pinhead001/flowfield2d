@@ -1,18 +1,39 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "healthcheck", "-h"]
-exit_code: 4294967295
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "solve", "--help"]
+exit_code: 0
 timed_out: False
 window_seen: False
-duration_s: 0.078
+duration_s: 0.063
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option 'h' is unknown.
+  --if-exists        What to do when an output file already exists. See 'ras
+                     plan solve' / 'ras project solve' for the per-strategy
+                     details.
+                      'force': delete the existing file and overwrite it.
+                      'append': write to a numbered copy instead (e.g. 'output
+                      (3).h5'), Windows convention.
+                      'error': report a message and refuse to overwrite.
+                      'default' (default): error when you name the output
+                      explicitly, append when it's auto-derived.
 
-  --help       Display this help screen.
+  --help             Display this help screen.
 
-  --version    Display version information.
+  --version          Display version information.
+
+  source (pos. 0)    Required. Source to solve. This goes through a multi-step
+                     resolution process.
+                      If the given source is a directory or project file
+                      (*.ras), forwards to 'ras project solve' with default
+                      options.
+                      If the given source is a plan file (*.h5) or ready-to-run
+                      (*.r2r.h5) file, forwards to 'ras plan solve' with default
+                      options.
+
+  output (pos. 1)    Output file or directory to write the solved result.
+                      If unspecified, solved result file(s) will be written to
+                      the locations specified in 'ras plan solve' or 'ras
+                      project solve'.
 

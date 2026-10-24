@@ -1,4 +1,4 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "geometry", "generate-mesh", "-h"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "s3", "presign", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
@@ -8,17 +8,28 @@ duration_s: 0.078
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+USAGE:
+Presign a GET URL for download:
+  ras s3 presign --password secret --user alice s3://my-bucket/folder/file.h5
+Presign a PUT URL for upload:
+  ras s3 presign --password secret --user alice --verb put
+  s3://my-bucket/uploads/new.h5
 
-ERROR(S):
-  Option 'h' is unknown.
-  A required value not bound to option name is missing.
+  -s, --server       (Default: https://s3.hecdev.net) S3 server. Defaults to
+                     https://s3.hecdev.net
 
-  --squeeze            If set, will squeeze the file after successfully
-                       generating a mesh.
+  -u, --user         Required. Username for S3 authentication.
 
-  --help               Display this help screen.
+  -p, --password     Required. Password for S3 authentication.
 
-  --version            Display version information.
+  --verb             (Default: get) HTTP verb for the presigned URL: get or put.
+                     (post is not supported by the AWS SDK's GetPreSignedURL
+                     API.)
 
-  geometry (pos. 0)    Required. Geometry file (*.h5).
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  s3-uri (pos. 0)    Required. Object in s3://bucket/key form, e.g.
+                     s3://my-bucket/folder/file.h5.
 

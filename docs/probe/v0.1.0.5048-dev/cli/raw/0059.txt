@@ -1,24 +1,24 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "h5", "diff", "--help"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "sample", "list", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.062
+duration_s: 0.078
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-  --filter        Filter options. String is pipe-delimited. Entries use '!' to
-                  disinclude and '+' to include in the output.E.G. '-/Results'
-                  to disinclude the /Results group, or '+/Geometry' to ONLY
-                  search the /Geometry group.
+  -t, --tag    If set, only lists samples that include this tag
+               (case-insensitive). May be specified multiple times; a sample
+               matches if any tag matches.
 
-  --help          Display this help screen.
+  --filter     Substring filter (case-insensitive) matched against the sample
+               title and description. Combines with --tag.
 
-  --version       Display version information.
+  --format     Output format: Text (default), Json, or Markdown.
 
-  value pos. 0    Required. Base HDF5 File for comparison. (*.hdf, *.h5)
+  --help       Display this help screen.
 
-  value pos. 1    Required. Test HDF5 File to compare to Base.
+  --version    Display version information.
 

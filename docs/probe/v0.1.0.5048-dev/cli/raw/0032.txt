@@ -1,42 +1,23 @@
-argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "prepare", "-?"]
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "helpers", "extract", "--help"]
 exit_code: 4294967295
 timed_out: False
 window_seen: False
-duration_s: 0.094
+duration_s: 0.079
 ----- stdout -----
 
 ----- stderr -----
 ras 0.1.0.5048-dev
 Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
 
-ERROR(S):
-  Option '?' is unknown.
-  A required value not bound to option name is missing.
-
-  --if-exists        What to do when an output file already exists. See 'ras
-                     plan prepare' / 'ras project prepare' for the per-strategy
-                     details.
-                      'force': delete the existing file and overwrite it.
-                      'append': write to a numbered copy instead (e.g. 'output
-                      (3).r2r.h5'), Windows convention.
-                      'error': report a message and refuse to overwrite.
-                      'default' (default): error when you name the output
-                      explicitly, append when it's auto-derived.
+  -f, --force        Overwrite existing files in the output directory. Defaults
+                     to false.
 
   --help             Display this help screen.
 
   --version          Display version information.
 
-  source (pos. 0)    Required. Source to prepare. This goes through a multi-step
-                     resolution process.
-                      If the given source is a directory or project file
-                      (*.ras), forwards to 'ras project prepare' with default
-                      options.
-                      If the given source is a plan file (*.h5), forwards to
-                      'ras plan prepare' with default options.
+  source (pos. 0)    Required. Source .zip archive to extract.
 
-  output (pos. 1)    Output file or directory to write the prepared result.
-                      If unspecified, ready-to-run file(s) will be written to
-                      the locations specified in 'ras plan prepare' or 'ras
-                      project prepare'.
+  output (pos. 1)    Required. Output directory. Created if missing. If
+                     non-empty, must be combined with --force argument.
 
