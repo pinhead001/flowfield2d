@@ -55,3 +55,8 @@ python_version = "3.12"
 files = ["src"]
 strict = true
 sqlite_cache = false
+
+[[tool.mypy.overrides]]
+# h5py ships no type stubs or py.typed marker.
+module = ["h5py", "h5py.*"]
+ignore_missing_imports = true
