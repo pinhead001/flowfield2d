@@ -2,7 +2,8 @@
 
 > Renamed: the library is now `flowfield2d` (see ADR-0003); names below are as written at the time.
 
-- Status: **accepted as provisional** at G0 (2026-10-24); final after probe step E (no seed yet).
+- Status: **accepted as provisional** at G0 (2026-10-24). Final decision after step E: **Tier B**, proposed
+  2026-10-24 and **awaiting the owner's approval** (see "Final decision" at the end).
 - Date: 2026-10-24
 - Evidence: `docs/probe/v0.1.0.5048-dev/PROBE_REPORT.md`
 
@@ -34,3 +35,25 @@ determinism (E13) and the GPU verdict (E11).
   shows which load).
 - `ras s3`, `ras sample` and `RestartAgent.exe` are never invoked; their hosts stay blocked.
 - A new build (REQUIREMENTS 3.4) re-runs A, B (with `cli_tree.json` diff), D, E6, E8 and E13.
+
+## Final decision after probe step E (2026-10-24, proposed)
+Evidence: PROBE_REPORT "D", "E" and "Tier (rule trace)". Decision: **Tier B, with headless everything except
+base geometry authoring.**
+- **GUI once per domain:** a person draws the 2D-area perimeter, breaklines, refinement regions and BC lines,
+  and creates the plan bound to that geometry and BC layer. `geometry modify` only resizes existing regions and
+  arcs, and plans hold no layer references.
+- **Headless:** terrain create and add; `geometry generate-mesh` plus sizing via `geometry modify`; plan settings
+  via `plan modify` (solver, cores, Courant, window, steps); BC values via `engines.ras2025.bc` template edits
+  under the schema guard; `plan solve`; `result postprocess` and `result map`; HDF5 result reads.
+- **Validation:** RAS accepted a zero normal-depth slope (E6b exit 0, `Success=1`). The engine validates BC
+  values before every compute and reads `/Results/Compute Summary/Success` and the log after it; exit codes
+  alone are not trusted.
+- **Results:** a solve writes a new `(Result).h5` and rewrites the geometry file. The run layer works on
+  per-run copies and treats the geometry as an output of a solve.
+- **CPU only:** no NVIDIA driver in the sandbox (E11). Two concurrent solves run at about 1.3× the single-solve
+  time on the seed (E9). Start `max_parallel_runs` at 2 and re-measure on the first production-size domain.
+  Mapped versus local scratch showed no difference at seed size (E10).
+- **Determinism tolerance for S6:** zero on depth and velocity. Byte-level file hashes differ because of a debug
+  counter, so compare datasets, not files.
+- Still open: E8 (owner GUI cross-check of five cells); E12 (egress Enforce, once the Audit sampler works);
+  the list of engine DLLs loaded at solve time, for the pin (needs a Process Monitor run).
