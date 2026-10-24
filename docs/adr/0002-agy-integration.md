@@ -1,5 +1,7 @@
 # ADR-0002 — Delegate coding agent integration (Antigravity CLI `agy`)
 
+> Renamed: the library is now `flowfield2d` (see ADR-0003); names below are as written at the time.
+
 - Status: accepted (G0, 2026-10-24)
 - Date: 2026-10-23
 - Evidence: `docs/probe/agy/` (CLI crawl, `models.txt`, smoke G1–G6), agent-ops ledger of the first cards

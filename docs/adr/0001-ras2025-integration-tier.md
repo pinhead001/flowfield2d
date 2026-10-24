@@ -1,5 +1,7 @@
 # ADR-0001 — HEC-RAS 2025 integration tier
 
+> Renamed: the library is now `flowfield2d` (see ADR-0003); names below are as written at the time.
+
 - Status: **accepted as provisional** at G0 (2026-10-24); final after probe step E (no seed yet).
 - Date: 2026-10-24
 - Evidence: `docs/probe/v0.1.0.5048-dev/PROBE_REPORT.md`
