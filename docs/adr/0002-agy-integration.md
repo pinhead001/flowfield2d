@@ -49,3 +49,17 @@ The lead agent writes specs, tests and reviews; a headless delegate writes most 
 - Status-only success checks would have silently accepted empty work; the empty-response rule is
   covered by `tests/unit/agentops/test_runner.py`.
 - The crawler mis-expands agy's Go-style help (siblings repeated under each subcommand); harmless here.
+
+## Addendum 1 — quota pools (2026-10-24)
+- First quota event, after ~1.2M ledger tokens in one day: exit 3, `status: ERROR`,
+  `Individual quota reached ... Resets in 165h59m3s` (`RESOURCE_EXHAUSTED`, 429, `retryable: true`).
+  The reset is a ~7-day window, not a short burst limit.
+- During the exhaustion, Gemini 3.8 Flash high/medium/low all failed, while Claude Sonnet 4.6 and GPT-OSS
+  120B answered. So all Gemini models share one pool, and the others are separate (whether Claude and GPT-OSS
+  share a pool is still unknown).
+- Decision: pools are configured per consumer (`[agy] pools`); `models` is a preference order. The runner
+  parses "Resets in …" into a per-pool cooldown (default `default_cooldown_min` when absent), falls back to
+  the next free pool without counting the quota hit as an attempt, and requeues when every pool is cooling.
+  The governor reports cooldowns and sets agy concurrency to 0 only when no pool is free.
+- Consequence: weekly delegate capacity is the scarce resource. Gemini should be kept for large or
+  mechanical cards, and the ledger watched per pool.
