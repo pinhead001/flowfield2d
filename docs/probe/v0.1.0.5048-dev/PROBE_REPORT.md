@@ -1,8 +1,8 @@
 # Probe report — HEC-RAS 2025 `0.1.0.5048-dev`
 
 - Date: 2026-10-24 · Procedure: `docs/PROBE_PROCEDURE.md` · Raw tool output: `report_generated.md`
-- **Status: complete except E8, E12 (2026-10-24).** Steps A, B, D and E have run; C was skipped because B was
-  rich. E8 (GUI cross-check of five cells) is waiting on the owner. E12 needs egress in Enforce mode, and the
+- **Status: complete except E12 (2026-10-24).** Steps A, B, D and E have run; C was skipped because B was
+  rich. E8 is confirmed by the owner: five cells' depth and derived WSE match the GUI. E12 needs egress in Enforce mode, and the
   Audit sampler is not producing logs yet. Seed-specific records (snapshots, schemas, per-op JSON) live in the
   consuming project's repo, because they carry project names; this report keeps only generic findings.
 
