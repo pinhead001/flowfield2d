@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+# data and scratch never live in this repo
+_scratch/
+scratch/
+*.h5
+*.hdf
+*.tif
+*.tiff
+*.gpkg
+*.parquet
+!tests/fixtures/**
+.claude/settings.local.json
