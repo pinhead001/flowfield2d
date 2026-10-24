@@ -69,6 +69,12 @@ _CMD_LINE_RE = re.compile(
 _VERB_LINE_RE = re.compile(r"^\s{1,8}(?P<name>[a-z][\w-]*)\s{2,}(?P<desc>\S.*)$")
 _BRACES_RE = re.compile(r"\{([\w,.:-]+)\}")
 _VERSION_RE = re.compile(r"\d+\.\d+")
+_CLP_OPT_RE = re.compile(
+    r"^  (?P<flags>(?:-[a-zA-Z0-9?],\s+)?--\S+)(?:\s{2,}(?P<desc>\S.*))?$"
+)
+_CLP_POS_RE = re.compile(
+    r"^  (?P<name>[a-zA-Z0-9][\w.:-]*)\s+\(pos\.\s*(?P<index>\d+)\)(?:\s{2,}(?P<desc>\S.*))?$"
+)
 
 
 # --------------------------------------------------------------------------- running
@@ -223,6 +229,47 @@ def _section_of(line: str) -> tuple[str | None, str]:
     return None, ""
 
 
+def _parse_clp_leaf(lines: list[str]) -> tuple[list[dict[str, str]], list[dict[str, Any]]]:
+    options: list[dict[str, str]] = []
+    positionals: list[dict[str, Any]] = []
+    curr: dict[str, Any] | None = None
+    desc_col: int | None = None
+    for line in lines:
+        if not line.strip():
+            curr = None
+            desc_col = None
+            continue
+        m_opt = _CLP_OPT_RE.match(line)
+        if m_opt:
+            desc = (m_opt.group("desc") or "").strip()
+            opt_entry = {"flags": m_opt.group("flags"), "description": desc}
+            options.append(opt_entry)
+            curr = opt_entry
+            desc_col = m_opt.start("desc") if m_opt.group("desc") else None
+            continue
+        m_pos = _CLP_POS_RE.match(line)
+        if m_pos:
+            desc = (m_pos.group("desc") or "").strip()
+            pos_entry = {
+                "name": m_pos.group("name"),
+                "index": int(m_pos.group("index")),
+                "required": desc.startswith("Required."),
+                "description": desc,
+            }
+            positionals.append(pos_entry)
+            curr = pos_entry
+            desc_col = m_pos.start("desc") if m_pos.group("desc") else None
+            continue
+        if curr is not None and desc_col is not None:
+            indent = len(line) - len(line.lstrip())
+            if indent >= desc_col:
+                curr["description"] = (curr["description"] + " " + line.strip()).strip()
+                continue
+        curr = None
+        desc_col = None
+    return options, positionals
+
+
 def parse_help(text: str) -> dict[str, Any]:
     """Parse help text from common CLI frameworks into usage/commands/options."""
     text = clean(text)
@@ -280,13 +327,27 @@ def parse_help(text: str) -> dict[str, Any]:
             fmt = "commandlineparser"
             commands = [{"name": m.group("name"), "args": "", "description": m.group("desc").strip(),
                          "_indent": "2"} for m in verbs]
+    positionals: list[dict[str, Any]] = []
+    if not options:
+        clp_opts, clp_pos = _parse_clp_leaf(lines)
+        if clp_opts or clp_pos:
+            fmt = "commandlineparser"
+            options = clp_opts
+            positionals = clp_pos
     seen: set[str] = set()
     uniq = []
     for c in commands:
         if c["name"] not in seen:
             seen.add(c["name"])
             uniq.append({k: v for k, v in c.items() if not k.startswith("_")})
-    return {"format": fmt, "usage": usage, "commands": uniq, "options": options, "sections": sections}
+    return {
+        "format": fmt,
+        "usage": usage,
+        "commands": uniq,
+        "options": options,
+        "positionals": positionals,
+        "sections": sections,
+    }
 
 
 def _guess_format(text: str) -> str:
@@ -302,9 +363,9 @@ def _guess_format(text: str) -> str:
 
 
 def is_help(parsed: dict[str, Any], raw: str) -> bool:
-    if parsed["commands"] or parsed["options"]:
+    if parsed.get("commands") or parsed.get("options") or parsed.get("positionals"):
         return True
-    return bool(parsed["usage"]) and "usage" in raw.lower()
+    return bool(parsed.get("usage")) and "usage" in raw.lower()
 
 
 def looks_like_version(res: CallResult) -> bool:
@@ -461,11 +522,18 @@ def render_markdown(tree: dict[str, Any]) -> str:
     lines += ["", "## Options by command", ""]
     for path in sorted(nodes):
         node = nodes[path]
-        if node.get("help") and node["help"]["options"]:
+        help_data = node.get("help")
+        if help_data and (help_data.get("options") or help_data.get("positionals")):
             lines.append(f"### `{' '.join([name, *path])}`")
-            if node["help"]["usage"]:
-                lines.append("Usage: `" + " ".join(node["help"]["usage"]) + "`")
-            lines += [f"- `{o['flags']}` {o['description']}" for o in node["help"]["options"]]
+            if help_data.get("usage"):
+                lines.append("Usage: `" + " ".join(help_data["usage"]) + "`")
+            lines += [f"- `{o['flags']}` {o['description']}" for o in help_data.get("options", [])]
+            for p in help_data.get("positionals", []):
+                req = " required" if p.get("required") else ""
+                desc = p.get("description", "")
+                name_idx = f"{p['name']} (pos. {p['index']})"
+                suffix = f" — {desc}" if desc else ""
+                lines.append(f"- `{name_idx}`{req}{suffix}")
             lines.append("")
     no_help = [n for n in tree["nodes"] if n["status"] != "help"]
     if no_help:

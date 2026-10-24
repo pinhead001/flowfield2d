@@ -194,3 +194,40 @@ def test_seed_paths(tmp_path):
     tree, _, _ = crawl(tmp_path, "scl", seed="terrain add", max_depth=0)
     paths = {tuple(n["path"]) for n in tree["nodes"]}
     assert ("terrain", "add") in paths
+
+
+CLP_LEAF = """ras 0.1.0.5048-dev
+Copyright (C) 2026 Example Org
+
+  --if-exists        What to do when an output file already exists. See 'ras
+                     plan solve' for the per-strategy details.
+                      'force': delete the existing file and overwrite it.
+
+  -q, --quiet        Suppress progress output.
+
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  source (pos. 0)    Required. Source to solve. This goes through a multi-step
+                     resolution process.
+
+  output (pos. 1)    Output file or directory to write the solved result.
+"""
+
+
+def test_parse_commandlineparser_leaf_options_and_positionals():
+    p = cliprobe.parse_help(CLP_LEAF)
+    assert p["format"] == "commandlineparser"
+    flags = [o["flags"] for o in p["options"]]
+    assert flags == ["--if-exists", "-q, --quiet", "--help", "--version"]
+    assert "'force': delete the existing file" in p["options"][0]["description"]
+    assert [(x["name"], x["index"], x["required"]) for x in p["positionals"]] == [
+        ("source", 0, True), ("output", 1, False)]
+    assert "multi-step resolution process" in p["positionals"][0]["description"]
+    assert cliprobe.is_help(p, CLP_LEAF)
+
+
+def test_positionals_key_always_present():
+    assert cliprobe.parse_help(SCL)["positionals"] == []
+
