@@ -98,8 +98,13 @@ class Registry:
     """Persistent run registry backed by a single JSON file with file locking."""
 
     def __init__(self, path: Path) -> None:
-        self._path = path
+        self._path = Path(path)
+        self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = filelock.FileLock(str(path) + ".lock")
+
+    @property
+    def path(self) -> Path:
+        return self._path
 
     # ------------------------------------------------------------------
     # Public API – every method acquires the lock, re-reads, mutates, writes
