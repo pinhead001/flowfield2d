@@ -63,3 +63,8 @@ The lead agent writes specs, tests and reviews; a headless delegate writes most 
   The governor reports cooldowns and sets agy concurrency to 0 only when no pool is free.
 - Consequence: weekly delegate capacity is the scarce resource. Gemini should be kept for large or
   mechanical cards, and the ledger watched per pool.
+- Update (same day, 06:45 UTC): the Claude Sonnet 4.6 pool hit "Individual quota reached ... Resets in
+  167h39m" after ~0.33M ledger tokens. GPT-OSS 120B failed at the same moment having used nothing, so
+  **Claude and GPT-OSS share one "third-party" pool**. Observed weekly capacity on this account: about 1.2M
+  Gemini tokens plus about 0.33M third-party tokens (ledger totals, including retries and wasted
+  permission-denied calls).
