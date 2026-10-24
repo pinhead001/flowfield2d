@@ -103,6 +103,20 @@ def test_acceptance_failure_retries_then_escalates(repo_cfg: AgentOpsConfig,
     assert Queue(repo_cfg).state_of("c1") == "escalated"
 
 
+def test_success_envelope_with_empty_response_is_a_failed_call(
+        repo_cfg: AgentOpsConfig, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("FAKE_AGY_MODE", "denied")
+    res = runner.run_card(repo_cfg, _card(repo_cfg))
+    assert res.state == "escalated"
+    rec = ledger.read(repo_cfg.ledger_path)[-1]
+    assert rec["ok"] is False and "auto-denied" in rec["stderr_tail"]
+
+
+def test_ledger_keeps_response_tail(repo_cfg: AgentOpsConfig) -> None:
+    runner.run_card(repo_cfg, _card(repo_cfg))
+    assert ledger.read(repo_cfg.ledger_path)[-1]["response_tail"] == "done"
+
+
 def test_quota_event_requeues_and_saves_raw(repo_cfg: AgentOpsConfig,
                                            monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("FAKE_AGY_MODE", "quota")

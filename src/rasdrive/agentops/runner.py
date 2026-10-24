@@ -11,6 +11,7 @@ cooldown parser can be fitted to the real message.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import time
@@ -35,6 +36,13 @@ class RunResult:
     worktree: Path
     branch: str
     detail: str = ""
+
+
+def _child_env() -> dict[str, str]:
+    """Environment for delegate and acceptance processes: drop the caller's venv."""
+    env = dict(os.environ)
+    env.pop("VIRTUAL_ENV", None)
+    return env
 
 
 def _git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -81,7 +89,7 @@ def _envelope(stdout: str) -> dict[str, Any]:
 
 def _shell(cmd: str, cwd: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True,
-                          encoding="utf-8", errors="replace")
+                          encoding="utf-8", errors="replace", env=_child_env())
 
 
 def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
@@ -98,10 +106,13 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
         argv = agy_argv(cfg, card, prompt)
         t0 = time.monotonic()
         p = subprocess.run(argv, cwd=wt, capture_output=True, text=True, encoding="utf-8",
-                           errors="replace")
+                           errors="replace", env=_child_env())
         env = _envelope(p.stdout)
         usage = env.get("usage") if isinstance(env.get("usage"), dict) else {}
-        ok_call = p.returncode == 0 and str(env.get("status", "")).upper() != "ERROR"
+        response = str(env.get("response") or "")
+        # A headless auto-deny reports SUCCESS with exit 0 and an empty response.
+        ok_call = (p.returncode == 0 and str(env.get("status", "")).upper() != "ERROR"
+                   and bool(response.strip()))
         rec: dict[str, Any] = {
             "ts": datetime.now(UTC).isoformat(), "kind": "agy", "card": card.id,
             "repo": card.repo, "attempt": attempt, "model": card.model or cfg.agy.model,
@@ -109,6 +120,7 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
             "total_tokens": usage.get("total_tokens") if usage else None,
             "duration_seconds": env.get("duration_seconds"),
             "wall_seconds": round(time.monotonic() - t0, 2),
+            "response_tail": response[-1000:],
         }
         if not ok_call:
             rec["stderr_tail"] = p.stderr[-TAIL:]
@@ -137,6 +149,8 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
             result = RunResult(card.id, "done", attempt, wt, branch)
             break
         out = (acc.stdout + acc.stderr)[-TAIL:]
+        if not ok_call:
+            out = f"delegate stderr: {p.stderr[-1500:]}\n{out}"[-TAIL:]
         why = f"delegate call failed (exit {p.returncode}, status {env.get('status')})" \
             if not ok_call else "acceptance command failed"
         prompt = (f"{card.prompt}\n\n---\nPrevious attempt {attempt}: {why}.\n"
