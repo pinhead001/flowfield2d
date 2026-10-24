@@ -1,6 +1,6 @@
 # ADR-0001 — HEC-RAS 2025 integration tier
 
-- Status: **proposed, provisional**. Steps D and E have not run (no seed project), so the tier is not final.
+- Status: **accepted as provisional** at G0 (2026-10-24); final after probe step E (no seed yet).
 - Date: 2026-10-24
 - Evidence: `docs/probe/v0.1.0.5048-dev/PROBE_REPORT.md`
 

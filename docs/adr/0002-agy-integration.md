@@ -1,6 +1,6 @@
 # ADR-0002 — Delegate coding agent integration (Antigravity CLI `agy`)
 
-- Status: proposed (awaiting owner approval at G0)
+- Status: accepted (G0, 2026-10-24)
 - Date: 2026-10-23
 - Evidence: `docs/probe/agy/` (CLI crawl, `models.txt`, smoke G1–G6), agent-ops ledger of the first cards
 

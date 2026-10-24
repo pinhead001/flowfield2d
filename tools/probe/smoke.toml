@@ -1,6 +1,6 @@
 # Smoke spec for HEC-RAS 2025 build 0.1.0.5048-dev (PROBE_PROCEDURE step E).
 # Drafted by the lead from docs/probe/v0.1.0.5048-dev/cli/cli_tree.md (2026-10-24).
-# STATUS: DRAFT — must be approved by the project owner before `rasprobe.py smoke` runs it.
+# STATUS: approved at G0 by the project owner (2026-10-24). SEED vars still to fill before running.
 # Vars marked SEED are filled once the seed project is staged and inspected (step D).
 # Every op runs on a fresh scratch copy of the seed ({project}); nothing touches the seed itself.
 
