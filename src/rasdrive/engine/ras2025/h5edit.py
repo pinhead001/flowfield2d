@@ -71,225 +71,162 @@ def from_ticks(t: int) -> datetime:
 # ---------------------------------------------------------------------------
 
 
+def _encode_for(tid: Any, value: str) -> bytes:
+    cset = tid.get_cset()
+    encoding = "utf-8" if cset == h5py.h5t.CSET_UTF8 else "ascii"
+    try:
+        encoded = value.encode(encoding)
+    except UnicodeEncodeError as exc:
+        raise ValueError(f"Value {value!r} cannot be encoded as {encoding}") from exc
+    size = int(tid.get_size())
+    if len(encoded) > size:
+        raise ValueError(f"Value {value!r} ({len(encoded)} bytes) exceeds the type size {size}")
+    return encoded
+
+
 def write_fixed_string_attr(
     obj: Any,
     name: str,
     value: str,
     size: int | None = None,
 ) -> None:
-    """Write *value* to the fixed-width string attribute *name* on *obj*.
+    """Write *value* to the scalar fixed-width string attribute *name* on *obj*.
 
-    If the attribute already exists its exact HDF5 type (size, padding, cset)
-    is preserved.  If the attribute does not exist, *size* must be supplied and
-    a fixed-length ASCII NULLTERM type of that length is created.
+    An existing attribute keeps its exact HDF5 type (size, padding, cset) and is written in place;
+    nothing is deleted. A new attribute needs *size* and gets a fixed-length ASCII NULLTERM type.
+    The memory type passed to the write is the file type itself, so no padding conversion happens
+    and a full-width value (as many bytes as the size) keeps its last character.
 
-    The write uses the low-level API (``h5py.h5a.create`` / ``attr.write``)
-    with **identical file and memory types** so no character is silently
-    dropped.
-
-    Raises
-    ------
-    ValueError
-        If *value* is longer than the type's size, cannot be encoded in the
-        type's character set, or the attribute does not exist and *size* was
-        not supplied.
+    Raises ValueError if the value is longer than the size or not encodable in the cset, if an
+    existing attribute is not a scalar fixed-length string, or if *size* is missing for a new one.
     """
-    h5t = h5py.h5t
-
+    bname = name.encode("utf-8")
     if name in obj.attrs:
-        # Reuse the existing file type exactly.
-        aid = h5py.h5a.open(obj.id, name.encode("utf-8"))
-        tid = aid.get_type()
-        attr_size: int = tid.get_size()
-        strpad = tid.get_strpad()
-        cset = tid.get_cset()
+        aid = h5py.h5a.open(obj.id, bname)
+        try:
+            tid = aid.get_type()
+            if tid.get_class() != h5py.h5t.STRING or tid.is_variable_str():
+                raise ValueError(f"Attribute {name!r} is not a fixed-length string")
+            if aid.get_space().get_simple_extent_type() != h5py.h5s.SCALAR:
+                raise ValueError(f"Attribute {name!r} is not scalar; refusing to flatten it")
+            encoded = _encode_for(tid, value)
+            aid.write(np.array(encoded, dtype=f"S{tid.get_size()}"), mtype=tid)
+        finally:
+            aid.close()
+        return
+
+    if size is None:
+        raise ValueError(f"Attribute {name!r} does not exist; 'size' must be supplied to create it")
+    tid = h5py.h5t.C_S1.copy()
+    tid.set_size(size)
+    tid.set_strpad(h5py.h5t.STR_NULLTERM)
+    tid.set_cset(h5py.h5t.CSET_ASCII)
+    encoded = _encode_for(tid, value)
+    aid = h5py.h5a.create(obj.id, bname, tid, h5py.h5s.create(h5py.h5s.SCALAR))
+    try:
+        aid.write(np.array(encoded, dtype=f"S{size}"), mtype=tid)
+    finally:
         aid.close()
-
-        # Encode and validate length.
-        encoding = "utf-8" if cset == h5t.CSET_UTF8 else "ascii"
-        try:
-            encoded = value.encode(encoding)
-        except UnicodeEncodeError as exc:
-            raise ValueError(
-                f"Value {value!r} cannot be encoded as {encoding}"
-            ) from exc
-        if len(encoded) > attr_size:
-            raise ValueError(
-                f"Value {value!r} ({len(encoded)} bytes) exceeds attribute size {attr_size}"
-            )
-
-        # Delete and recreate with the same type so the file type is preserved.
-        h5py.h5a.delete(obj.id, name.encode("utf-8"))
-
-        # Build file type identical to original.
-        file_tid = h5t.C_S1.copy()
-        file_tid.set_size(attr_size)
-        file_tid.set_strpad(strpad)
-        file_tid.set_cset(cset)
-
-        space = h5py.h5s.create(h5py.h5s.SCALAR)
-        attr = h5py.h5a.create(obj.id, name.encode("utf-8"), file_tid, space)
-
-        buf = np.array(encoded, dtype=f"S{attr_size}")
-        attr.write(buf)
-        attr.close()
-
-    else:
-        # New attribute — size must be provided.
-        if size is None:
-            raise ValueError(
-                f"Attribute {name!r} does not exist; 'size' must be supplied to create it"
-            )
-
-        try:
-            encoded = value.encode("ascii")
-        except UnicodeEncodeError as exc:
-            raise ValueError(
-                f"Value {value!r} cannot be encoded as ascii"
-            ) from exc
-        if len(encoded) > size:
-            raise ValueError(
-                f"Value {value!r} ({len(encoded)} bytes) exceeds requested size {size}"
-            )
-
-        file_tid = h5t.C_S1.copy()
-        file_tid.set_size(size)
-        file_tid.set_strpad(h5t.STR_NULLTERM)
-        file_tid.set_cset(h5t.CSET_ASCII)
-
-        space = h5py.h5s.create(h5py.h5s.SCALAR)
-        attr = h5py.h5a.create(obj.id, name.encode("utf-8"), file_tid, space)
-
-        buf = np.array(encoded, dtype=f"S{size}")
-        attr.write(buf)
-        attr.close()
 
 
 def read_fixed_string(obj: Any, name: str) -> str:
-    """Read the fixed-width string attribute *name* from *obj* and strip trailing NULs."""
-    raw: bytes = obj.attrs[name]
-    if isinstance(raw, np.bytes_):
-        raw = bytes(raw)
-    return raw.rstrip(b"\x00").decode("utf-8", errors="replace")
+    """Read a scalar fixed-width string attribute with its own type as memory type; strip NULs."""
+    aid = h5py.h5a.open(obj.id, name.encode("utf-8"))
+    try:
+        tid = aid.get_type()
+        buf = np.empty((), dtype=f"S{tid.get_size()}")
+        aid.read(buf, mtype=tid)
+        cset = tid.get_cset()
+    finally:
+        aid.close()
+    raw = bytes(buf[()]).rstrip(b"\x00")
+    return raw.decode("utf-8" if cset == h5py.h5t.CSET_UTF8 else "ascii", errors="replace")
 
 
 # ---------------------------------------------------------------------------
 # Dataset recreation
 # ---------------------------------------------------------------------------
 
+_TMP_SUFFIX = ".__rasdrive_new"
+
+
+def _snapshot_attrs(obj: Any) -> list[tuple[bytes, Any, Any, np.ndarray[Any, np.dtype[Any]]]]:
+    """Read every attribute with its own file type as memory type. Any failure raises."""
+    out: list[tuple[bytes, Any, Any, np.ndarray[Any, np.dtype[Any]]]] = []
+    for attr_name in obj.attrs.keys():
+        bname = attr_name.encode("utf-8")
+        aid = h5py.h5a.open(obj.id, bname)
+        try:
+            tid = aid.get_type()
+            space = aid.get_space()
+            buf = np.empty(space.shape, dtype=tid.dtype)
+            aid.read(buf, mtype=tid)
+        except Exception as exc:
+            raise ValueError(f"cannot copy attribute {attr_name!r} exactly: {exc}") from exc
+        finally:
+            aid.close()
+        out.append((bname, tid, space, buf))
+    return out
+
 
 def recreate_dataset(group: Any, name: str, data: np.ndarray[Any, np.dtype[Any]]) -> Any:
     """Replace *name* inside *group* with *data*, preserving layout and attributes.
 
-    The original dataset's dtype, chunking (chunk shape clipped to new shape),
-    compression, shuffle, fletcher32, ``maxshape`` and every attribute (with
-    its exact HDF5 type) are all carried over.  The dataset is deleted and
-    re-created; it is **never** resized.
+    The original dataset's dtype, chunking (chunk shape clipped to the new shape), compression,
+    shuffle, fletcher32, ``maxshape`` and every attribute (exact HDF5 type) are carried over. The
+    dataset is recreated, never resized. The new dataset is fully built under a temporary name
+    before the old one is removed, so a failure leaves the original untouched.
 
-    Raises
-    ------
-    ValueError
-        If *data*'s rank (ndim) differs from the original dataset's rank.
+    Raises ValueError on a rank mismatch, a failed cast, or an attribute that can't be copied
+    exactly.
     """
     old: h5py.Dataset = group[name]
-    old_rank = len(old.shape)
-    if data.ndim != old_rank:
+    if data.ndim != len(old.shape):
         raise ValueError(
-            f"Rank mismatch: existing dataset has rank {old_rank}, "
+            f"Rank mismatch: existing dataset has rank {len(old.shape)}, "
             f"new data has rank {data.ndim}"
         )
-
-    # --- Collect properties from the old dataset --------------------------
-    old_dtype = old.dtype
-    old_chunks = old.chunks  # None if contiguous
-    old_compression = old.compression
-    old_compression_opts = old.compression_opts
-    old_shuffle = old.shuffle
-    old_fletcher32 = old.fletcher32
-    old_maxshape = old.maxshape  # tuple with None for unlimited dims
-
-    # Clip chunk shape to new shape (each chunk dim must not exceed new dim).
-    new_chunks: tuple[int, ...] | None = None
-    if old_chunks is not None:
-        new_chunks = tuple(
-            min(c, s) for c, s in zip(old_chunks, data.shape, strict=True)
-        )
-
-    # Build maxshape: None dims stay None; fixed dims become the new shape dim.
-    new_maxshape: tuple[int | None, ...] = tuple(
-        None if ms is None else data.shape[i]
-        for i, ms in enumerate(old_maxshape)
-    )
-
-    # --- Snapshot attributes at the low level so exact types are preserved ---
-    # We capture: (name_bytes, low-level TypeID, numpy buf matching the HDF5 type).
-    attr_snapshots: list[tuple[bytes, Any, np.ndarray[Any, np.dtype[Any]]]] = []
-    for attr_name in old.attrs.keys():
-        aid = h5py.h5a.open(old.id, attr_name.encode("utf-8"))
-        tid = aid.get_type()
-        spc = aid.get_space()
-        shape = spc.shape  # () for scalar
-
-        # Determine numpy dtype for reading that matches the HDF5 file type.
-        cls = tid.get_class()
-        h5t = h5py.h5t
-        if cls == h5t.STRING:
-            if tid.is_variable_str():
-                arr_dtype: Any = np.dtype(object)
-            else:
-                arr_dtype = np.dtype(f"S{tid.get_size()}")
-        elif cls == h5t.INTEGER:
-            sz = tid.get_size()
-            sign = "i" if tid.get_sign() == h5t.SGN_2 else "u"
-            arr_dtype = np.dtype(f"{sign}{sz}")
-        elif cls == h5t.FLOAT:
-            arr_dtype = np.dtype(f"f{tid.get_size()}")
-        else:
-            # Compound, enum, opaque, etc. — use raw bytes.
-            arr_dtype = np.dtype(f"V{tid.get_size()}")
-
-        try:
-            buf: np.ndarray[Any, np.dtype[Any]]
-            if shape:
-                buf = np.empty(shape, dtype=arr_dtype)
-            else:
-                buf = np.empty((), dtype=arr_dtype)
-            aid.read(buf)
-        except Exception:  # pragma: no cover
-            aid.close()
-            continue
-        attr_snapshots.append((attr_name.encode("utf-8"), tid, buf))
-        aid.close()
-
-    # --- Delete old, create new -------------------------------------------
-    del group[name]
+    try:
+        cast = np.asarray(data).astype(old.dtype)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"cannot cast new data to {old.dtype}: {exc}") from exc
 
     kwargs: dict[str, Any] = {
-        "data": data.astype(old_dtype),
-        "maxshape": new_maxshape,
+        "data": cast,
+        "maxshape": tuple(None if ms is None else data.shape[i]
+                          for i, ms in enumerate(old.maxshape or old.shape)),
     }
-    if new_chunks is not None:
-        kwargs["chunks"] = new_chunks
-    if old_compression is not None:
-        kwargs["compression"] = old_compression
-        if old_compression_opts is not None:
-            kwargs["compression_opts"] = old_compression_opts
-    if old_shuffle:
+    if old.chunks is not None:
+        kwargs["chunks"] = tuple(min(c, max(s, 1))
+                                 for c, s in zip(old.chunks, data.shape, strict=True))
+    if old.compression is not None:
+        kwargs["compression"] = old.compression
+        if old.compression_opts is not None:
+            kwargs["compression_opts"] = old.compression_opts
+    if old.shuffle:
         kwargs["shuffle"] = True
-    if old_fletcher32:
+    if old.fletcher32:
         kwargs["fletcher32"] = True
+    attrs = _snapshot_attrs(old)
 
-    new_ds: h5py.Dataset = group.create_dataset(name, **kwargs)
-
-    # --- Restore attributes with exact types --------------------------------
-    for attr_name_b, tid, buf in attr_snapshots:
-        space = h5py.h5s.create(h5py.h5s.SCALAR) if buf.shape == () else \
-                h5py.h5s.create_simple(buf.shape)
-        attr = h5py.h5a.create(new_ds.id, attr_name_b, tid, space)
-        attr.write(buf)
-        attr.close()
-
-    return new_ds
+    tmp = name + _TMP_SUFFIX
+    if tmp in group:
+        del group[tmp]
+    try:
+        new_ds: h5py.Dataset = group.create_dataset(tmp, **kwargs)
+        for bname, tid, space, buf in attrs:
+            aid = h5py.h5a.create(new_ds.id, bname, tid, space)
+            try:
+                aid.write(buf, mtype=tid)
+            finally:
+                aid.close()
+    except Exception:
+        if tmp in group:
+            del group[tmp]
+        raise
+    del group[name]
+    group.move(tmp, name)
+    return group[name]
 
 
 # ---------------------------------------------------------------------------

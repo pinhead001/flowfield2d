@@ -89,3 +89,52 @@ def test_guarded_refuses_before_writing(tmp_path: Path) -> None:
         with guarded(p, "0000000000000000") as f:
             f["x"][1] = 2.0
     assert p.read_bytes() == before
+
+
+# --- review regressions (lead, 2026-10-24) -------------------------------------------------
+
+
+def test_full_width_value_survives_nullterm(tmp_path: Path) -> None:
+    # RAS writes full-width values into NULLTERM fields; mem type == file type keeps every byte.
+    p = tmp_path / "a.h5"
+    with h5py.File(p, "w") as f:
+        _nullterm_attr(f, "Name", 8)
+        write_fixed_string_attr(f, "Name", "12345678")
+        write_fixed_string_attr(f, "Fresh", "ABCD", size=4)
+    with h5py.File(p, "r") as f:
+        assert read_fixed_string(f, "Name") == "12345678"
+        assert read_fixed_string(f, "Fresh") == "ABCD"
+
+
+def test_array_string_attr_is_refused_and_untouched(tmp_path: Path) -> None:
+    p = tmp_path / "a.h5"
+    with h5py.File(p, "w") as f:
+        f.attrs.create("Names", np.array([b"ab", b"cd"], dtype="S4"))
+        with pytest.raises(ValueError):
+            write_fixed_string_attr(f, "Names", "zz")
+        assert f.attrs["Names"].tolist() == [b"ab", b"cd"]
+
+
+def test_recreate_failure_leaves_original(tmp_path: Path) -> None:
+    p = tmp_path / "a.h5"
+    with h5py.File(p, "w") as f:
+        f.create_dataset("T/Flow", data=np.arange(4, dtype="f4"))
+        f["T/Flow"].attrs["k"] = 1
+        with pytest.raises(ValueError):
+            recreate_dataset(f["T"], "Flow", np.array(["not", "a", "number"]))
+        assert f["T/Flow"][:].tolist() == [0.0, 1.0, 2.0, 3.0]
+        assert list(f["T"].keys()) == ["Flow"]
+
+
+def test_recreate_copies_compound_and_array_attrs_exactly(tmp_path: Path) -> None:
+    p = tmp_path / "a.h5"
+    cdt = np.dtype([("a", "<i4"), ("b", "S3")])
+    with h5py.File(p, "w") as f:
+        ds = f.create_dataset("x", data=np.zeros(3, "f8"))
+        ds.attrs.create("rec", np.array((7, b"abc"), dtype=cdt))
+        ds.attrs.create("names", np.array([b"ab", b"cd"], dtype="S4"))
+        recreate_dataset(f, "x", np.ones(5))
+    with h5py.File(p, "r") as f:
+        a = f["x"].attrs
+        assert a["rec"].dtype == cdt and a["rec"]["a"] == 7 and a["rec"]["b"] == b"abc"
+        assert a["names"].tolist() == [b"ab", b"cd"]
