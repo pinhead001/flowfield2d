@@ -1,0 +1,144 @@
+# Smoke spec for HEC-RAS 2025 build 0.1.0.5048-dev (PROBE_PROCEDURE step E).
+# Drafted by the lead from docs/probe/v0.1.0.5048-dev/cli/cli_tree.md (2026-10-24).
+# STATUS: DRAFT — must be approved by the project owner before `rasprobe.py smoke` runs it.
+# Vars marked SEED are filled once the seed project is staged and inspected (step D).
+# Every op runs on a fresh scratch copy of the seed ({project}); nothing touches the seed itself.
+
+[vars]
+ras = 'C:/Programs/HECRAS_2025/v0.1.0.5048-dev/ras.exe'
+seed = 'D:/a/inputs/ras_seed/pilot'
+scratch = 'D:/a/data/hydraulics/_scratch/probe'
+py = 'python'
+tiny_tif = 'D:/a/data/hydraulics/_scratch/probe/tiny.tif'   # rasprobe.py make-terrain --like <seed DEM tile>
+plan = 'Plans/SEED_smallest_plan.h5'                         # SEED: smallest computed plan
+geom = 'Geometries/SEED_geometry.h5'                         # SEED: that plan's geometry
+result = 'Results/SEED_result.h5'                            # SEED: an existing result of that plan
+
+# --- read-only inspection (no file changes expected) ---------------------------------------
+[[op]]
+id = "E0_healthcheck"
+capability = "environment"
+method = "cli"
+fresh_copy = false
+argv = ["{ras}", "healthcheck"]
+timeout_s = 300
+expect = { exit_code = 0, no_window = true }
+
+[[op]]
+id = "E1_open_validate"
+capability = "open"
+method = "cli"
+argv = ["{ras}", "project", "info", "{project}"]
+timeout_s = 120
+expect = { exit_code = 0, no_window = true }
+
+[[op]]
+id = "E1b_plan_grammar"
+capability = "plan"
+method = "cli"
+# Lists every plan field `plan modify` can target; makes no changes. Decides E4/E5 follow-ups.
+argv = ["{ras}", "plan", "modify", "{project}/{plan}", "--grammar"]
+timeout_s = 120
+expect = { exit_code = 0, no_window = true }
+
+[[op]]
+id = "E1c_geometry_grammar"
+capability = "mesh"
+method = "cli"
+argv = ["{ras}", "geometry", "modify", "{project}/{geom}", "--grammar"]
+timeout_s = 120
+expect = { exit_code = 0, no_window = true }
+
+# --- model assembly ------------------------------------------------------------------------
+[[op]]
+id = "E2_terrain_create_add"
+capability = "terrain"
+method = "cli"
+pre = [["{ras}", "terrain", "create", "-n", "probe_terrain", "-p", "{project}"]]
+argv = ["{ras}", "terrain", "add", "{project}/Terrains/probe_terrain.h5", "--files", "{tiny_tif}"]
+timeout_s = 900
+expect = { exit_code = 0, no_window = true, created = ["Terrains/probe_terrain*"] }
+
+[[op]]
+id = "E3_mesh_generate"
+capability = "mesh"
+method = "cli"
+argv = ["{ras}", "geometry", "generate-mesh", "{project}/{geom}"]
+timeout_s = 1800
+expect = { exit_code = 0, no_window = true, modified = ["Geometries/*.h5"] }
+
+[[op]]
+id = "E4_bc_cli_dryrun"
+capability = "bc"
+method = "cli"
+# No BC command exists; this checks whether plan modify reaches BC fields (dry run, no write).
+# The template-edit path (h5edit) is a separate op added after step D shows the BC schema.
+argv = ["{ras}", "plan", "modify", "{project}/{plan}", "--dry-run", "--format", "Json"]
+timeout_s = 120
+expect = { no_window = true }
+
+[[op]]
+id = "E5_plan_create"
+capability = "plan"
+method = "cli"
+argv = ["{ras}", "project", "add-new", "-p", "{project}", "-t", "plan", "-n", "probe_plan"]
+timeout_s = 300
+expect = { exit_code = 0, no_window = true, created = ["Plans/probe_plan*"] }
+
+# --- compute -------------------------------------------------------------------------------
+[[op]]
+id = "E6_compute"
+capability = "compute"
+method = "cli"
+argv = ["{ras}", "plan", "solve", "{project}/{plan}", "--processor", "CPU", "--if-exists", "force"]
+timeout_s = 7200
+repeat = 2                     # also E13 determinism
+compare_glob = "Results/*"
+expect = { exit_code = 0, no_window = true, modified = ["Results/*"] }
+
+[[op]]
+id = "E6b_compute_bad_bc"
+capability = "compute_error"
+method = "gui"
+manual = "Placeholder: after step D, a template edit sets a normal-depth BC slope invalid on {project}; then plan solve. Replaced by an h5edit op before running."
+argv = ["{ras}", "plan", "solve", "{project}/{plan}", "--if-exists", "force"]
+timeout_s = 900
+expect = { exit_code_nonzero = true, output_contains = "boundary" }
+
+[[op]]
+id = "E7_result_map"
+capability = "export"
+method = "cli"
+argv = ["{ras}", "result", "map", "{project}/{result}", "{opdir}/wse_max.tif", "--type", "watersurface", "--calculation", "max"]
+timeout_s = 1800
+expect = { exit_code = 0, no_window = true }
+
+[[op]]
+id = "E7b_result_postprocess"
+capability = "export"
+method = "cli"
+argv = ["{ras}", "result", "postprocess", "{project}/{result}"]
+timeout_s = 1800
+expect = { exit_code = 0, no_window = true }
+
+[[op]]
+id = "E9_concurrency"
+capability = "concurrency"
+method = "cli"
+argv = ["{ras}", "plan", "solve", "{project}/{plan}", "--processor", "CPU", "--if-exists", "force"]
+parallel = 2
+timeout_s = 7200
+expect = { exit_code = 0 }
+
+[[op]]
+id = "E11_gpu"
+capability = "gpu"
+method = "cli"
+# vGPU shows only the Remote Display Adapter and no nvidia-smi: expected to fail cleanly.
+argv = ["{ras}", "plan", "solve", "{project}/{plan}", "--processor", "GPU", "--if-exists", "force"]
+timeout_s = 1800
+expect = { no_window = true }
+
+# E10 (storage): rerun this spec's E6 with scratch = a local, unmapped folder and compare run times.
+# E12 (offline start): rerun E0 and E6 with egress in Enforce mode and read the egress log.
+# E8 (results read): h5py reads of WSE/depth/velocity; 5 cells checked against the GUI (GUI batch).
