@@ -12,7 +12,7 @@ from pathlib import Path
 import h5py
 import numpy as np
 
-from flowfield2d.engines.ras2025.bc import PAYLOADS, payloads
+from flowfield2d.engines.ras2025.bc import BC, PAYLOADS, TSD, payloads
 
 
 @dataclass(frozen=True)
@@ -33,14 +33,26 @@ def validate_bc(path: Path) -> list[BcProblem]:
         g = f[PAYLOADS]
         times = g["Times"][:] if "Times" in g else np.array([], dtype="i8")
         values = g["Values"][:] if "Values" in g else np.array([])
+        defs = g[TSD][:] if TSD in g else None
+        b = f[BC].attrs
+        window = int(b["End Time"]) - int(b["Start Time"]) \
+            if "End Time" in b and "Start Time" in b else None
     if values.size and not np.all(np.isfinite(values)):
         probs.append(BcProblem("flow_not_finite", "time series contains NaN or infinite values"))
     if values.size and np.nanmin(values) < 0:
         probs.append(BcProblem("flow_negative",
                                f"time series minimum {float(np.nanmin(values))} is negative"))
-    if times.size > 1 and not np.all(np.diff(times) > 0):
-        probs.append(BcProblem("times_not_increasing", "series times must be strictly increasing"))
     if times.size and values.size and times.size != values.size:
         probs.append(BcProblem("length_mismatch",
                                f"{times.size} times but {values.size} values"))
+    # Each series is a slice of the shared Times array; check them one at a time.
+    series = [(i, times[int(d["Start (Time)"]):int(d["Start (Time)"]) + int(d["Count"])])
+              for i, d in enumerate(defs)] if defs is not None else [(0, times)]
+    for i, t in series:
+        if t.size > 1 and not np.all(np.diff(t) > 0):
+            probs.append(BcProblem("times_not_increasing",
+                                   f"series {i}: times must be strictly increasing"))
+        if window is not None and t.size and int(t[-1]) < window:
+            probs.append(BcProblem("series_short",
+                                   f"series {i} ends before the BC window ends"))
     return probs
