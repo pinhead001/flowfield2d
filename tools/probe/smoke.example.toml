@@ -1,0 +1,98 @@
+# Smoke spec for HEC-RAS 2025 (PROBE_PROCEDURE step E).
+#
+# Copy to smoke.toml, then replace each argv with the real command found in
+# docs/probe/<build>/cli/cli_tree.md. Only `terrain add` is known to exist
+# from HEC's 2026-08-31 release notes; every other argv below is a TEMPLATE
+# and must be confirmed against the crawl before running. The lead reviews
+# this file before `rasprobe.py smoke` runs it.
+#
+# Variables: {ras} {seed} {scratch} {probe_dir} {out} plus any key in [vars];
+# per op: {op} {opdir} and, when fresh_copy = true (default), {project}.
+# method: cli | h5edit | api | gui   (gui ops use `manual = "..."` and snapshots)
+# expect keys: exit_code, exit_code_nonzero, no_window, created, modified,
+#              not_created, stdout_contains, stderr_contains, output_contains,
+#              max_duration_s, timeout (true = a timeout is the expected outcome)
+
+[vars]
+ras = 'C:\Programs\HECRAS_2025\0.1.0.5048-dev\ras.exe'
+seed = 'C:\probe\seed\pilot'   # EXAMPLE path
+scratch = 'C:\probe\scratch'   # EXAMPLE path
+tiny_tif = 'C:\probe\scratch\tiny.tif'   # rasprobe.py make-terrain --like <DEM tile>
+py = 'python'
+
+[[op]]
+id = "E2_terrain_add"
+capability = "terrain"
+method = "cli"
+argv = ["{ras}", "terrain", "add", "{tiny_tif}"]          # CONFIRM arguments (project path? layer name?)
+cwd = "{project}"
+timeout_s = 600
+expect = { exit_code = 0, no_window = true, created = ["Terrains/*"] }
+
+[[op]]
+id = "E3_mesh_generate"
+capability = "mesh"
+method = "cli"
+argv = ["{ras}", "TEMPLATE-mesh-command", "--help"]       # replace from cli_tree.md
+timeout_s = 1800
+expect = { exit_code = 0, no_window = true, modified = ["Geometries/*.h5"] }
+
+[[op]]
+id = "E3g_mesh_generate_gui"
+capability = "mesh"
+method = "gui"
+manual = "Open {project} in the RAS GUI, regenerate the mesh (Full Regenerate Mesh), save, close RAS."
+expect = { modified = ["Geometries/*.h5"] }
+
+[[op]]
+id = "E4_bc_template_edit"
+capability = "bc"
+method = "h5edit"
+# Template edit of a BC file per REQUIREMENTS §3.3 (memory type == file type). E6 must then accept it.
+argv = ["{py}", "{probe_dir}\\..\\..\\scripts\\TEMPLATE_bc_edit.py", "{project}"]   # replace with the real editor
+timeout_s = 120
+expect = { exit_code = 0, modified = ["Boundary Conditions/*.h5"] }
+
+[[op]]
+id = "E5_plan_create"
+capability = "plan"
+method = "cli"
+argv = ["{ras}", "TEMPLATE-plan-command", "--help"]       # replace from cli_tree.md
+timeout_s = 300
+expect = { exit_code = 0, no_window = true, created = ["Plans/*"] }
+
+[[op]]
+id = "E7_export"
+capability = "export"
+method = "cli"
+argv = ["{ras}", "TEMPLATE-export-command", "--help"]     # replace from cli_tree.md
+timeout_s = 900
+expect = { exit_code = 0, no_window = true, created = ["*.tif"] }
+
+[[op]]
+id = "E6_compute"
+capability = "compute"
+method = "cli"
+argv = ["{ras}", "TEMPLATE-compute-command", "--help"]    # replace; smallest plan in the seed
+timeout_s = 3600
+repeat = 2                                                 # also gives E13 determinism
+compare_glob = "Results/*"
+expect = { exit_code = 0, no_window = true, modified = ["Results/*"] }
+
+[[op]]
+id = "E6b_compute_bad_bc"
+capability = "compute_error"
+method = "cli"
+manual = "In {project}, set a normal-depth BC slope to an invalid value (GUI or a template edit), save."
+argv = ["{ras}", "TEMPLATE-compute-command", "--help"]
+timeout_s = 900
+expect = { exit_code_nonzero = true, output_contains = "boundary" }
+
+[[op]]
+id = "E9_concurrency"
+capability = "concurrency"
+method = "cli"
+argv = ["{ras}", "TEMPLATE-compute-command", "--help"]
+parallel = 2
+timeout_s = 3600
+expect = { exit_code = 0 }
