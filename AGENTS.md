@@ -3,6 +3,9 @@
 You implement exactly one task card in this worktree. The card's prompt and acceptance command define done.
 
 - Make the acceptance command pass. Do not edit, skip or weaken existing tests; add tests if the card asks.
+- Do not run tests, builds or other long commands yourself, and never start background processes: the
+  runner runs the acceptance command after you finish and sends you its output if it fails. Read files,
+  edit files, then end your turn with a one-line summary.
 - Stay inside this worktree. Never push, merge, rebase or switch branches.
 - Do not touch `tools/probe/` unless the card says so.
 - Python 3.12, `uv run pytest -q`, `uv run ruff check src tests`, `uv run mypy` (strict). Type everything.
