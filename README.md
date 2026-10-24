@@ -12,3 +12,5 @@ Project repos (for example `methow-hydraulics`) supply all site-specific inputs 
 - Spec: `REQUIREMENTS.md`
 - Phase 0 procedure: `docs/PROBE_PROCEDURE.md`
 - Probe tests: `uv run --with h5py --with pytest --with pefile --with dnfile --with psutil --with rasterio pytest tools/probe/tests`
+
+License: MIT
