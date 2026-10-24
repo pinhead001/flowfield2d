@@ -1,0 +1,37 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/migrate.exe", "geometry", "-?"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+migrate 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option '?' is unknown.
+  Required option 's, source' is missing.
+  Required option 'd, destination' is missing.
+
+  -s, --source           Required. Source HEC-RAS version 6 geometry file
+                         (*.hdf).
+
+  -d, --destination      Required. Destination location.
+
+  --generate-1d-lines    (Default: no) Generate banklines and river edge lines
+                         on the v6 geometry before migrating. Accepts 'no'
+                         (default, leaves the geometry untouched), 'if-needed'
+                         (fills them in only when missing), or 'yes' (recomputes
+                         unconditionally). Generated lines are saved back to the
+                         source v6 HDF file.
+
+  --classic              If set, imports as a RAS 'Classic' (v6/7) geometry
+                         file. This will import more data (1D linear features,
+                         etc.) but will not be usable in some RAS 2025
+                         scenarios.
+
+  --help                 Display this help screen.
+
+  --version              Display version information.
+

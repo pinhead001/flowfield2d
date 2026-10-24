@@ -1,0 +1,30 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "geometry", "info", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  --format                     Output format: Text (default), Json, Markdown, or
+                               Properties (grep-friendly key=value).
+
+  --get                        Print only the value(s) at a flattened key path
+                               (e.g. 'name' or 'layers[0].count'). Ignores
+                               --format.
+
+  --verify-table-signatures    Locate the owning project and verify each mesh's
+                               stored property-table terrain signature against
+                               the associated terrain. Prints SUCCESS or FAILURE
+                               instead of the info dump. Also works on a
+                               geometry embedded in a result file.
+
+  --help                       Display this help screen.
+
+  --version                    Display version information.
+
+  geometry (pos. 0)            Required. Geometry file (*.h5).
+

@@ -1,0 +1,16 @@
+argv: ["D:/a/sbx/tools/agy/agy", "remote-control", "--help"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.11
+----- stdout -----
+
+----- stderr -----
+Usage: agy remote-control <subcommand>
+
+Available subcommands:
+  start    Register and start the remote-control daemon
+  status   Show the daemon's status
+  stop     Stop the daemon and unregister it
+
+Run "agy remote-control <subcommand> --help" for flags.

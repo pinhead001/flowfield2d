@@ -1,0 +1,26 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "result", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  info           Prints information about an existing RAS 2025+ result file
+                 (*.h5).
+
+  map            Generates a map from a RAS 2025+ result.
+
+  postprocess    Post-process a result (*.h5), generating its transposed
+                 time-series datasets for fast lookups. The post-process file is
+                 always written to its default location: a 'PostProcess.h5'
+                 inside a folder named after the result, alongside the result
+                 file.
+
+  help           Display more information on a specific command.
+
+  version        Display version information.
+

@@ -1,0 +1,40 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "raster", "calc", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.079
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+USAGE:
+Subtract Depth (with NoData checks):
+  ras calc --equation "if(r1 == ndv and r2 == ndv, ndv, if(r1 == ndv, 0, r1) -
+  if(r2 == ndv, 0, r2))" --input C:\Path\input1.tif C:\Path\input2.tif --output
+  C:\Path\output.tif
+
+  -i, --input       Required. Input raster file(s). Can be specified multiple
+                    times. Referenced as r1, r2, r3, etc. in the equation.
+
+  -o, --output      Required. Output filename. If file already exists, must be
+                    combined with --force argument.
+
+  -e, --equation    Required. Mathematical expression combining the rasters.
+                    Uses r1, r2, r3, etc. for inputs. Supports: +, -, *, /, ^,
+                    sqrt, abs, min, max, sin, cos, tan, log, pow, lerp, etc.
+                    Examples: '(r1 + r2) / 2' (average), 'max(r1, r2)', 'r1 -
+                    r2' (difference).
+
+  -f, --force       Force overwrite existing target file. Defaults to false.
+
+  --ndv-behavior    (Default: Allow) How to handle NoData values in the output.
+                    Allow: NoData propagates through calculations. WriteNDV:
+                    Write NoData as the output when any input is NoData.
+                    WriteZero: Write zero as the output when any input is
+                    NoData.
+
+  --help            Display this help screen.
+
+  --version         Display version information.
+

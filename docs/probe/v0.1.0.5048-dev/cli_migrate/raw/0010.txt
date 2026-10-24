@@ -1,0 +1,28 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/migrate.exe", "help", "exportmesh"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+migrate 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  -s, --source         Required. Source HEC-RAS version 2025 Geometry file
+                       (*.h5).
+
+  -d, --destination    Required. Destination Version 6 Geometry file (*.hdf).
+
+  -n, --name           Required. Mesh name, controls storage location in the H5
+                       file.
+
+  -f, --force          If set, deletes the destination file if it exists.
+
+  --use-exact          If set, use the literal mesh in the H5 file, don't
+                       recompute from conceptual. Defaults to false.
+
+  --help               Display this help screen.
+
+  --version            Display version information.
+

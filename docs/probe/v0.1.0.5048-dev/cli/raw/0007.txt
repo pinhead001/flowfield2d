@@ -1,0 +1,29 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "plan", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  info       Prints information about an existing RAS plan file (*.h5).
+
+  modify     Opens a RAS plan file (*.h5), changes one or more settings, and
+             saves it in place.
+
+  solve      Run the RAS solver on a single plan (*.h5) or ready-to-run result
+             (*.r2r.h5).
+
+  prepare    Prepare a single plan (*.h5) for compute, producing a ready-to-run
+             (*.r2r.h5) file. Ingests external data sources, computes property
+             tables, and bakes in any compute overrides. The parent project MUST
+             exist with the expected directory structure - it is opened
+             automatically for projection and associations.
+
+  help       Display more information on a specific command.
+
+  version    Display version information.
+

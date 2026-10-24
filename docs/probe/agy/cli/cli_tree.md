@@ -1,0 +1,358 @@
+# CLI tree: agy
+
+- exe: `D:/a/sbx/tools/agy/agy`
+- crawled: 2026-10-23T23:38:53 → 2026-10-23T23:39:22 (300 calls, TRUNCATED)
+- version: `1.4.7`
+
+## Commands
+
+- `agy` — (no description) [help]
+  - `agy agent` — List available agents [help]
+  - `agy agents` — List available agents [help]
+  - `agy changelog` — Show changelog and release notes [help]
+  - `agy mcp` — Manage MCP servers (add, remove, list, enable, disable) [help]
+  - `agy mic-serve` — Serve this machine's microphone to a CLI on another host [help]
+  - `agy models` — List available models [help]
+  - `agy plugin` — Manage plugins (install, uninstall, list, enable, disable) [help]
+    - `agy plugin disable` — Disable a plugin [help]
+      - `agy plugin disable disable` — Disable a plugin [help]
+      - `agy plugin disable enable` — Enable a plugin [help]
+      - `agy plugin disable import` — Import plugins from gemini or claude [help]
+      - `agy plugin disable link` — Generate link to a marketplace [help]
+      - `agy plugin disable list` — List installed plugins [help]
+      - `agy plugin disable validate` — Check a plugin's manifest and files [help]
+    - `agy plugin enable` — Enable a plugin [help]
+      - `agy plugin enable disable` — Disable a plugin [help]
+      - `agy plugin enable enable` — Enable a plugin [help]
+      - `agy plugin enable import` — Import plugins from gemini or claude [help]
+      - `agy plugin enable link` — Generate link to a marketplace [help]
+      - `agy plugin enable list` — List installed plugins [help]
+      - `agy plugin enable validate` — Check a plugin's manifest and files [help]
+    - `agy plugin import` — Import plugins from gemini or claude [help]
+      - `agy plugin import disable` — Disable a plugin [help]
+      - `agy plugin import enable` — Enable a plugin [help]
+      - `agy plugin import import` — Import plugins from gemini or claude [help]
+      - `agy plugin import link` — Generate link to a marketplace [help]
+      - `agy plugin import list` — List installed plugins [help]
+      - `agy plugin import validate` — Check a plugin's manifest and files [help]
+    - `agy plugin link` — Generate link to a marketplace [help]
+      - `agy plugin link disable` — Disable a plugin [help]
+      - `agy plugin link enable` — Enable a plugin [help]
+      - `agy plugin link import` — Import plugins from gemini or claude [help]
+      - `agy plugin link link` — Generate link to a marketplace [help]
+      - `agy plugin link list` — List installed plugins [help]
+      - `agy plugin link validate` — Check a plugin's manifest and files [help]
+    - `agy plugin list` — List installed plugins [help]
+      - `agy plugin list disable` — Disable a plugin [help]
+      - `agy plugin list enable` — Enable a plugin [help]
+      - `agy plugin list import` — Import plugins from gemini or claude [help]
+      - `agy plugin list link` — Generate link to a marketplace [help]
+      - `agy plugin list list` — List installed plugins [help]
+        - `agy plugin list list import` — Import plugins from gemini or claude [error]
+        - `agy plugin list list list` — List installed plugins [help]
+      - `agy plugin list validate` — Check a plugin's manifest and files [help]
+    - `agy plugin validate` — Check a plugin's manifest and files [help]
+  - `agy plugins` — Alias for plugin [help]
+    - `agy plugins disable` — Disable a plugin [help]
+      - `agy plugins disable disable` — Disable a plugin [help]
+      - `agy plugins disable enable` — Enable a plugin [help]
+      - `agy plugins disable import` — Import plugins from gemini or claude [help]
+      - `agy plugins disable link` — Generate link to a marketplace [help]
+      - `agy plugins disable list` — List installed plugins [help]
+      - `agy plugins disable validate` — Check a plugin's manifest and files [help]
+    - `agy plugins enable` — Enable a plugin [help]
+      - `agy plugins enable disable` — Disable a plugin [help]
+      - `agy plugins enable enable` — Enable a plugin [help]
+      - `agy plugins enable import` — Import plugins from gemini or claude [help]
+      - `agy plugins enable link` — Generate link to a marketplace [help]
+      - `agy plugins enable list` — List installed plugins [help]
+      - `agy plugins enable validate` — Check a plugin's manifest and files [help]
+    - `agy plugins import` — Import plugins from gemini or claude [help]
+      - `agy plugins import disable` — Disable a plugin [help]
+      - `agy plugins import enable` — Enable a plugin [help]
+      - `agy plugins import import` — Import plugins from gemini or claude [help]
+      - `agy plugins import link` — Generate link to a marketplace [help]
+      - `agy plugins import list` — List installed plugins [help]
+      - `agy plugins import validate` — Check a plugin's manifest and files [help]
+    - `agy plugins link` — Generate link to a marketplace [help]
+      - `agy plugins link disable` — Disable a plugin [help]
+      - `agy plugins link enable` — Enable a plugin [help]
+      - `agy plugins link import` — Import plugins from gemini or claude [help]
+      - `agy plugins link link` — Generate link to a marketplace [help]
+      - `agy plugins link list` — List installed plugins [help]
+      - `agy plugins link validate` — Check a plugin's manifest and files [help]
+    - `agy plugins list` — List installed plugins [help]
+      - `agy plugins list disable` — Disable a plugin [help]
+      - `agy plugins list enable` — Enable a plugin [help]
+      - `agy plugins list import` — Import plugins from gemini or claude [help]
+      - `agy plugins list link` — Generate link to a marketplace [help]
+      - `agy plugins list list` — List installed plugins [help]
+      - `agy plugins list validate` — Check a plugin's manifest and files [help]
+    - `agy plugins validate` — Check a plugin's manifest and files [help]
+  - `agy remote-control` — Manage the remote-control background daemon (start, status, stop) [help]
+
+## Skipped
+
+- `agy help` — help/version verb
+- `agy install` — risky name (use --allow)
+- `agy update` — risky name (use --allow)
+- `agy plugin install` — risky name (use --allow)
+- `agy plugin uninstall` — risky name (use --allow)
+- `agy plugin help` — help/version verb
+- `agy plugins install` — risky name (use --allow)
+- `agy plugins uninstall` — risky name (use --allow)
+- `agy plugins help` — help/version verb
+- `agy plugin list install` — risky name (use --allow)
+- `agy plugin list uninstall` — risky name (use --allow)
+- `agy plugin list help` — help/version verb
+- `agy plugin import install` — risky name (use --allow)
+- `agy plugin import uninstall` — risky name (use --allow)
+- `agy plugin import help` — help/version verb
+- `agy plugin enable install` — risky name (use --allow)
+- `agy plugin enable uninstall` — risky name (use --allow)
+- `agy plugin enable help` — help/version verb
+- `agy plugin disable install` — risky name (use --allow)
+- `agy plugin disable uninstall` — risky name (use --allow)
+- `agy plugin disable help` — help/version verb
+- `agy plugin link install` — risky name (use --allow)
+- `agy plugin link uninstall` — risky name (use --allow)
+- `agy plugin link help` — help/version verb
+- `agy plugins list install` — risky name (use --allow)
+- `agy plugins list uninstall` — risky name (use --allow)
+- `agy plugins list help` — help/version verb
+- `agy plugins import install` — risky name (use --allow)
+- `agy plugins import uninstall` — risky name (use --allow)
+- `agy plugins import help` — help/version verb
+- `agy plugins enable install` — risky name (use --allow)
+- `agy plugins enable uninstall` — risky name (use --allow)
+- `agy plugins enable help` — help/version verb
+- `agy plugins disable install` — risky name (use --allow)
+- `agy plugins disable uninstall` — risky name (use --allow)
+- `agy plugins disable help` — help/version verb
+- `agy plugins link install` — risky name (use --allow)
+- `agy plugins link uninstall` — risky name (use --allow)
+- `agy plugins link help` — help/version verb
+- `agy plugin list list install` — risky name (use --allow)
+- `agy plugin list list uninstall` — risky name (use --allow)
+- `agy plugin list list help` — help/version verb
+- `agy plugin list import install` — risky name (use --allow)
+- `agy plugin list import uninstall` — risky name (use --allow)
+- `agy plugin list import help` — help/version verb
+- `agy plugin list enable install` — risky name (use --allow)
+- `agy plugin list enable uninstall` — risky name (use --allow)
+- `agy plugin list enable help` — help/version verb
+- `agy plugin list disable install` — risky name (use --allow)
+- `agy plugin list disable uninstall` — risky name (use --allow)
+- `agy plugin list disable help` — help/version verb
+- `agy plugin list validate install` — risky name (use --allow)
+- `agy plugin list validate uninstall` — risky name (use --allow)
+- `agy plugin list validate help` — help/version verb
+- `agy plugin list link install` — risky name (use --allow)
+- `agy plugin list link uninstall` — risky name (use --allow)
+- `agy plugin list link help` — help/version verb
+- `agy plugin import list install` — risky name (use --allow)
+- `agy plugin import list uninstall` — risky name (use --allow)
+- `agy plugin import list help` — help/version verb
+- `agy plugin import import install` — risky name (use --allow)
+- `agy plugin import import uninstall` — risky name (use --allow)
+- `agy plugin import import help` — help/version verb
+- `agy plugin import enable install` — risky name (use --allow)
+- `agy plugin import enable uninstall` — risky name (use --allow)
+- `agy plugin import enable help` — help/version verb
+- `agy plugin import disable install` — risky name (use --allow)
+- `agy plugin import disable uninstall` — risky name (use --allow)
+- `agy plugin import disable help` — help/version verb
+- `agy plugin import validate install` — risky name (use --allow)
+- `agy plugin import validate uninstall` — risky name (use --allow)
+- `agy plugin import validate help` — help/version verb
+- `agy plugin import link install` — risky name (use --allow)
+- `agy plugin import link uninstall` — risky name (use --allow)
+- `agy plugin import link help` — help/version verb
+- `agy plugin enable list install` — risky name (use --allow)
+- `agy plugin enable list uninstall` — risky name (use --allow)
+- `agy plugin enable list help` — help/version verb
+- `agy plugin enable import install` — risky name (use --allow)
+- `agy plugin enable import uninstall` — risky name (use --allow)
+- `agy plugin enable import help` — help/version verb
+- `agy plugin enable enable install` — risky name (use --allow)
+- `agy plugin enable enable uninstall` — risky name (use --allow)
+- `agy plugin enable enable help` — help/version verb
+- `agy plugin enable disable install` — risky name (use --allow)
+- `agy plugin enable disable uninstall` — risky name (use --allow)
+- `agy plugin enable disable help` — help/version verb
+- `agy plugin enable validate install` — risky name (use --allow)
+- `agy plugin enable validate uninstall` — risky name (use --allow)
+- `agy plugin enable validate help` — help/version verb
+- `agy plugin enable link install` — risky name (use --allow)
+- `agy plugin enable link uninstall` — risky name (use --allow)
+- `agy plugin enable link help` — help/version verb
+- `agy plugin disable list install` — risky name (use --allow)
+- `agy plugin disable list uninstall` — risky name (use --allow)
+- `agy plugin disable list help` — help/version verb
+- `agy plugin disable import install` — risky name (use --allow)
+- `agy plugin disable import uninstall` — risky name (use --allow)
+- `agy plugin disable import help` — help/version verb
+- `agy plugin disable enable install` — risky name (use --allow)
+- `agy plugin disable enable uninstall` — risky name (use --allow)
+- `agy plugin disable enable help` — help/version verb
+- `agy plugin disable disable install` — risky name (use --allow)
+- `agy plugin disable disable uninstall` — risky name (use --allow)
+- `agy plugin disable disable help` — help/version verb
+- `agy plugin disable validate install` — risky name (use --allow)
+- `agy plugin disable validate uninstall` — risky name (use --allow)
+- `agy plugin disable validate help` — help/version verb
+- `agy plugin disable link install` — risky name (use --allow)
+- `agy plugin disable link uninstall` — risky name (use --allow)
+- `agy plugin disable link help` — help/version verb
+- `agy plugin link list install` — risky name (use --allow)
+- `agy plugin link list uninstall` — risky name (use --allow)
+- `agy plugin link list help` — help/version verb
+- `agy plugin link import install` — risky name (use --allow)
+- `agy plugin link import uninstall` — risky name (use --allow)
+- `agy plugin link import help` — help/version verb
+- `agy plugin link enable install` — risky name (use --allow)
+- `agy plugin link enable uninstall` — risky name (use --allow)
+- `agy plugin link enable help` — help/version verb
+- `agy plugin link disable install` — risky name (use --allow)
+- `agy plugin link disable uninstall` — risky name (use --allow)
+- `agy plugin link disable help` — help/version verb
+- `agy plugin link validate install` — risky name (use --allow)
+- `agy plugin link validate uninstall` — risky name (use --allow)
+- `agy plugin link validate help` — help/version verb
+- `agy plugin link link install` — risky name (use --allow)
+- `agy plugin link link uninstall` — risky name (use --allow)
+- `agy plugin link link help` — help/version verb
+- `agy plugins list list install` — risky name (use --allow)
+- `agy plugins list list uninstall` — risky name (use --allow)
+- `agy plugins list list help` — help/version verb
+- `agy plugins list import install` — risky name (use --allow)
+- `agy plugins list import uninstall` — risky name (use --allow)
+- `agy plugins list import help` — help/version verb
+- `agy plugins list enable install` — risky name (use --allow)
+- `agy plugins list enable uninstall` — risky name (use --allow)
+- `agy plugins list enable help` — help/version verb
+- `agy plugins list disable install` — risky name (use --allow)
+- `agy plugins list disable uninstall` — risky name (use --allow)
+- `agy plugins list disable help` — help/version verb
+- `agy plugins list validate install` — risky name (use --allow)
+- `agy plugins list validate uninstall` — risky name (use --allow)
+- `agy plugins list validate help` — help/version verb
+- `agy plugins list link install` — risky name (use --allow)
+- `agy plugins list link uninstall` — risky name (use --allow)
+- `agy plugins list link help` — help/version verb
+- `agy plugins import list install` — risky name (use --allow)
+- `agy plugins import list uninstall` — risky name (use --allow)
+- `agy plugins import list help` — help/version verb
+- `agy plugins import import install` — risky name (use --allow)
+- `agy plugins import import uninstall` — risky name (use --allow)
+- `agy plugins import import help` — help/version verb
+- `agy plugins import enable install` — risky name (use --allow)
+- `agy plugins import enable uninstall` — risky name (use --allow)
+- `agy plugins import enable help` — help/version verb
+- `agy plugins import disable install` — risky name (use --allow)
+- `agy plugins import disable uninstall` — risky name (use --allow)
+- `agy plugins import disable help` — help/version verb
+- `agy plugins import validate install` — risky name (use --allow)
+- `agy plugins import validate uninstall` — risky name (use --allow)
+- `agy plugins import validate help` — help/version verb
+- `agy plugins import link install` — risky name (use --allow)
+- `agy plugins import link uninstall` — risky name (use --allow)
+- `agy plugins import link help` — help/version verb
+- `agy plugins enable list install` — risky name (use --allow)
+- `agy plugins enable list uninstall` — risky name (use --allow)
+- `agy plugins enable list help` — help/version verb
+- `agy plugins enable import install` — risky name (use --allow)
+- `agy plugins enable import uninstall` — risky name (use --allow)
+- `agy plugins enable import help` — help/version verb
+- `agy plugins enable enable install` — risky name (use --allow)
+- `agy plugins enable enable uninstall` — risky name (use --allow)
+- `agy plugins enable enable help` — help/version verb
+- `agy plugins enable disable install` — risky name (use --allow)
+- `agy plugins enable disable uninstall` — risky name (use --allow)
+- `agy plugins enable disable help` — help/version verb
+- `agy plugins enable validate install` — risky name (use --allow)
+- `agy plugins enable validate uninstall` — risky name (use --allow)
+- `agy plugins enable validate help` — help/version verb
+- `agy plugins enable link install` — risky name (use --allow)
+- `agy plugins enable link uninstall` — risky name (use --allow)
+- `agy plugins enable link help` — help/version verb
+- `agy plugins disable list install` — risky name (use --allow)
+- `agy plugins disable list uninstall` — risky name (use --allow)
+- `agy plugins disable list help` — help/version verb
+- `agy plugins disable import install` — risky name (use --allow)
+- `agy plugins disable import uninstall` — risky name (use --allow)
+- `agy plugins disable import help` — help/version verb
+- `agy plugins disable enable install` — risky name (use --allow)
+- `agy plugins disable enable uninstall` — risky name (use --allow)
+- `agy plugins disable enable help` — help/version verb
+- `agy plugins disable disable install` — risky name (use --allow)
+- `agy plugins disable disable uninstall` — risky name (use --allow)
+- `agy plugins disable disable help` — help/version verb
+- `agy plugins disable validate install` — risky name (use --allow)
+- `agy plugins disable validate uninstall` — risky name (use --allow)
+- `agy plugins disable validate help` — help/version verb
+- `agy plugins disable link install` — risky name (use --allow)
+- `agy plugins disable link uninstall` — risky name (use --allow)
+- `agy plugins disable link help` — help/version verb
+- `agy plugins link list install` — risky name (use --allow)
+- `agy plugins link list uninstall` — risky name (use --allow)
+- `agy plugins link list help` — help/version verb
+- `agy plugins link import install` — risky name (use --allow)
+- `agy plugins link import uninstall` — risky name (use --allow)
+- `agy plugins link import help` — help/version verb
+- `agy plugins link enable install` — risky name (use --allow)
+- `agy plugins link enable uninstall` — risky name (use --allow)
+- `agy plugins link enable help` — help/version verb
+- `agy plugins link disable install` — risky name (use --allow)
+- `agy plugins link disable uninstall` — risky name (use --allow)
+- `agy plugins link disable help` — help/version verb
+- `agy plugins link validate install` — risky name (use --allow)
+- `agy plugins link validate uninstall` — risky name (use --allow)
+- `agy plugins link validate help` — help/version verb
+- `agy plugins link link install` — risky name (use --allow)
+- `agy plugins link link uninstall` — risky name (use --allow)
+- `agy plugins link link help` — help/version verb
+
+## Options by command
+
+### `agy agent`
+Usage: `agy agent [flags]`
+- `-h` Show help
+- `--help` Show help
+
+### `agy agents`
+Usage: `agy agent [flags]`
+- `-h` Show help
+- `--help` Show help
+
+### `agy changelog`
+Usage: `agy changelog [flags]`
+- `-h` Show help
+- `--help` Show help
+
+### `agy mic-serve`
+Usage: `agy mic-serve [flags]`
+- `--addr` Address to listen on; keep it on loopback (default 127.0.0.1:4713)
+- `-h` Show help
+- `--help` Show help
+
+### `agy models`
+Usage: `agy models [flags]`
+- `-h` Show help
+- `--help` Show help
+
+### `agy plugin validate`
+Usage: `agy plugin validate [path] [--strict] [--json]`
+- `--strict` Also fail on warnings
+- `--json` Print the report as JSON
+- `-h, --help` Show this help Each finding is an error (the loader skips a file or the plugin, or an item can never work), a warning (a field or file is ignored or falls back to a default) or a note (how the plugin loads). Exits non-zero if there are errors, or warnings with --strict.
+
+### `agy plugins validate`
+Usage: `agy plugin validate [path] [--strict] [--json]`
+- `--strict` Also fail on warnings
+- `--json` Print the report as JSON
+- `-h, --help` Show this help Each finding is an error (the loader skips a file or the plugin, or an item can never work), a warning (a field or file is ignored or falls back to a default) or a note (how the plugin loads). Exits non-zero if there are errors, or warnings with --strict.
+
+## Nodes without parseable help
+
+- `agy plugin list list import` → error

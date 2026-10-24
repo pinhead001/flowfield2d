@@ -1,0 +1,44 @@
+{
+  "id": "G6_timeout",
+  "capability": "agy_timeout",
+  "method": "cli",
+  "notes": null,
+  "started": "2026-10-23T23:41:51",
+  "status": "pass",
+  "runs": [
+    {
+      "argv": [
+        "agy",
+        "-p",
+        "Write a 3000-word essay on river hydraulics.",
+        "--output-format",
+        "json",
+        "--model",
+        "gemini-3.8-flash-high",
+        "--print-timeout",
+        "10s"
+      ],
+      "exit_code": 0,
+      "duration_s": 12.672,
+      "timed_out": false,
+      "window_seen": false,
+      "stdout_tail": "{\"conversation_id\":\"85d19dda-a3ea-4ce2-bc1b-e59c20252251\",\"status\":\"SUCCESS\",\"response\":\"\",\"duration_seconds\":5.6519093,\"num_turns\":1,\"usage\":{\"input_tokens\":6761,\"output_tokens\":339,\"thinking_tokens\":301,\"cache_read_tokens\":0,\"total_tokens\":7100}}\n",
+      "stderr_tail": "[agy] print timeout after 10s with turn in progress; returning partial output\n"
+    }
+  ],
+  "window_seen": false,
+  "files": {
+    "added": [],
+    "removed": [],
+    "modified": []
+  },
+  "h5_changes": {},
+  "checks": [
+    {
+      "check": "output_contains",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "finished": "2026-10-23T23:42:04"
+}

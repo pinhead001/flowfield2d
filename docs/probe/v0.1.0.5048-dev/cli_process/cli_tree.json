@@ -1,0 +1,82 @@
+{
+  "tool": "cliprobe",
+  "schema": 1,
+  "exe": "C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/Ras.Interface.Process.exe",
+  "argv_base": [
+    "C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/Ras.Interface.Process.exe"
+  ],
+  "platform": "Windows-10-10.0.19041-SP0",
+  "python": "3.12.15",
+  "started": "2026-10-23T23:38:04",
+  "finished": "2026-10-23T23:38:04",
+  "calls": 6,
+  "truncated": false,
+  "version": {
+    "args": [
+      "--version"
+    ],
+    "text": "Ras.Interface.Process 0.1.0.5048-dev",
+    "raw": "0006.txt"
+  },
+  "nodes": [
+    {
+      "path": [],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0001.txt"
+        },
+        {
+          "args": [
+            "-h"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0002.txt"
+        },
+        {
+          "args": [
+            "-?"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0003.txt"
+        },
+        {
+          "args": [
+            "/?"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0004.txt"
+        },
+        {
+          "args": [
+            "help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0005.txt"
+        }
+      ],
+      "window_seen": false
+    }
+  ],
+  "skipped": []
+}

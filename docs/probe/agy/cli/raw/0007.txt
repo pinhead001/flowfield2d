@@ -1,0 +1,16 @@
+argv: ["D:/a/sbx/tools/agy/agy", "mic-serve", "--help"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.11
+----- stdout -----
+
+----- stderr -----
+Usage: agy mic-serve [flags]
+
+Serve this machine's microphone to a CLI on another host
+
+Flags:
+  --addr  Address to listen on; keep it on loopback (default 127.0.0.1:4713)
+  -h      Show help
+  --help  Show help

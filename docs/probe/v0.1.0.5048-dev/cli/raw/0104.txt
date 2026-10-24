@@ -1,0 +1,28 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "create", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+USAGE:
+Create a project with an EPSG projection:
+  ras project create --projection EPSG:900913 --output ./MyProject.ras
+Create a project from an ESRI .prj file:
+  ras project create --projection ./projection.prj --output ./MyProject.ras
+
+  -o, --output        Required. Destination project filename, e.g.
+                      './MyProject.ras'. The project name is the filename
+                      basename. Parent directory must exist.
+
+  -j, --projection    Required. Project projection. ESRI .prj filename, EPSG
+                      code ('EPSG:900913'), or PROJ string ('PROJ:+proj=aea
+                      ...').
+
+  --help              Display this help screen.
+
+  --version           Display version information.
+

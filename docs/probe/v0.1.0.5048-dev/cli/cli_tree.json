@@ -1,0 +1,4083 @@
+{
+  "tool": "cliprobe",
+  "schema": 1,
+  "exe": "C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe",
+  "argv_base": [
+    "C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe"
+  ],
+  "platform": "Windows-10-10.0.19041-SP0",
+  "python": "3.12.15",
+  "started": "2026-10-23T23:37:47",
+  "finished": "2026-10-23T23:38:03",
+  "calls": 198,
+  "truncated": false,
+  "version": {
+    "args": [
+      "--version"
+    ],
+    "text": "ras 0.1.0.5048-dev",
+    "raw": "0002.txt"
+  },
+  "nodes": [
+    {
+      "path": [],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "benchmark",
+            "args": "",
+            "description": "Command group. Run performance benchmarks on RAS"
+          },
+          {
+            "name": "geometry",
+            "args": "",
+            "description": "Command group. Inspect and interact with RAS geometry"
+          },
+          {
+            "name": "h5",
+            "args": "",
+            "description": "Command group. Inspect, diff, and patch HDF5 files."
+          },
+          {
+            "name": "helpers",
+            "args": "",
+            "description": "Command group. General-purpose file utilities (zip,"
+          },
+          {
+            "name": "plan",
+            "args": "",
+            "description": "Command group. Inspect RAS plan files and the plans"
+          },
+          {
+            "name": "project",
+            "args": "",
+            "description": "Command group. Create, inspect, and modify RAS"
+          },
+          {
+            "name": "raster",
+            "args": "",
+            "description": "Command group. Translate and compute on raster files."
+          },
+          {
+            "name": "result",
+            "args": "",
+            "description": "Command group. Inspect and generate maps from RAS"
+          },
+          {
+            "name": "s3",
+            "args": "",
+            "description": "Command group. Raw S3 operations against a bucket:"
+          },
+          {
+            "name": "sample",
+            "args": "",
+            "description": "Command group. Browse, download, and publish RAS"
+          },
+          {
+            "name": "terrain",
+            "args": "",
+            "description": "Command group. Create, edit, and interact with your"
+          },
+          {
+            "name": "clone",
+            "args": "",
+            "description": "Clones a RAS file."
+          },
+          {
+            "name": "healthcheck",
+            "args": "",
+            "description": "Initializes and tests various RAS dependencies."
+          },
+          {
+            "name": "info",
+            "args": "",
+            "description": "Opens a file, detects its type, and prints info by"
+          },
+          {
+            "name": "mesh",
+            "args": "",
+            "description": "Deprecated. Use 'ras geometry generate-mesh' instead."
+          },
+          {
+            "name": "prepare",
+            "args": "",
+            "description": "Prepare a project or plan for compute. Ingests all"
+          },
+          {
+            "name": "solve",
+            "args": "",
+            "description": "Run the RAS solver on a project, plan, or"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "attempts": [
+        {
+          "args": [
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 0,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0001.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "benchmark"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "h5",
+            "args": "",
+            "description": "Writes an HDF5 file (serial and parallel) to check performance for"
+          },
+          {
+            "name": "hash",
+            "args": "",
+            "description": "Writes a random binary file to a temp directory, then hashes it"
+          },
+          {
+            "name": "solver",
+            "args": "",
+            "description": "Creates the synthetic Thacker 2D dataset and solves it across"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "benchmark",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "benchmark",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0003.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "benchmark",
+        "h5"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "benchmark",
+            "h5",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0038.txt"
+        },
+        {
+          "args": [
+            "benchmark",
+            "h5",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0039.txt"
+        },
+        {
+          "args": [
+            "benchmark",
+            "h5",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0040.txt"
+        },
+        {
+          "args": [
+            "help",
+            "benchmark",
+            "h5"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0041.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "benchmark",
+        "hash"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "benchmark",
+            "hash",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0042.txt"
+        },
+        {
+          "args": [
+            "benchmark",
+            "hash",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0043.txt"
+        },
+        {
+          "args": [
+            "benchmark",
+            "hash",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0044.txt"
+        },
+        {
+          "args": [
+            "help",
+            "benchmark",
+            "hash"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0045.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "benchmark",
+        "solver"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "benchmark",
+            "solver",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0046.txt"
+        },
+        {
+          "args": [
+            "benchmark",
+            "solver",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0047.txt"
+        },
+        {
+          "args": [
+            "benchmark",
+            "solver",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0048.txt"
+        },
+        {
+          "args": [
+            "help",
+            "benchmark",
+            "solver"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0049.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "clone"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "clone",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0014.txt"
+        },
+        {
+          "args": [
+            "clone",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0015.txt"
+        },
+        {
+          "args": [
+            "clone",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0016.txt"
+        },
+        {
+          "args": [
+            "help",
+            "clone"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0017.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "geometry"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints information about an existing RAS geometry file"
+          },
+          {
+            "name": "modify",
+            "args": "",
+            "description": "Modifies topology fields of a RAS geometry file (*.h5) in"
+          },
+          {
+            "name": "generate-mesh",
+            "args": "",
+            "description": "Generates the computational mesh from an existing RAS"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "geometry",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "geometry",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0004.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "geometry",
+        "generate-mesh"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "geometry",
+            "generate-mesh",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0055.txt"
+        },
+        {
+          "args": [
+            "geometry",
+            "generate-mesh",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0056.txt"
+        },
+        {
+          "args": [
+            "geometry",
+            "generate-mesh",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0057.txt"
+        },
+        {
+          "args": [
+            "help",
+            "geometry",
+            "generate-mesh"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0058.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "geometry",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "geometry",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0050.txt"
+        },
+        {
+          "args": [
+            "geometry",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0051.txt"
+        },
+        {
+          "args": [
+            "geometry",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0052.txt"
+        },
+        {
+          "args": [
+            "help",
+            "geometry",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0053.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "geometry",
+        "modify"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "List the default set of fields you can target/set (no file needed):",
+          "ras geometry modify --grammar",
+          "List what's settable in a specific geometry (real element counts):",
+          "ras geometry modify --grammar Geometry.h5",
+          "Coarsen every region 1.5x (preview first with --dry-run):",
+          "ras geometry modify --dry-run Geometry.h5 topology.region.cellsize.scale(1.5)",
+          "Refine just the quad channel regions to half their cell size:",
+          "ras geometry modify Geometry.h5 \"topology.region[type =",
+          "quad].cellsize.scale(0.5)\"",
+          "Refine only the large quad regions (compound filter on a derived field):",
+          "ras geometry modify Geometry.h5 \"topology.region[type = quad AND area >",
+          "500000].cellsize.scale(0.75)\"",
+          "Enforce a minimum cell size of 5 (select the too-small ones, then set):",
+          "ras geometry modify Geometry.h5 \"topology.region[cellsize <",
+          "5].cellsize.set(5)\"",
+          "Nudge quad orientation by 15 degrees (add onto the current value):",
+          "ras geometry modify Geometry.h5 \"topology.region[type =",
+          "quad].RotationDegrees.add(15)\"",
+          "Switch tiny regions to a Cartesian patch (enum field - assignment, not an",
+          "operation):",
+          "ras geometry modify Geometry.h5 \"topology.region[area < 10000].type =",
+          "cartesian\"",
+          "Denser point spacing along long breakline arcs:",
+          "ras geometry modify Geometry.h5 \"topology.arc[length >",
+          "1000].cellsize.scale(0.5)\"",
+          "Coarsen specific arcs by index:",
+          "ras geometry modify Geometry.h5 \"topology.arc[index IN (0, 1,",
+          "2)].cellsize.scale(1.5)\"",
+          "Pin an explicit point count on arcs that have no constant size set:",
+          "ras geometry modify Geometry.h5 \"topology.arc[cellsize IS NULL].count.set(40)\"",
+          "Make the longer breaklines follow the terrain exactly (bool field - assignment):",
+          "ras geometry modify Geometry.h5 \"topology.arc[length > 500].FollowExactly =",
+          "true\"",
+          "Refine the channel and coarsen the overbanks in one save (several selectors):",
+          "ras geometry modify Geometry.h5 \"topology.region[type =",
+          "quad].cellsize.scale(0.5)\" \"topology.region[type =",
+          "cartesian].cellsize.scale(2)\""
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "geometry",
+        "modify",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "geometry",
+            "modify",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0054.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "h5"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "diff",
+            "args": "",
+            "description": "Prints the differences between two HDF5 files."
+          },
+          {
+            "name": "squeeze",
+            "args": "",
+            "description": "Squeezes an HDF5 file in-place to make it as small as"
+          },
+          {
+            "name": "explore",
+            "args": "",
+            "description": "Interactive HDF5 file explorer with tree navigation and data"
+          },
+          {
+            "name": "create-patch",
+            "args": "",
+            "description": "Decomposes an HDF5 file into a shared base hash-store and a"
+          },
+          {
+            "name": "restore-patch",
+            "args": "",
+            "description": "Restores an original HDF5 file from a base hash-store and a"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "h5",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "h5",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0005.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "h5",
+        "create-patch"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "h5",
+            "create-patch",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0071.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "create-patch",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0072.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "create-patch",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0073.txt"
+        },
+        {
+          "args": [
+            "help",
+            "h5",
+            "create-patch"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0074.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "h5",
+        "diff"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "h5",
+            "diff",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0059.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "diff",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0060.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "diff",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.125,
+          "window_seen": false,
+          "raw": "0061.txt"
+        },
+        {
+          "args": [
+            "help",
+            "h5",
+            "diff"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0062.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "h5",
+        "explore"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "h5",
+            "explore",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0067.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "explore",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0068.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "explore",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0069.txt"
+        },
+        {
+          "args": [
+            "help",
+            "h5",
+            "explore"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.047,
+          "window_seen": false,
+          "raw": "0070.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "h5",
+        "restore-patch"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "h5",
+            "restore-patch",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0075.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "restore-patch",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0076.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "restore-patch",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0077.txt"
+        },
+        {
+          "args": [
+            "help",
+            "h5",
+            "restore-patch"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0078.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "h5",
+        "squeeze"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "h5",
+            "squeeze",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0063.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "squeeze",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0064.txt"
+        },
+        {
+          "args": [
+            "h5",
+            "squeeze",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0065.txt"
+        },
+        {
+          "args": [
+            "help",
+            "h5",
+            "squeeze"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0066.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "healthcheck"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "healthcheck",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0018.txt"
+        },
+        {
+          "args": [
+            "healthcheck",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0019.txt"
+        },
+        {
+          "args": [
+            "healthcheck",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0020.txt"
+        },
+        {
+          "args": [
+            "help",
+            "healthcheck"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0021.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "helpers"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "zip",
+            "args": "",
+            "description": "Compresses a directory into a .zip archive."
+          },
+          {
+            "name": "extract",
+            "args": "",
+            "description": "Extracts a .zip archive into a target directory."
+          },
+          {
+            "name": "hash",
+            "args": "",
+            "description": "Hashes the given file with various hashing algorithms."
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "helpers",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "helpers",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0006.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "helpers",
+        "extract"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "helpers",
+            "extract",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0083.txt"
+        },
+        {
+          "args": [
+            "helpers",
+            "extract",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0084.txt"
+        },
+        {
+          "args": [
+            "helpers",
+            "extract",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0085.txt"
+        },
+        {
+          "args": [
+            "help",
+            "helpers",
+            "extract"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0086.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "helpers",
+        "hash"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "helpers",
+            "hash",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0087.txt"
+        },
+        {
+          "args": [
+            "helpers",
+            "hash",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0088.txt"
+        },
+        {
+          "args": [
+            "helpers",
+            "hash",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0089.txt"
+        },
+        {
+          "args": [
+            "help",
+            "helpers",
+            "hash"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0090.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "helpers",
+        "zip"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "helpers",
+            "zip",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0079.txt"
+        },
+        {
+          "args": [
+            "helpers",
+            "zip",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0080.txt"
+        },
+        {
+          "args": [
+            "helpers",
+            "zip",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0081.txt"
+        },
+        {
+          "args": [
+            "help",
+            "helpers",
+            "zip"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0082.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "info",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0022.txt"
+        },
+        {
+          "args": [
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0023.txt"
+        },
+        {
+          "args": [
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0024.txt"
+        },
+        {
+          "args": [
+            "help",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0025.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "mesh"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "mesh",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0026.txt"
+        },
+        {
+          "args": [
+            "mesh",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0027.txt"
+        },
+        {
+          "args": [
+            "mesh",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0028.txt"
+        },
+        {
+          "args": [
+            "help",
+            "mesh"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0029.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "plan"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints information about an existing RAS plan file (*.h5)."
+          },
+          {
+            "name": "modify",
+            "args": "",
+            "description": "Opens a RAS plan file (*.h5), changes one or more settings, and"
+          },
+          {
+            "name": "solve",
+            "args": "",
+            "description": "Run the RAS solver on a single plan (*.h5) or ready-to-run result"
+          },
+          {
+            "name": "prepare",
+            "args": "",
+            "description": "Prepare a single plan (*.h5) for compute, producing a ready-to-run"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "plan",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "plan",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0007.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "plan",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "plan",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0091.txt"
+        },
+        {
+          "args": [
+            "plan",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0092.txt"
+        },
+        {
+          "args": [
+            "plan",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0093.txt"
+        },
+        {
+          "args": [
+            "help",
+            "plan",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0094.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "plan",
+        "modify"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "List the fields you can target/set (no file needed):",
+          "ras plan modify --grammar",
+          "List the fields and their current values in a specific plan:",
+          "ras plan modify --grammar Plan.p01.hdf",
+          "Switch the plan to the GPU solver (preview first with --dry-run):",
+          "ras plan modify --dry-run Plan.p01.hdf \"solvertype = GPU\"",
+          "Set the compute core count:",
+          "ras plan modify Plan.p01.hdf \"corecount = 8\"",
+          "Change several settings in one save:",
+          "ras plan modify Plan.p01.hdf \"solvertype = CPU\" \"corecount = 12\" \"usefbf =",
+          "true\"",
+          "Switch to the diffusion-wave equation set, solved implicitly:",
+          "ras plan modify Plan.p01.hdf \"equationset = DWE\" \"timestepping = Implicit\"",
+          "Set the plan's own time window (quote dates; durations carry a unit):",
+          "ras plan modify Plan.p01.hdf \"timewindowmode = Plan\" \"starttime = '2024-03-01",
+          "06:00'\" \"computetimestep = 30s\" \"baseoutputinterval = 1h\"",
+          "Report the changes as JSON (for scripting):",
+          "ras plan modify --format Json Plan.p01.hdf \"corecount = 8\""
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "plan",
+        "modify",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "plan",
+            "modify",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0095.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "plan",
+        "prepare"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "plan",
+            "prepare",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0100.txt"
+        },
+        {
+          "args": [
+            "plan",
+            "prepare",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0101.txt"
+        },
+        {
+          "args": [
+            "plan",
+            "prepare",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0102.txt"
+        },
+        {
+          "args": [
+            "help",
+            "plan",
+            "prepare"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0103.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "plan",
+        "solve"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "plan",
+            "solve",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0096.txt"
+        },
+        {
+          "args": [
+            "plan",
+            "solve",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0097.txt"
+        },
+        {
+          "args": [
+            "plan",
+            "solve",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0098.txt"
+        },
+        {
+          "args": [
+            "help",
+            "plan",
+            "solve"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0099.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "prepare"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "prepare",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0030.txt"
+        },
+        {
+          "args": [
+            "prepare",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0031.txt"
+        },
+        {
+          "args": [
+            "prepare",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0032.txt"
+        },
+        {
+          "args": [
+            "help",
+            "prepare"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0033.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "create",
+            "args": "",
+            "description": "Create a new empty RAS project (*.ras)."
+          },
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints information about an existing RAS"
+          },
+          {
+            "name": "add",
+            "args": "",
+            "description": "Adds an existing layer file (*.h5) to a"
+          },
+          {
+            "name": "add-new",
+            "args": "",
+            "description": "Creates a brand-new layer file inside the"
+          },
+          {
+            "name": "remove",
+            "args": "",
+            "description": "Removes a layer from a project by name."
+          },
+          {
+            "name": "solve",
+            "args": "",
+            "description": "Run the RAS solver on every plan in a"
+          },
+          {
+            "name": "prepare",
+            "args": "",
+            "description": "Prepare every plan in a project for"
+          },
+          {
+            "name": "cleanup",
+            "args": "",
+            "description": "Cleans up old backup and result files based"
+          },
+          {
+            "name": "explore",
+            "args": "",
+            "description": "Interactive RAS project explorer with tree"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific"
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "project",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0008.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "add"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "add",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0109.txt"
+        },
+        {
+          "args": [
+            "project",
+            "add",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.125,
+          "window_seen": false,
+          "raw": "0110.txt"
+        },
+        {
+          "args": [
+            "project",
+            "add",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0111.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "add"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0112.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "add-new"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "add-new",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0113.txt"
+        },
+        {
+          "args": [
+            "project",
+            "add-new",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0114.txt"
+        },
+        {
+          "args": [
+            "project",
+            "add-new",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0115.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "add-new"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0116.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "cleanup"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "cleanup",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0125.txt"
+        },
+        {
+          "args": [
+            "project",
+            "cleanup",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0126.txt"
+        },
+        {
+          "args": [
+            "project",
+            "cleanup",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0127.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "cleanup"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0128.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "create"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Create a project with an EPSG projection:",
+          "ras project create --projection EPSG:900913 --output ./MyProject.ras",
+          "Create a project from an ESRI .prj file:",
+          "ras project create --projection ./projection.prj --output ./MyProject.ras"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "project",
+        "create",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "create",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0104.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "explore"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "explore",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0129.txt"
+        },
+        {
+          "args": [
+            "project",
+            "explore",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0130.txt"
+        },
+        {
+          "args": [
+            "project",
+            "explore",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0131.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "explore"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0132.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.047,
+          "window_seen": false,
+          "raw": "0105.txt"
+        },
+        {
+          "args": [
+            "project",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0106.txt"
+        },
+        {
+          "args": [
+            "project",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0107.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.047,
+          "window_seen": false,
+          "raw": "0108.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "prepare"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "prepare",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0121.txt"
+        },
+        {
+          "args": [
+            "project",
+            "prepare",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0122.txt"
+        },
+        {
+          "args": [
+            "project",
+            "prepare",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.11,
+          "window_seen": false,
+          "raw": "0123.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "prepare"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0124.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project",
+        "solve"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "solve",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0117.txt"
+        },
+        {
+          "args": [
+            "project",
+            "solve",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0118.txt"
+        },
+        {
+          "args": [
+            "project",
+            "solve",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0119.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project",
+            "solve"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0120.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "raster"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "translate",
+            "args": "",
+            "description": "Creates a RAS-compliant .tif file from integer or float data"
+          },
+          {
+            "name": "calc",
+            "args": "",
+            "description": "Combines raster files using a mathematical expression. Input"
+          },
+          {
+            "name": "explore",
+            "args": "",
+            "description": "Interactive raster explorer: browse sub-datasets, metadata,"
+          },
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints information about a raster file (size, bands, projection,"
+          },
+          {
+            "name": "render",
+            "args": "",
+            "description": "Renders a raster on disk into a georeferenced color image (RGB or"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "raster",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "raster",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0009.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "raster",
+        "calc"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Subtract Depth (with NoData checks):",
+          "ras calc --equation \"if(r1 == ndv and r2 == ndv, ndv, if(r1 == ndv, 0, r1) -",
+          "if(r2 == ndv, 0, r2))\" --input C:\\Path\\input1.tif C:\\Path\\input2.tif --output",
+          "C:\\Path\\output.tif"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage",
+          "examples"
+        ]
+      },
+      "help_args": [
+        "raster",
+        "calc",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "raster",
+            "calc",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0137.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "raster",
+        "explore"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "raster",
+            "explore",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0138.txt"
+        },
+        {
+          "args": [
+            "raster",
+            "explore",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0139.txt"
+        },
+        {
+          "args": [
+            "raster",
+            "explore",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0140.txt"
+        },
+        {
+          "args": [
+            "help",
+            "raster",
+            "explore"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0141.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "raster",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "raster",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0142.txt"
+        },
+        {
+          "args": [
+            "raster",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0143.txt"
+        },
+        {
+          "args": [
+            "raster",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0144.txt"
+        },
+        {
+          "args": [
+            "help",
+            "raster",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0145.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "raster",
+        "render"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Palette auto-ranged across the raster's own value distribution:",
+          "ras raster render --palette Rainbow depth.tif",
+          "Palette spread linearly over a fixed range:",
+          "ras raster render --max 30 --min 0 --palette Rainbow depth.tif",
+          "Palette with one explicit stop value per color (must match the palette's color",
+          "count):",
+          "ras raster render --palette Hazard --values 0,1,2,3,4,5,6,7,8,9,10 hazard.tif",
+          "Discrete (classified) bands instead of a smooth gradient:",
+          "ras raster render --discrete --palette NLCD landcover.tif",
+          "Inline colors by name, spread over a range:",
+          "ras raster render --colors blue|cyan|yellow|red --max 30 --min 0 depth.tif",
+          "Inline colors as RGB and hex, placed at explicit values ('|' separates colors,",
+          "',' the channels):",
+          "ras raster render --colors 0,0,255|#FFFFFF|255,0,0 --values 0,15,30 depth.tif",
+          "Fully explicit value=color ramp:",
+          "ras raster render --ramp 0=0,0,255|2.5=0,255,0|10=255,0,0 velocity.tif",
+          "Ready-made named surface fill (carries its own colors and values):",
+          "ras raster render --surface-fill Courant courant.tif",
+          "Standalone hillshade (grayscale shaded relief from an elevation raster):",
+          "ras raster render --hillshade terrain.tif",
+          "Hypsometric tint: a color ramp with hillshade blended on top, custom light",
+          "angle:",
+          "ras raster render --altitude 30 --azimuth 315 --hillshade --max 1000 --min 0",
+          "--palette Terrain terrain.tif",
+          "Transparent NoData with partial opacity (4-band RGBA):",
+          "ras raster render --alpha 180 --max 10 --min 0 --palette Rainbow --rgba",
+          "depth.tif depth.rgba.tif",
+          "Resample to a coarser cell size, overwriting any existing output:",
+          "ras raster render --cell-size 50 --force --palette Rainbow depth.tif",
+          "preview.tif",
+          "Preview the resolved ramp, range and projection without rendering:",
+          "ras raster render --dry-run --max 50 --min 0 --palette Terrain depth.tif",
+          "Browse the built-in palette names (no raster needed):",
+          "ras raster render --list-palettes"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "raster",
+        "render",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "raster",
+            "render",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.11,
+          "window_seen": false,
+          "raw": "0146.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "raster",
+        "translate"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "raster",
+            "translate",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0133.txt"
+        },
+        {
+          "args": [
+            "raster",
+            "translate",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.125,
+          "window_seen": false,
+          "raw": "0134.txt"
+        },
+        {
+          "args": [
+            "raster",
+            "translate",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0135.txt"
+        },
+        {
+          "args": [
+            "help",
+            "raster",
+            "translate"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0136.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "result"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints information about an existing RAS 2025+ result file"
+          },
+          {
+            "name": "map",
+            "args": "",
+            "description": "Generates a map from a RAS 2025+ result."
+          },
+          {
+            "name": "postprocess",
+            "args": "",
+            "description": "Post-process a result (*.h5), generating its transposed"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "result",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "result",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0010.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "result",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "result",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0147.txt"
+        },
+        {
+          "args": [
+            "result",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0148.txt"
+        },
+        {
+          "args": [
+            "result",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0149.txt"
+        },
+        {
+          "args": [
+            "help",
+            "result",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0150.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "result",
+        "map"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "result",
+            "map",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0151.txt"
+        },
+        {
+          "args": [
+            "result",
+            "map",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0152.txt"
+        },
+        {
+          "args": [
+            "result",
+            "map",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0153.txt"
+        },
+        {
+          "args": [
+            "help",
+            "result",
+            "map"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0154.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "result",
+        "postprocess"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "result",
+            "postprocess",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0155.txt"
+        },
+        {
+          "args": [
+            "result",
+            "postprocess",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0156.txt"
+        },
+        {
+          "args": [
+            "result",
+            "postprocess",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0157.txt"
+        },
+        {
+          "args": [
+            "help",
+            "result",
+            "postprocess"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0158.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "s3"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "list-buckets",
+            "args": "",
+            "description": "Lists buckets visible on the S3 server. Attempts anonymous"
+          },
+          {
+            "name": "list-bucket",
+            "args": "",
+            "description": "Lists keys within an S3 bucket. Attempts anonymous access if"
+          },
+          {
+            "name": "presign",
+            "args": "",
+            "description": "Presigns an S3 key, returning a URL usable with the requested"
+          },
+          {
+            "name": "pull",
+            "args": "",
+            "description": "Pulls a single object from S3 to a local file. Attempts"
+          },
+          {
+            "name": "push",
+            "args": "",
+            "description": "Pushes a local file to S3 under the given key. Requires"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "s3",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "s3",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0011.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "s3",
+        "list-bucket"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "s3",
+            "list-bucket",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0163.txt"
+        },
+        {
+          "args": [
+            "s3",
+            "list-bucket",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0164.txt"
+        },
+        {
+          "args": [
+            "s3",
+            "list-bucket",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0165.txt"
+        },
+        {
+          "args": [
+            "help",
+            "s3",
+            "list-bucket"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0166.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "s3",
+        "list-buckets"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "s3",
+            "list-buckets",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0159.txt"
+        },
+        {
+          "args": [
+            "s3",
+            "list-buckets",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.11,
+          "window_seen": false,
+          "raw": "0160.txt"
+        },
+        {
+          "args": [
+            "s3",
+            "list-buckets",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0161.txt"
+        },
+        {
+          "args": [
+            "help",
+            "s3",
+            "list-buckets"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0162.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "s3",
+        "presign"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Presign a GET URL for download:",
+          "ras s3 presign --password secret --user alice s3://my-bucket/folder/file.h5",
+          "Presign a PUT URL for upload:",
+          "ras s3 presign --password secret --user alice --verb put",
+          "s3://my-bucket/uploads/new.h5"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "s3",
+        "presign",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "s3",
+            "presign",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0167.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "s3",
+        "pull"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Pull a public object:",
+          "ras s3 pull s3://ras-public-examples/Muncie/manifest.json ./manifest.json",
+          "Pull with credentials, overwriting any existing local file:",
+          "ras s3 pull --force --password secret --user alice s3://private-bucket/data.h5",
+          "./data.h5"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "s3",
+        "pull",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "s3",
+            "pull",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0168.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "s3",
+        "push"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Push a local file to a bucket:",
+          "ras s3 push --password secret --user alice ./report.json",
+          "s3://my-bucket/reports/today.json",
+          "Push against a custom S3 server:",
+          "ras s3 push --password secret --server https://s3.example.com --user alice",
+          "./data.h5 s3://my-bucket/data/data.h5"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "s3",
+        "push",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "s3",
+            "push",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0169.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "sample"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "list",
+            "args": "",
+            "description": "Lists all sample projects available in the global example-project"
+          },
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints details about a single sample project (manifest, files,"
+          },
+          {
+            "name": "pull",
+            "args": "",
+            "description": "Downloads a sample project from S3 into the specified directory."
+          },
+          {
+            "name": "push",
+            "args": "",
+            "description": "Uploads a project directory as a sample project, building its"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "sample",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "sample",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0012.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "sample",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "sample",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0174.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0175.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0176.txt"
+        },
+        {
+          "args": [
+            "help",
+            "sample",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0177.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "sample",
+        "list"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "sample",
+            "list",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0170.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "list",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0171.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "list",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0172.txt"
+        },
+        {
+          "args": [
+            "help",
+            "sample",
+            "list"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0173.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "sample",
+        "pull"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "sample",
+            "pull",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0178.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "pull",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.079,
+          "window_seen": false,
+          "raw": "0179.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "pull",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0180.txt"
+        },
+        {
+          "args": [
+            "help",
+            "sample",
+            "pull"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0181.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "sample",
+        "push"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "sample",
+            "push",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.11,
+          "window_seen": false,
+          "raw": "0182.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "push",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0183.txt"
+        },
+        {
+          "args": [
+            "sample",
+            "push",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.11,
+          "window_seen": false,
+          "raw": "0184.txt"
+        },
+        {
+          "args": [
+            "help",
+            "sample",
+            "push"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0185.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "solve"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "solve",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0034.txt"
+        },
+        {
+          "args": [
+            "solve",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0035.txt"
+        },
+        {
+          "args": [
+            "solve",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0036.txt"
+        },
+        {
+          "args": [
+            "help",
+            "solve"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0037.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "terrain"
+      ],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "create",
+            "args": "",
+            "description": "Create a new empty RAS terrain (*.h5). Use 'terrain add' to add"
+          },
+          {
+            "name": "add",
+            "args": "",
+            "description": "Adds one or more input rasters to an existing RAS terrain."
+          },
+          {
+            "name": "info",
+            "args": "",
+            "description": "Prints information about an existing RAS terrain."
+          },
+          {
+            "name": "remove",
+            "args": "",
+            "description": "Removes a named input (raster or vector) from an existing RAS"
+          },
+          {
+            "name": "export",
+            "args": "",
+            "description": "Exports a terrain to a new location. Optionally clips to an extent"
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "terrain",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "terrain",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0013.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "terrain",
+        "add"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "terrain",
+            "add",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0187.txt"
+        },
+        {
+          "args": [
+            "terrain",
+            "add",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0188.txt"
+        },
+        {
+          "args": [
+            "terrain",
+            "add",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0189.txt"
+        },
+        {
+          "args": [
+            "help",
+            "terrain",
+            "add"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0190.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "terrain",
+        "create"
+      ],
+      "status": "help",
+      "help": {
+        "format": "generic",
+        "usage": [
+          "Valid - project mode, project discovered in current directory:",
+          "ras terrain create --name MyTerrain",
+          "Valid - project mode, explicit project path:",
+          "ras terrain create --name MyTerrain --project ./Muncie.ras",
+          "Valid - explicit mode, full path and projection:",
+          "ras terrain create --projection EPSG:900913 --output ./MyTerrain.h5",
+          "Invalid - cannot combine --name with --output (name is derived from filename):",
+          "ras terrain create --name MyTerrain --output ./MyTerrain.h5",
+          "Invalid - cannot combine --projection with --name or --project (project owns the",
+          "projection):",
+          "ras terrain create --projection EPSG:900913 --name MyTerrain --project",
+          "./Muncie.ras",
+          "Invalid - --output requires --projection (no project context to inherit from):",
+          "ras terrain create --output ./MyTerrain.h5"
+        ],
+        "commands": [],
+        "options": [],
+        "sections": [
+          "usage"
+        ]
+      },
+      "help_args": [
+        "terrain",
+        "create",
+        "--help"
+      ],
+      "exit_code": 4294967295,
+      "attempts": [
+        {
+          "args": [
+            "terrain",
+            "create",
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0186.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "terrain",
+        "export"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "terrain",
+            "export",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0195.txt"
+        },
+        {
+          "args": [
+            "terrain",
+            "export",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0196.txt"
+        },
+        {
+          "args": [
+            "terrain",
+            "export",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0197.txt"
+        },
+        {
+          "args": [
+            "help",
+            "terrain",
+            "export"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0198.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "terrain",
+        "info"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "terrain",
+            "info",
+            "--help"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0191.txt"
+        },
+        {
+          "args": [
+            "terrain",
+            "info",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0192.txt"
+        },
+        {
+          "args": [
+            "terrain",
+            "info",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.141,
+          "window_seen": false,
+          "raw": "0193.txt"
+        },
+        {
+          "args": [
+            "help",
+            "terrain",
+            "info"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0194.txt"
+        }
+      ],
+      "window_seen": false
+    }
+  ],
+  "skipped": [
+    {
+      "path": [
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "benchmark",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "benchmark",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "geometry",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "geometry",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "h5",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "h5",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "helpers",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "helpers",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "plan",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "plan",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "project",
+        "remove"
+      ],
+      "reason": "risky name (use --allow)"
+    },
+    {
+      "path": [
+        "project",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "project",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "raster",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "raster",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "result",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "result",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "s3",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "s3",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "sample",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "sample",
+        "version"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "terrain",
+        "remove"
+      ],
+      "reason": "risky name (use --allow)"
+    },
+    {
+      "path": [
+        "terrain",
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "terrain",
+        "version"
+      ],
+      "reason": "help/version verb"
+    }
+  ]
+}

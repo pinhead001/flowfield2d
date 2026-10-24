@@ -1,0 +1,30 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "s3", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.063
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  list-buckets    Lists buckets visible on the S3 server. Attempts anonymous
+                  access if no credentials are supplied.
+
+  list-bucket     Lists keys within an S3 bucket. Attempts anonymous access if
+                  no credentials are supplied.
+
+  presign         Presigns an S3 key, returning a URL usable with the requested
+                  HTTP verb (get or put).
+
+  pull            Pulls a single object from S3 to a local file. Attempts
+                  anonymous access if no credentials are supplied.
+
+  push            Pushes a local file to S3 under the given key. Requires
+                  credentials.
+
+  help            Display more information on a specific command.
+
+  version         Display version information.
+

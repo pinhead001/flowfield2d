@@ -1,0 +1,23 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "plan", "info", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.093
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  --format         Output format: Text (default), Json, Markdown, or Properties
+                   (grep-friendly key=value).
+
+  --get            Print only the value(s) at a flattened key path (e.g.
+                   'name'). Ignores --format.
+
+  --help           Display this help screen.
+
+  --version        Display version information.
+
+  plan (pos. 0)    Required. Plan file (*.h5).
+

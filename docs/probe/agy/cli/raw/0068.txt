@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugin", "list", "disable", "-?"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+Error: unknown list option "disable": only --json is supported

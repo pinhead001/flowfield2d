@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugin", "list", "list", "import", "--help"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+Error: unknown list option "list": only --json is supported

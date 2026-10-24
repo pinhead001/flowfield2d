@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugins", "import", "disable", "-?"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.079
+----- stdout -----
+
+----- stderr -----
+Error: unknown import source or invalid path: disable

@@ -1,0 +1,24 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "geometry", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  info             Prints information about an existing RAS geometry file
+                   (*.h5).
+
+  modify           Modifies topology fields of a RAS geometry file (*.h5) in
+                   place, selecting elements with an inline filter.
+
+  generate-mesh    Generates the computational mesh from an existing RAS
+                   geometry file (*.h5) and saves it in place.
+
+  help             Display more information on a specific command.
+
+  version          Display version information.
+

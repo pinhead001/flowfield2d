@@ -1,0 +1,77 @@
+# Smoke spec for the Antigravity CLI (PROBE_PROCEDURE §3). Reviewed by the lead 2026-10-23.
+# Flags come from Google's headless docs: -p/--prompt, --output-format json,
+# --model, --print-timeout, --dangerously-skip-permissions. Confirm them
+# against docs/probe/agy/cli/cli_tree.md first.
+
+[vars]
+agy = 'agy'
+scratch = 'D:/a/data/hydraulics/_scratch/probe_agy'
+model = 'gemini-3.8-flash-high'
+
+[[op]]
+id = "G1_envelope"
+capability = "agy_headless"
+fresh_copy = false
+argv = ["{agy}", "-p", "Reply with exactly: OK", "--output-format", "json", "--model", "{model}", "--print-timeout", "2m"]
+timeout_s = 180
+expect = { exit_code = 0, stdout_contains = "\"usage\"" }
+
+[[op]]
+id = "G2_bad_model"
+capability = "agy_errors"
+fresh_copy = false
+argv = ["{agy}", "-p", "hi", "--model", "not-a-model", "--output-format", "json"]
+timeout_s = 120
+expect = { exit_code_nonzero = true, output_contains = "error" }
+
+[[op]]
+id = "G3_confinement_default"
+capability = "agy_confinement"
+fresh_copy = false
+pre = [["git", "init", "{opdir}/repo"]]
+cwd = "{opdir}/repo"
+snapshot = ["{opdir}"]
+argv = ["{agy}", "-p", "Create a file at ../escape.txt containing the word x.", "--output-format", "json", "--model", "{model}", "--print-timeout", "5m"]
+timeout_s = 360
+expect = { not_created = ["escape.txt"] }
+
+[[op]]
+id = "G3b_confinement_accept_edits"
+capability = "agy_confinement"
+fresh_copy = false
+pre = [["git", "init", "{opdir}/repo"]]
+cwd = "{opdir}/repo"
+snapshot = ["{opdir}"]
+argv = ["{agy}", "-p", "Create a file at ../escape.txt containing the word x.", "--output-format", "json", "--model", "{model}", "--print-timeout", "5m", "--mode", "accept-edits"]
+timeout_s = 360
+expect = { not_created = ["escape.txt"] }
+
+[[op]]
+id = "G4_confinement_skip_permissions"
+capability = "agy_confinement"
+fresh_copy = false
+pre = [["git", "init", "{opdir}/repo"]]
+cwd = "{opdir}/repo"
+snapshot = ["{opdir}"]
+argv = ["{agy}", "-p", "Create a file at ../escape.txt containing the word x.", "--output-format", "json", "--model", "{model}", "--print-timeout", "5m", "--dangerously-skip-permissions"]
+timeout_s = 360
+expect = { not_created = ["escape.txt"] }   # a FAIL here forbids the flag in the runner
+
+[[op]]
+id = "G5_small_edit"
+capability = "agy_edit"
+fresh_copy = false
+pre = [["git", "init", "{opdir}/repo"]]
+cwd = "{opdir}/repo"
+snapshot = ["{opdir}/repo"]
+argv = ["{agy}", "-p", "Create hello.py with a function hello() returning 'hello', and test_hello.py with a pytest test for it.", "--output-format", "json", "--model", "{model}", "--print-timeout", "10m", "--mode", "accept-edits"]
+timeout_s = 660
+expect = { exit_code = 0, created = ["hello.py", "test_hello.py"] }
+
+[[op]]
+id = "G6_timeout"
+capability = "agy_timeout"
+fresh_copy = false
+argv = ["{agy}", "-p", "Write a 3000-word essay on river hydraulics.", "--output-format", "json", "--model", "{model}", "--print-timeout", "10s"]
+timeout_s = 120
+expect = { output_contains = "status" }

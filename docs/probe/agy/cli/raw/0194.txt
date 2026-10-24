@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugins", "list", "link", "--help"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.093
+----- stdout -----
+
+----- stderr -----
+Error: unknown list option "link": only --json is supported

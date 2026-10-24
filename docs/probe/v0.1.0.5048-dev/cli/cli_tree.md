@@ -1,0 +1,151 @@
+# CLI tree: ras.exe
+
+- exe: `C:\Programs\HECRAS_2025\v0.1.0.5048-dev/ras.exe`
+- crawled: 2026-10-23T23:37:47 → 2026-10-23T23:38:03 (198 calls)
+- version: `ras 0.1.0.5048-dev`
+
+## Commands
+
+- `ras.exe` — (no description) [help]
+  - `ras.exe benchmark` — Command group. Run performance benchmarks on RAS [help]
+    - `ras.exe benchmark h5` — Writes an HDF5 file (serial and parallel) to check performance for [other]
+    - `ras.exe benchmark hash` — Writes a random binary file to a temp directory, then hashes it [other]
+    - `ras.exe benchmark solver` — Creates the synthetic Thacker 2D dataset and solves it across [other]
+  - `ras.exe clone` — Clones a RAS file. [other]
+  - `ras.exe geometry` — Command group. Inspect and interact with RAS geometry [help]
+    - `ras.exe geometry generate-mesh` — Generates the computational mesh from an existing RAS [other]
+    - `ras.exe geometry info` — Prints information about an existing RAS geometry file [other]
+    - `ras.exe geometry modify` — Modifies topology fields of a RAS geometry file (*.h5) in [help]
+  - `ras.exe h5` — Command group. Inspect, diff, and patch HDF5 files. [help]
+    - `ras.exe h5 create-patch` — Decomposes an HDF5 file into a shared base hash-store and a [other]
+    - `ras.exe h5 diff` — Prints the differences between two HDF5 files. [other]
+    - `ras.exe h5 explore` — Interactive HDF5 file explorer with tree navigation and data [other]
+    - `ras.exe h5 restore-patch` — Restores an original HDF5 file from a base hash-store and a [other]
+    - `ras.exe h5 squeeze` — Squeezes an HDF5 file in-place to make it as small as [other]
+  - `ras.exe healthcheck` — Initializes and tests various RAS dependencies. [other]
+  - `ras.exe helpers` — Command group. General-purpose file utilities (zip, [help]
+    - `ras.exe helpers extract` — Extracts a .zip archive into a target directory. [other]
+    - `ras.exe helpers hash` — Hashes the given file with various hashing algorithms. [other]
+    - `ras.exe helpers zip` — Compresses a directory into a .zip archive. [other]
+  - `ras.exe info` — Opens a file, detects its type, and prints info by [other]
+  - `ras.exe mesh` — Deprecated. Use 'ras geometry generate-mesh' instead. [other]
+  - `ras.exe plan` — Command group. Inspect RAS plan files and the plans [help]
+    - `ras.exe plan info` — Prints information about an existing RAS plan file (*.h5). [other]
+    - `ras.exe plan modify` — Opens a RAS plan file (*.h5), changes one or more settings, and [help]
+    - `ras.exe plan prepare` — Prepare a single plan (*.h5) for compute, producing a ready-to-run [other]
+    - `ras.exe plan solve` — Run the RAS solver on a single plan (*.h5) or ready-to-run result [other]
+  - `ras.exe prepare` — Prepare a project or plan for compute. Ingests all [other]
+  - `ras.exe project` — Command group. Create, inspect, and modify RAS [help]
+    - `ras.exe project add` — Adds an existing layer file (*.h5) to a [other]
+    - `ras.exe project add-new` — Creates a brand-new layer file inside the [other]
+    - `ras.exe project cleanup` — Cleans up old backup and result files based [other]
+    - `ras.exe project create` — Create a new empty RAS project (*.ras). [help]
+    - `ras.exe project explore` — Interactive RAS project explorer with tree [other]
+    - `ras.exe project info` — Prints information about an existing RAS [other]
+    - `ras.exe project prepare` — Prepare every plan in a project for [other]
+    - `ras.exe project solve` — Run the RAS solver on every plan in a [other]
+  - `ras.exe raster` — Command group. Translate and compute on raster files. [help]
+    - `ras.exe raster calc` — Combines raster files using a mathematical expression. Input [help]
+    - `ras.exe raster explore` — Interactive raster explorer: browse sub-datasets, metadata, [other]
+    - `ras.exe raster info` — Prints information about a raster file (size, bands, projection, [other]
+    - `ras.exe raster render` — Renders a raster on disk into a georeferenced color image (RGB or [help]
+    - `ras.exe raster translate` — Creates a RAS-compliant .tif file from integer or float data [other]
+  - `ras.exe result` — Command group. Inspect and generate maps from RAS [help]
+    - `ras.exe result info` — Prints information about an existing RAS 2025+ result file [other]
+    - `ras.exe result map` — Generates a map from a RAS 2025+ result. [other]
+    - `ras.exe result postprocess` — Post-process a result (*.h5), generating its transposed [other]
+  - `ras.exe s3` — Command group. Raw S3 operations against a bucket: [help]
+    - `ras.exe s3 list-bucket` — Lists keys within an S3 bucket. Attempts anonymous access if [other]
+    - `ras.exe s3 list-buckets` — Lists buckets visible on the S3 server. Attempts anonymous [other]
+    - `ras.exe s3 presign` — Presigns an S3 key, returning a URL usable with the requested [help]
+    - `ras.exe s3 pull` — Pulls a single object from S3 to a local file. Attempts [help]
+    - `ras.exe s3 push` — Pushes a local file to S3 under the given key. Requires [help]
+  - `ras.exe sample` — Command group. Browse, download, and publish RAS [help]
+    - `ras.exe sample info` — Prints details about a single sample project (manifest, files, [other]
+    - `ras.exe sample list` — Lists all sample projects available in the global example-project [other]
+    - `ras.exe sample pull` — Downloads a sample project from S3 into the specified directory. [other]
+    - `ras.exe sample push` — Uploads a project directory as a sample project, building its [other]
+  - `ras.exe solve` — Run the RAS solver on a project, plan, or [other]
+  - `ras.exe terrain` — Command group. Create, edit, and interact with your [help]
+    - `ras.exe terrain add` — Adds one or more input rasters to an existing RAS terrain. [other]
+    - `ras.exe terrain create` — Create a new empty RAS terrain (*.h5). Use 'terrain add' to add [help]
+    - `ras.exe terrain export` — Exports a terrain to a new location. Optionally clips to an extent [other]
+    - `ras.exe terrain info` — Prints information about an existing RAS terrain. [other]
+
+## Skipped
+
+- `ras.exe help` — help/version verb
+- `ras.exe version` — help/version verb
+- `ras.exe benchmark help` — help/version verb
+- `ras.exe benchmark version` — help/version verb
+- `ras.exe geometry help` — help/version verb
+- `ras.exe geometry version` — help/version verb
+- `ras.exe h5 help` — help/version verb
+- `ras.exe h5 version` — help/version verb
+- `ras.exe helpers help` — help/version verb
+- `ras.exe helpers version` — help/version verb
+- `ras.exe plan help` — help/version verb
+- `ras.exe plan version` — help/version verb
+- `ras.exe project remove` — risky name (use --allow)
+- `ras.exe project help` — help/version verb
+- `ras.exe project version` — help/version verb
+- `ras.exe raster help` — help/version verb
+- `ras.exe raster version` — help/version verb
+- `ras.exe result help` — help/version verb
+- `ras.exe result version` — help/version verb
+- `ras.exe s3 help` — help/version verb
+- `ras.exe s3 version` — help/version verb
+- `ras.exe sample help` — help/version verb
+- `ras.exe sample version` — help/version verb
+- `ras.exe terrain remove` — risky name (use --allow)
+- `ras.exe terrain help` — help/version verb
+- `ras.exe terrain version` — help/version verb
+
+## Options by command
+
+## Nodes without parseable help
+
+- `ras.exe benchmark h5` → other
+- `ras.exe benchmark hash` → other
+- `ras.exe benchmark solver` → other
+- `ras.exe clone` → other
+- `ras.exe geometry generate-mesh` → other
+- `ras.exe geometry info` → other
+- `ras.exe h5 create-patch` → other
+- `ras.exe h5 diff` → other
+- `ras.exe h5 explore` → other
+- `ras.exe h5 restore-patch` → other
+- `ras.exe h5 squeeze` → other
+- `ras.exe healthcheck` → other
+- `ras.exe helpers extract` → other
+- `ras.exe helpers hash` → other
+- `ras.exe helpers zip` → other
+- `ras.exe info` → other
+- `ras.exe mesh` → other
+- `ras.exe plan info` → other
+- `ras.exe plan prepare` → other
+- `ras.exe plan solve` → other
+- `ras.exe prepare` → other
+- `ras.exe project add` → other
+- `ras.exe project add-new` → other
+- `ras.exe project cleanup` → other
+- `ras.exe project explore` → other
+- `ras.exe project info` → other
+- `ras.exe project prepare` → other
+- `ras.exe project solve` → other
+- `ras.exe raster explore` → other
+- `ras.exe raster info` → other
+- `ras.exe raster translate` → other
+- `ras.exe result info` → other
+- `ras.exe result map` → other
+- `ras.exe result postprocess` → other
+- `ras.exe s3 list-bucket` → other
+- `ras.exe s3 list-buckets` → other
+- `ras.exe sample info` → other
+- `ras.exe sample list` → other
+- `ras.exe sample pull` → other
+- `ras.exe sample push` → other
+- `ras.exe solve` → other
+- `ras.exe terrain add` → other
+- `ras.exe terrain export` → other
+- `ras.exe terrain info` → other

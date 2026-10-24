@@ -1,0 +1,77 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "--help"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  benchmark                Command group. Run performance benchmarks on RAS
+                           files.
+
+  boundarycondition, bc    Command group. Inspect and interact with RAS boundary
+                           condition files. Alias: bc.
+
+  geometry                 Command group. Inspect and interact with RAS geometry
+                           files.
+
+  h5                       Command group. Inspect, diff, and patch HDF5 files.
+
+  helpers                  Command group. General-purpose file utilities (zip,
+                           extract).
+
+  plan                     Command group. Inspect RAS plan files and the plans
+                           inside a project.
+
+  project                  Command group. Create, inspect, and modify RAS
+                           projects.
+
+  raster                   Command group. Translate and compute on raster files.
+
+  result                   Command group. Inspect and generate maps from RAS
+                           results.
+
+  s3                       Command group. Raw S3 operations against a bucket:
+                           list-buckets, presign, pull, push.
+
+  sample                   Command group. Browse, download, and publish RAS
+                           example/sample projects.
+
+  terrain                  Command group. Create, edit, and interact with your
+                           RAS terrain.
+
+  clone                    Clones a RAS file.
+
+  healthcheck              Initializes and tests various RAS dependencies.
+
+  info                     Opens a file, detects its type, and prints info by
+                           chaining to the matching 'info' command.
+
+  mesh                     Deprecated. Use 'ras geometry generate-mesh' instead.
+                           Generates a mesh from an existing geometry file
+                           (*.h5).
+
+  prepare                  Prepare a project or plan for compute. Ingests all
+                           external data sources, computes property tables, and
+                           does any other preprocessing necessary, producing
+                           ready-to-run (*.r2r.h5) file(s) that can be computed
+                           with 'ras solve'. Auto-detects the source kind and
+                           forwards to 'ras project prepare' or 'ras plan
+                           prepare' - use those commands directly when you need
+                           their tuning options.
+
+  ui, gui                  Launches the RAS GUI.
+
+  solve                    Run the RAS solver on a project, plan, or
+                           ready-to-run result. Auto-detects the source kind and
+                           forwards to 'ras project solve' or 'ras plan solve' -
+                           use those commands directly when you need their
+                           tuning options.
+
+  help                     Display more information on a specific command.
+
+  version                  Display version information.
+

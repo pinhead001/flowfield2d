@@ -1,0 +1,84 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  create                             Create a new empty RAS project (*.ras).
+                                     Sets up the standard subdirectory layout
+                                     (Terrains, Geometries, Plans, Results,
+                                     Boundary Conditions).
+
+  info                               Prints information about an existing RAS
+                                     project.
+
+  add                                Adds an existing layer file (*.h5) to a
+                                     project by copying it into the project's
+                                     appropriate subdirectory. The layer type is
+                                     detected from the file.
+
+  add-new                            Creates a brand-new layer file inside the
+                                     project (terrain, geometry, plan, or
+                                     boundary condition).
+
+  remove                             Removes a layer from a project by name.
+                                     Deletes the underlying *.h5 file from disk.
+
+  list-geometry, list-g              Lists the geometries in a RAS project as a
+                                     simple delimited list. By default emits one
+                                     name per line. Alias: list-g.
+
+  list-plan, list-p                  Lists the plans in a RAS project. By
+                                     default emits a simple delimited list of
+                                     names; pass --detailed for a multi-field
+                                     per-plan report. Alias: list-p.
+
+  list-boundarycondition, list-bc    Lists the boundary conditions in a RAS
+                                     project as a simple delimited list. By
+                                     default emits one name per line. Alias:
+                                     list-bc.
+
+  list-terrain, list-t               Lists the terrains in a RAS project as a
+                                     simple delimited list. By default emits one
+                                     name per line. Alias: list-t.
+
+  list-result, list-r                Lists the results in a RAS project as a
+                                     simple delimited list. By default emits one
+                                     name per line. Alias: list-r.
+
+  list-nvalue, list-n                Lists the Manning's n-value layers in a RAS
+                                     project as a simple delimited list. By
+                                     default emits one name per line. Alias:
+                                     list-n.
+
+  list-classification, list-c        Lists the classification layers in a RAS
+                                     project as a simple delimited list. By
+                                     default emits one name per line. Alias:
+                                     list-c.
+
+  solve                              Run the RAS solver on every plan in a
+                                     project.
+
+  prepare                            Prepare every plan in a project for
+                                     compute, producing a ready-to-run
+                                     (*.r2r.h5) file per plan. Ingests external
+                                     data sources and computes property tables
+                                     so the results can be solved with 'ras
+                                     solve'.
+
+  cleanup                            Cleans up old backup and result files based
+                                     on a configurable retention policy.
+
+  explore                            Interactive RAS project explorer with tree
+                                     navigation.
+
+  help                               Display more information on a specific
+                                     command.
+
+  version                            Display version information.
+

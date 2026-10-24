@@ -1,0 +1,22 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "add", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.063
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  -p, --project    Path to the target project (*.ras) or directory containing
+                   one. When omitted, the current working directory is searched.
+
+  -f, --file       Required. Source layer file (*.h5) to add. Layer type
+                   (Terrain/Geometry/Plan/Result/BoundaryCondition) is detected
+                   from the file contents.
+
+  --help           Display this help screen.
+
+  --version        Display version information.
+

@@ -1,0 +1,29 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "h5", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  diff             Prints the differences between two HDF5 files.
+
+  squeeze          Squeezes an HDF5 file in-place to make it as small as
+                   possible.
+
+  explore          Interactive HDF5 file explorer with tree navigation and data
+                   viewing.
+
+  create-patch     Decomposes an HDF5 file into a shared base hash-store and a
+                   lightweight patch file.
+
+  restore-patch    Restores an original HDF5 file from a base hash-store and a
+                   patch file.
+
+  help             Display more information on a specific command.
+
+  version          Display version information.
+

@@ -1,0 +1,15 @@
+argv: ["D:/a/sbx/tools/agy/agy", "agents", "--help"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.125
+----- stdout -----
+
+----- stderr -----
+Usage: agy agent [flags]
+
+List available agents
+
+Flags:
+  -h      Show help
+  --help  Show help

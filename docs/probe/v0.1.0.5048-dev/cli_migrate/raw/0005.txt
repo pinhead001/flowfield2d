@@ -1,0 +1,53 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/migrate.exe", "project", "-?"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+migrate 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option '?' is unknown.
+  Required option 's, source' is missing.
+  Required option 'd, destination' is missing.
+
+  -s, --source           Required. Source HEC-RAS version 6 Project file (*.prj)
+                         or Result file (*.hdf) or Project directory. If a
+                         directory is specified, we will use the first RAS
+                         project file found.
+
+  -d, --destination      Required. Destination location. If you're migrating a
+                         project then this should be a directory, and it should
+                         not exist (or exist and be empty). Use "--force" to
+                         delete it first.
+                         If you're migrating a result then this can be a
+                         directory or a file. If this is a directory (e.g. "."),
+                         then a result file with the same name will be written
+                         with the new extension, e.g. 'originalresult.h5'.
+
+  -f, --force            If set, deletes the destination directory if it exists.
+
+  --classic              If set, imports as a RAS 'Classic' (v6/7) geometry
+                         file. This will import more data (1D linear features,
+                         etc.) but will not be usable in some RAS 2025
+                         scenarios.
+
+  --use-symlinks         Use SymLinks for large static files (like terrain
+                         TIFFs). This can cause instability on some operating
+                         systems, check your environment before relying on this
+                         option.
+
+  --generate-1d-lines    (Default: no) Generate banklines and river edge lines
+                         on each v6 geometry before migrating. Accepts 'no'
+                         (default, leaves the geometries untouched), 'if-needed'
+                         (fills them in only when missing), or 'yes' (recomputes
+                         unconditionally). Generated lines are saved back to the
+                         source v6 HDF files.
+
+  --help                 Display this help screen.
+
+  --version              Display version information.
+

@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "--version"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+1.4.7
+
+----- stderr -----

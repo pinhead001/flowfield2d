@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugin", "disable", "--help"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.11
+----- stdout -----
+
+----- stderr -----
+Error: plugin "--help" not found or invalid

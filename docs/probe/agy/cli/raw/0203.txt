@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugins", "import", "import", "-h"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.093
+----- stdout -----
+
+----- stderr -----
+Error: unknown import source or invalid path: import

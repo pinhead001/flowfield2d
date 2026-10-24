@@ -1,0 +1,42 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "project", "solve", "-h"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.093
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option 'h' is unknown.
+  A required value not bound to option name is missing.
+
+  --if-exists        What to do when a plan's result file already exists:
+                      'force': delete the existing file and overwrite it.
+                      'append': write to a numbered copy instead (e.g. 'Plan
+                      (1).h5'), Windows convention.
+                      'error': report a message and skip that plan.
+                      'default' (default): append a numbered copy (plan result
+                      filenames are always auto-derived here).
+
+  --max-cores        Total CPU core budget the scheduler is allowed to use
+                     across all in-flight plans. Default (0) uses all logical
+                     processors.
+
+  --gpu-slots        Number of GPU plans allowed to run concurrently. Defaults
+                     to 1.
+
+  --print-graph      Print the solve dependency graph instead of running it.
+
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  source (pos. 0)    Required. Project file (*.ras) or directory containing one.
+                     Every plan in the project will be solved.
+
+  output (pos. 1)    Destination directory for the solved result files. If
+                     unspecified, writes to the default location in the project.
+

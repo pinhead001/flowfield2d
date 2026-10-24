@@ -1,0 +1,26 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugin", "validate", "--help"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.11
+----- stdout -----
+
+----- stderr -----
+Usage: agy plugin validate [path] [--strict] [--json]
+
+Checks a plugin the way the plugin loader reads it, and reports the files and
+fields that the loader skips or ignores.
+
+Arguments:
+  path        A plugin directory, or its plugin.json (default: the current
+              directory)
+
+Flags:
+  --strict    Also fail on warnings
+  --json      Print the report as JSON
+  -h, --help  Show this help
+
+Each finding is an error (the loader skips a file or the plugin, or an item
+can never work), a warning (a field or file is ignored or falls back to a
+default) or a note (how the plugin loads). Exits non-zero if there are errors,
+or warnings with --strict.

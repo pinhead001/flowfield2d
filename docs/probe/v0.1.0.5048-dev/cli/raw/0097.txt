@@ -1,0 +1,64 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "plan", "solve", "-h"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option 'h' is unknown.
+  A required value not bound to option name is missing.
+
+  --print-graph      Print the solve dependency graph instead of running it.
+
+  --if-exists        What to do when the output file already exists:
+                      'force': delete the existing file and overwrite it.
+                      'append': write to a numbered copy instead (e.g. 'output
+                      (3).h5') (Windows convention)
+                      'error': report a message and refuse to overwrite.
+                      'default' (default): error when you name the output
+                      explicitly, append when it's auto-derived.
+
+  --core-count       Overwrite core-count saved on the plan. 0 := Use plan
+                     value, -1 := Use all-available.
+
+  --processor        Override the plan's hardware target: 'CPU' or 'GPU'. GPU
+                     implies SWE + Explicit time-stepping; combining 'gpu' with
+                     '--equation dwe' or '--time-stepping implicit' is rejected
+                     currently.
+
+  --equation         Override the plan's equation set: 'SWE' (Shallow Water
+                     Equations) or 'DWE' (Diffusion Wave Equation). DWE only
+                     supports implicit time-stepping and CPU currently.
+
+  --time-stepping    Override the plan's time-stepping scheme: 'Explicit' or
+                     'Implicit'. Only valid for the CPU SWE processor.
+
+  --name             Set the plan name embedded in the output result. If not
+                     provided, the source plan's name is kept.
+
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  source (pos. 0)    Required. Plan file (*.h5) or ready-to-run result
+                     (*.r2r.h5) to solve.
+                      For a plan file, the parent project MUST exist with the
+                      expected directory structure, and is opened automatically
+                      for projection and associations.
+                      For a ready-to-run (*.r2r.h5) file, the project does not
+                      have to exist.
+
+  output (pos. 1)    Destination result (*.h5) file. If not provided, output
+                     filename will be assumed based on the file type.
+                      For a plan file, the output filename will go to
+                      ../Results/[PlanName].h5, with an automatic count appended
+                      for file duplicates (e.g. '../Results/Plan (4).h5').
+                      For a ready-to-run file, the output filename will be in
+                      the same directory, changing the 'r2r' for 'res' (e.g.
+                      './[BaseName].res.h5').
+

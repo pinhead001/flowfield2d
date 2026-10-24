@@ -1,0 +1,24 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  h5         Writes an HDF5 file (serial and parallel) to check performance for
+             this CPU/Disk.
+
+  hash       Writes a random binary file to a temp directory, then hashes it
+             with different algorithms to check performance for this CPU/Disk.
+
+  solver     Creates the synthetic Thacker 2D dataset and solves it across
+             multiple core counts to measure CPU solver scaling on this machine.
+
+  help       Display more information on a specific command.
+
+  version    Display version information.
+

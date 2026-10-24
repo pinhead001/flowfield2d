@@ -1,0 +1,34 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "s3", "push", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.093
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+USAGE:
+Push a local file to a bucket:
+  ras s3 push --password secret --user alice ./report.json
+  s3://my-bucket/reports/today.json
+Push against a custom S3 server:
+  ras s3 push --password secret --server https://s3.example.com --user alice
+  ./data.h5 s3://my-bucket/data/data.h5
+
+  -s, --server            (Default: https://s3.hecdev.net) S3 server. Defaults
+                          to https://s3.hecdev.net
+
+  -u, --user              Required. Username for S3 authentication.
+
+  -p, --password          Required. Password for S3 authentication.
+
+  --help                  Display this help screen.
+
+  --version               Display version information.
+
+  source (pos. 0)         Required. Local file path to upload.
+
+  destination (pos. 1)    Required. Destination object in s3://bucket/key form,
+                          e.g. s3://my-bucket/reports/today.json.
+

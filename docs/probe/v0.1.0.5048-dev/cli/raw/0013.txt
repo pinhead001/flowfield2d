@@ -1,0 +1,28 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "terrain", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  create     Create a new empty RAS terrain (*.h5). Use 'terrain add' to add
+             raster sources.
+
+  add        Adds one or more input rasters to an existing RAS terrain.
+
+  info       Prints information about an existing RAS terrain.
+
+  remove     Removes a named input (raster or vector) from an existing RAS
+             terrain.
+
+  export     Exports a terrain to a new location. Optionally clips to an extent
+             and resamples to a target cell size.
+
+  help       Display more information on a specific command.
+
+  version    Display version information.
+

@@ -1,0 +1,21 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "solver", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.063
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  --end-time    Simulation end-time in seconds. Lower this to shorten each
+                solve. Defaults to 20000 (~20 timesteps).
+
+  --cores       Comma-separated list of core counts to benchmark, in order.
+                Defaults to '1,4,16'.
+
+  --help        Display this help screen.
+
+  --version     Display version information.
+

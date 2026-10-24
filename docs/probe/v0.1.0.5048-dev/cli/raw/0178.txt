@@ -1,0 +1,48 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "sample", "pull", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.062
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  -m, --manifest        S3 manifest key to pull directly. Mutually exclusive
+                        with the positional title. Use this to pull a sample
+                        that isn't listed in the global manifest.
+
+  -s, --server          S3 server. Defaults to the sample's manifest entry (or
+                        https://s3.hecdev.net when used with --manifest).
+
+  -b, --bucket          S3 bucket. Defaults to the sample's manifest entry (or
+                        ras-public-examples when used with --manifest).
+
+  -u, --user            Username for S3 authentication. Public buckets do not
+                        require this.
+
+  -p, --password        Password for S3 authentication. Public buckets do not
+                        require this.
+
+  -c, --cache           Cache directory for downloaded blobs. Defaults to the
+                        standard RAS example-project cache.
+
+  -f, --force           If set, the destination directory will be wiped before
+                        pulling.
+
+  --dry-run             Walks through the pull without writing any files.
+
+  --help                Display this help screen.
+
+  --version             Display version information.
+
+  title (pos. 0)        Title of the sample project to pull, as shown by 'ras
+                        sample list'. Mutually exclusive with --manifest.
+
+  directory (pos. 1)    Destination directory. Must be empty (or pass --force to
+                        overwrite). When omitted, defaults to the
+                        'DefaultProjectFolder' AppData override (if set) or
+                        '{MyDocuments}/RAS Projects', with a per-sample
+                        subfolder appended.
+

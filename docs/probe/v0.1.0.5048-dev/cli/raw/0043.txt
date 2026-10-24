@@ -1,0 +1,29 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "benchmark", "hash", "-h"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option 'h' is unknown.
+
+  --file-size     Set the file size to use. Units must be one of {B, KB, MB, GB,
+                  TB, KiB, MiB, GiB, TiB}.Ex: '1MB', '1.2 GiB', etc. Defaults to
+                  1GB.
+
+  --file          Compute hashes on this specific file, instead a randomly
+                  generated file.
+
+  --rash-block    Set the RASH block-size to this value (see 'file-size' for
+                  acceptable argument formatting). Defaults to 1MiB. Other block
+                  sizes will produce different RASH values.
+
+  --help          Display this help screen.
+
+  --version       Display version information.
+

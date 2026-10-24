@@ -1,0 +1,49 @@
+{
+  "id": "G1_envelope",
+  "capability": "agy_headless",
+  "method": "cli",
+  "notes": null,
+  "started": "2026-10-23T23:39:48",
+  "status": "pass",
+  "runs": [
+    {
+      "argv": [
+        "agy",
+        "-p",
+        "Reply with exactly: OK",
+        "--output-format",
+        "json",
+        "--model",
+        "gemini-3.8-flash-high",
+        "--print-timeout",
+        "2m"
+      ],
+      "exit_code": 0,
+      "duration_s": 5.922,
+      "timed_out": false,
+      "window_seen": false,
+      "stdout_tail": "{\"conversation_id\":\"e40a930d-2b58-451d-9ce0-7c21b52ac7ef\",\"status\":\"SUCCESS\",\"response\":\"OK\\n\",\"duration_seconds\":3.3353426,\"num_turns\":1,\"usage\":{\"input_tokens\":6755,\"output_tokens\":21,\"thinking_tokens\":20,\"cache_read_tokens\":0,\"total_tokens\":6776}}\n",
+      "stderr_tail": ""
+    }
+  ],
+  "window_seen": false,
+  "files": {
+    "added": [],
+    "removed": [],
+    "modified": []
+  },
+  "h5_changes": {},
+  "checks": [
+    {
+      "check": "exit_code",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "stdout_contains",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "finished": "2026-10-23T23:39:54"
+}

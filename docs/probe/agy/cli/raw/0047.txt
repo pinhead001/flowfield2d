@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugins", "disable", "-?"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+Error: open C:\Users\WDAGUtilityAccount\.gemini\config\plugins\-?: The filename, directory name, or volume label syntax is incorrect.

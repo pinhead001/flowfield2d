@@ -1,0 +1,22 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/migrate.exe", "--help"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.062
+----- stdout -----
+
+----- stderr -----
+migrate 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  project       Migrates a Version 6 HEC-RAS project (and all internal files) to
+                Version 2025.
+
+  exportmesh    Backports a 2025 RAS Mesh to Version 6.
+
+  geometry      Migrates a Version 6 HEC-RAS geometry to Version 2025.
+
+  help          Display more information on a specific command.
+
+  version       Display version information.
+

@@ -1,0 +1,39 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "clone", "-h"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option 'h' is unknown.
+  Required option 's, source' is missing.
+  Required option 'o, output' is missing.
+
+  -s, --source         Required. Source filename to clone. Expected to be one of
+                       our core file types, Geometry/Plan/BC/Result/Terrain/NV.
+
+  -o, --output         Required. Destination filename. Should not exist. E.G.
+                       "./TerrainOut.h5"
+
+  -f, --force          If set, destination file will be deleted if necessary.
+                       Defaults to false.
+
+  --geometry-only      Saves only the geometry portion of a result file. Only
+                       valid if source file is a result. Defaults to false.
+
+  --regenerate-mesh    Force regenerate the mesh from inputs. Only valid if the
+                       output is a geometry file. Defaults to false.
+
+  --clean-mesh         Removes the computed mesh (and property tables) from the
+                       file. Only valid if the output is a geometry file.
+                       Defaults to false.
+
+  --help               Display this help screen.
+
+  --version            Display version information.
+

@@ -1,0 +1,28 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "terrain", "add", "-?"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option '?' is unknown.
+  Required option 'files' is missing.
+  A required value not bound to option name is missing.
+
+  --files             Required. Input raster files to add, ordered from high to
+                      low priority.
+
+  -r, --rounding      Desired rounding, as an integer base-2 value. 0 := no
+                      rounding, default.
+
+  --help              Display this help screen.
+
+  --version           Display version information.
+
+  terrain (pos. 0)    Required. Existing terrain file (*.h5) to add rasters to.
+

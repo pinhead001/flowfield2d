@@ -1,0 +1,25 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/Ras.Interface.Process.exe", "-h"]
+exit_code: 0
+timed_out: False
+window_seen: False
+duration_s: 0.062
+----- stdout -----
+
+----- stderr -----
+Ras.Interface.Process 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option 'h' is unknown.
+  Required option 'p, pipe' is missing.
+
+  -p, --pipe     Required. Pipe name to initialize the chart server.
+
+  -d, --debug    Turn on extra debug-level output
+
+  -q, --quiet    Turn off most output text
+
+  --help         Display this help screen.
+
+  --version      Display version information.
+

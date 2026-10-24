@@ -1,0 +1,9 @@
+argv: ["D:/a/sbx/tools/agy/agy", "plugins", "enable", "link", "--help"]
+exit_code: 1
+timed_out: False
+window_seen: False
+duration_s: 0.094
+----- stdout -----
+
+----- stderr -----
+Error: plugin "link" not found or invalid

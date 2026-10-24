@@ -1,0 +1,40 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "s3", "list-bucket", "-h"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+ERROR(S):
+  Option 'h' is unknown.
+  A required value not bound to option name is missing.
+
+  -s, --server       S3 server. Defaults to https://s3.hecdev.net
+
+  --prefix           If set, only keys with this prefix are listed.
+
+  -u, --user         Username for S3 authentication. Optional - list attempts
+                     anonymous access if omitted.
+
+  -p, --password     Password for S3 authentication. Optional - list attempts
+                     anonymous access if omitted.
+
+  --format           Output format: Text (default, one entry per line), Json, or
+                     Markdown.
+
+  --delimiter        Delimiter between entries when --format is Text. Defaults
+                     to newline. Accepts escape sequences \n, \r, \t, \0.
+
+  --detailed         If set, emits per-key metadata (size, last-modified, etag,
+                     storage class) instead of just key names.
+
+  --help             Display this help screen.
+
+  --version          Display version information.
+
+  bucket (pos. 0)    Required. S3 bucket to list keys from.
+

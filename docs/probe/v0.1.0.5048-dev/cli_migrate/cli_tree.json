@@ -1,0 +1,253 @@
+{
+  "tool": "cliprobe",
+  "schema": 1,
+  "exe": "C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/migrate.exe",
+  "argv_base": [
+    "C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/migrate.exe"
+  ],
+  "platform": "Windows-10-10.0.19041-SP0",
+  "python": "3.12.15",
+  "started": "2026-10-23T23:38:05",
+  "finished": "2026-10-23T23:38:06",
+  "calls": 14,
+  "truncated": false,
+  "version": {
+    "args": [
+      "--version"
+    ],
+    "text": "migrate 0.1.0.5048-dev",
+    "raw": "0002.txt"
+  },
+  "nodes": [
+    {
+      "path": [],
+      "status": "help",
+      "help": {
+        "format": "commandlineparser",
+        "usage": [],
+        "commands": [
+          {
+            "name": "project",
+            "args": "",
+            "description": "Migrates a Version 6 HEC-RAS project (and all internal files) to"
+          },
+          {
+            "name": "exportmesh",
+            "args": "",
+            "description": "Backports a 2025 RAS Mesh to Version 6."
+          },
+          {
+            "name": "geometry",
+            "args": "",
+            "description": "Migrates a Version 6 HEC-RAS geometry to Version 2025."
+          },
+          {
+            "name": "help",
+            "args": "",
+            "description": "Display more information on a specific command."
+          },
+          {
+            "name": "version",
+            "args": "",
+            "description": "Display version information."
+          }
+        ],
+        "options": [],
+        "sections": []
+      },
+      "help_args": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "attempts": [
+        {
+          "args": [
+            "--help"
+          ],
+          "status": "help",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0001.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "exportmesh"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "exportmesh",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0007.txt"
+        },
+        {
+          "args": [
+            "exportmesh",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0008.txt"
+        },
+        {
+          "args": [
+            "exportmesh",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.109,
+          "window_seen": false,
+          "raw": "0009.txt"
+        },
+        {
+          "args": [
+            "help",
+            "exportmesh"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0010.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "geometry"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "geometry",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0011.txt"
+        },
+        {
+          "args": [
+            "geometry",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0012.txt"
+        },
+        {
+          "args": [
+            "geometry",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.094,
+          "window_seen": false,
+          "raw": "0013.txt"
+        },
+        {
+          "args": [
+            "help",
+            "geometry"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.062,
+          "window_seen": false,
+          "raw": "0014.txt"
+        }
+      ],
+      "window_seen": false
+    },
+    {
+      "path": [
+        "project"
+      ],
+      "status": "other",
+      "help": null,
+      "attempts": [
+        {
+          "args": [
+            "project",
+            "--help"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0003.txt"
+        },
+        {
+          "args": [
+            "project",
+            "-h"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.093,
+          "window_seen": false,
+          "raw": "0004.txt"
+        },
+        {
+          "args": [
+            "project",
+            "-?"
+          ],
+          "status": "error",
+          "exit_code": 4294967295,
+          "duration_s": 0.078,
+          "window_seen": false,
+          "raw": "0005.txt"
+        },
+        {
+          "args": [
+            "help",
+            "project"
+          ],
+          "status": "other",
+          "exit_code": 0,
+          "duration_s": 0.063,
+          "window_seen": false,
+          "raw": "0006.txt"
+        }
+      ],
+      "window_seen": false
+    }
+  ],
+  "skipped": [
+    {
+      "path": [
+        "help"
+      ],
+      "reason": "help/version verb"
+    },
+    {
+      "path": [
+        "version"
+      ],
+      "reason": "help/version verb"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+argv: ["C:\\Programs\\HECRAS_2025\\v0.1.0.5048-dev/ras.exe", "raster", "--help"]
+exit_code: 4294967295
+timed_out: False
+window_seen: False
+duration_s: 0.078
+----- stdout -----
+
+----- stderr -----
+ras 0.1.0.5048-dev
+Copyright (C) 2026 US Army Corps of Engineers Hydrologic Engineering Center
+
+  translate    Creates a RAS-compliant .tif file from integer or float data
+               sources. File is compressed and pyramided, with optional rounding
+               parameters.Can read any raster our GDAL build recognizes. Will
+               use faster native drivers for 1st-party formats we recognize
+               (.tif).
+
+  calc         Combines raster files using a mathematical expression. Input
+               rasters are referenced as r1, r2, r3, etc. in the equation. The
+               NoData value can be referenced with the variable 'ndv'.
+
+  explore      Interactive raster explorer: browse sub-datasets, metadata,
+               projection, and pyramid levels, with basic metadata editing. Use
+               --driver to choose the reading/editing stack.
+
+  info         Prints information about a raster file (size, bands, projection,
+               georeferencing, sub-datasets, pyramid levels, metadata). Use
+               --driver to choose the reading stack.
+
+  render       Renders a raster on disk into a georeferenced color image (RGB or
+               RGBA GeoTIFF) by applying an interpolated or discrete color ramp.
+               Takes a single raster file - it does not read a RAS result or
+               project. Reads floating-point rasters only; integer grids are not
+               yet supported. Specify the ramp with --ramp, --palette, --colors,
+               or --surface-fill. Add --hillshade for shaded relief, on its own
+               or blended over a ramp.
+
+  help         Display more information on a specific command.
+
+  version      Display version information.
+
