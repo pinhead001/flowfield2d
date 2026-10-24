@@ -429,8 +429,6 @@ dev = [
 probe = [
     { name = "dnfile" },
     { name = "pefile" },
-    { name = "psutil" },
-    { name = "rasterio" },
 ]
 
 [package.metadata]
@@ -455,8 +453,6 @@ dev = [
 probe = [
     { name = "dnfile", specifier = ">=0.15" },
     { name = "pefile", specifier = ">=2023.2.7" },
-    { name = "psutil", specifier = ">=5.9" },
-    { name = "rasterio", specifier = ">=1.3" },
 ]
 
 [[package]]

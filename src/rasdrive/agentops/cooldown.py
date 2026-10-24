@@ -49,7 +49,8 @@ def _load_all(cfg: AgentOpsConfig) -> dict[str, datetime]:
 
 def active(cfg: AgentOpsConfig, now: datetime | None = None) -> dict[str, datetime]:
     now = now or datetime.now(UTC)
-    return {k: v for k, v in _load_all(cfg).items() if v > now}
+    known = set(cfg.agy.pools) | {pool_of(cfg, m) for m in cfg.agy.models}
+    return {k: v for k, v in _load_all(cfg).items() if v > now and k in known}
 
 
 def set_cooldown(cfg: AgentOpsConfig, pool: str, until: datetime) -> None:

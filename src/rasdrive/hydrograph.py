@@ -160,6 +160,8 @@ def sample(
     """
     if dt_s <= 0:
         raise ValueError(f"dt_s must be positive, got {dt_s}")
+    if not points:
+        raise ValueError("points must not be empty")
 
     pts = list(points)
     t_end = pts[-1][0]

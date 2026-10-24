@@ -91,6 +91,8 @@ def main(argv: list[str] | None = None) -> int:
     run = csub.add_parser("run")
     run.add_argument("--workers", type=int, default=None)
     run.add_argument("--card", default=None)
+    rs = csub.add_parser("reset", help="discard worktree and branch, requeue as pending")
+    rs.add_argument("card")
     mv = csub.add_parser("move")
     mv.add_argument("card")
     mv.add_argument("state", choices=STATES)
@@ -146,6 +148,9 @@ def main(argv: list[str] | None = None) -> int:
             for state in STATES:
                 for c in q.cards(state):
                     print(f"{state:10} {c.id:24} [{c.repo}] {c.title}")
+        elif a.ccmd == "reset":
+            runner.reset_card(cfg, a.card)
+            print(f"reset {a.card}: worktree and branch removed, pending")
         elif a.ccmd == "move":
             q.move(a.card, a.state)
         elif a.ccmd == "run":

@@ -21,6 +21,12 @@ model = args[args.index("--model") + 1] if "--model" in args else ""
 quota_models = [m for m in os.environ.get("FAKE_AGY_QUOTA_MODELS", "").split(",") if m]
 if quota_models:
     mode = "quota" if model in quota_models else ""
+if mode == "timeout":  # observed: print timeout reports SUCCESS, exit 0, empty response
+    sys.stderr.write("[agy] print timeout after 10s with turn in progress; "
+                     "returning partial output\n")
+    print(json.dumps({"status": "SUCCESS", "response": "", "usage": {"total_tokens": 9},
+                      "duration_seconds": 10.0}))
+    sys.exit(0)
 if mode == "denied":  # observed: headless auto-deny still reports SUCCESS, exit 0
     sys.stderr.write("no output produced - a tool required the \"command\" permission that "
                      "headless mode cannot prompt for, so it was auto-denied.\n")

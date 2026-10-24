@@ -42,3 +42,8 @@ def test_lateral_inflow_floored_with_warning() -> None:
     assert out.tolist() == [2.0, 0.0, 0.0]
     with pytest.raises(ValueError):
         lateral_inflow([1.0, 2.0], [1.0])
+
+
+def test_sample_rejects_empty_points() -> None:
+    with pytest.raises(ValueError):
+        sample([], dt_s=60)

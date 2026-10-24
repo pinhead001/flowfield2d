@@ -139,3 +139,21 @@ def test_quota_event_requeues_and_saves_raw(repo_cfg: AgentOpsConfig,
     recs = ledger.read(repo_cfg.ledger_path)
     assert [r for r in recs if r["kind"] == "agy"][-1]["ok"] is False
     assert recs[-1]["kind"] == "quota" and recs[-1]["pool"] == "b"
+
+
+def test_print_timeout_is_flagged(repo_cfg: AgentOpsConfig,
+                                  monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("FAKE_AGY_MODE", "timeout")
+    runner.run_card(repo_cfg, _card(repo_cfg))
+    rec = [r for r in ledger.read(repo_cfg.ledger_path) if r["kind"] == "agy"][-1]
+    assert rec["ok"] is False and rec["timeout"] is True
+
+
+def test_reset_card_removes_worktree_branch_and_requeues(repo_cfg: AgentOpsConfig) -> None:
+    card = _card(repo_cfg, prompt="WRITE hello.txt=nope")
+    res = runner.run_card(repo_cfg, card)
+    assert res.state == "escalated" and res.worktree.exists()
+    runner.reset_card(repo_cfg, "c1")
+    assert not res.worktree.exists()
+    assert _git(repo_cfg.repos["lib"], "branch", "--list", "card/c1") == ""
+    assert Queue(repo_cfg).state_of("c1") == "pending"

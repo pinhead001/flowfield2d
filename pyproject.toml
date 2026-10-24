@@ -30,8 +30,6 @@ dev = [
 probe = [
     "pefile>=2023.2.7",
     "dnfile>=0.15",
-    "psutil>=5.9",
-    "rasterio>=1.3",
 ]
 
 [tool.uv]

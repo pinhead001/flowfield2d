@@ -1,6 +1,5 @@
 """Run manifests: build, validate, and write provenance records for rasdrive runs."""
 
-import hashlib
 import json
 import subprocess
 from collections.abc import Iterable
@@ -9,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import rasdrive
+from rasdrive.engine.ras2025.pin import sha256_file
 
 REQUIRED: tuple[str, ...] = (
     "manifest_version",
@@ -23,20 +23,10 @@ REQUIRED: tuple[str, ...] = (
     "convergence",
 )
 
-_BLOCK_SIZE: int = 1024 * 1024  # 1 MiB
 
 
 class ManifestError(ValueError):
     """Raised when a manifest is missing required keys or has incorrect types."""
-
-
-def _sha256_file(path: Path) -> str:
-    """Compute the SHA256 hex digest of a file, streaming in 1 MiB blocks."""
-    hasher = hashlib.sha256()
-    with path.open("rb") as f:
-        while chunk := f.read(_BLOCK_SIZE):
-            hasher.update(chunk)
-    return hasher.hexdigest()
 
 
 def git_state(repo: Path) -> dict[str, str | bool]:
@@ -86,7 +76,7 @@ def file_hashes(paths: Iterable[Path], root: Path | None = None) -> dict[str, st
             key = p.relative_to(root).as_posix()
         else:
             key = p.name
-        result[key] = _sha256_file(p)
+        result[key] = sha256_file(p)
     return dict(sorted(result.items()))
 
 

@@ -78,3 +78,9 @@ def test_unparseable_quota_uses_default_cooldown(repo_cfg: AgentOpsConfig,  # no
     left = cooldown.active(repo_cfg)["b"] - datetime.now(UTC)
     assert timedelta(minutes=59) < left <= timedelta(minutes=60)
     _ = FAKE
+
+
+def test_active_ignores_pools_no_longer_configured(cfg: AgentOpsConfig) -> None:
+    cooldown.set_cooldown(cfg, "a", NOW + timedelta(hours=1))
+    cooldown.set_cooldown(cfg, "retired", NOW + timedelta(hours=1))
+    assert set(cooldown.active(cfg, NOW)) == {"a"}

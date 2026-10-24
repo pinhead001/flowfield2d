@@ -127,6 +127,7 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
             "duration_seconds": env.get("duration_seconds"),
             "wall_seconds": round(time.monotonic() - t0, 2),
             "response_tail": response[-1000:],
+            "timeout": "print timeout" in p.stderr.lower(),
         }
         if not ok_call:
             rec["stderr_tail"] = p.stderr[-TAIL:]
@@ -183,6 +184,24 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
     d["finished"] = datetime.now(UTC).isoformat()
     ledger.write_json_atomic(cfg.results_dir / f"{card.id}.json", d)
     return result
+
+
+def reset_card(cfg: AgentOpsConfig, card_id: str) -> None:
+    """Discard a card's worktree and branch and put it back to pending (fresh start from base)."""
+    q = Queue(cfg)
+    state = q.state_of(card_id)
+    if state is None:
+        raise KeyError(card_id)
+    card = Card.load(q.root / state / f"{card_id}.toml")
+    repo = cfg.repos[card.repo]
+    wt = cfg.worktree_root / f"{cfg.worktree_prefix}{card.repo}-{card.id}"
+    if wt.exists():
+        r = _git(repo, "worktree", "remove", "--force", str(wt))
+        if r.returncode != 0:
+            raise RuntimeError(f"git worktree remove failed: {r.stderr.strip()}")
+    _git(repo, "worktree", "prune")
+    _git(repo, "branch", "-D", f"card/{card.id}")
+    q.move(card_id, "pending")
 
 
 def run_ready(cfg: AgentOpsConfig, limit: int) -> list[RunResult]:
