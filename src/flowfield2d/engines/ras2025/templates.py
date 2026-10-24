@@ -13,9 +13,12 @@ from pathlib import Path
 from flowfield2d.engines.ras2025.h5schema import SchemaDiff, SchemaMismatch, fingerprint, walk
 
 SKIP_DIRS = {"Results"}
+SKIP_FILES = {".lock"}   # RAS open-project lock; held by a GUI session, never template content
 
 
 def _skip(rel: Path) -> bool:
+    if rel.name in SKIP_FILES:
+        return True
     return any(part in SKIP_DIRS or part.endswith(" Backups") for part in rel.parts)
 
 

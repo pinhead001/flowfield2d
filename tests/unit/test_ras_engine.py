@@ -31,6 +31,7 @@ def _project(root: Path) -> Path:
         f.create_dataset("Geometry/x", data=np.zeros(3))
     (p / "Results" / "old.h5").write_bytes(b"stale")
     (p / "Plans" / "p01 Backups" / "b.h5").write_bytes(b"backup")
+    (p / ".lock").write_bytes(b"held by an open GUI session")
     return p
 
 
@@ -40,6 +41,7 @@ def test_clone_skips_results_and_backups(tmp_path: Path) -> None:
     assert (dst / "Proj.ras").exists() and (dst / "Plans" / "p01.h5").exists()
     assert not (dst / "Results" / "old.h5").exists() and (dst / "Results").is_dir()
     assert not (dst / "Plans" / "p01 Backups").exists()
+    assert not (dst / ".lock").exists()          # a session lock is not template content
     with pytest.raises(FileExistsError):
         clone_project(src, dst)
     with pytest.raises(FileNotFoundError):
