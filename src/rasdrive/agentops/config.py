@@ -31,6 +31,7 @@ class AgyConfig:
     default_cooldown_min: float
     print_timeout: str
     extra_args: list[str]
+    pre_acceptance: list[str]
     max_retries: int
     concurrency_start: int
     error_window_min: float
@@ -124,6 +125,7 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
             default_cooldown_min=float(a.get("default_cooldown_min", 60)),
             print_timeout=str(a["print_timeout"]),
             extra_args=[str(x) for x in a.get("extra_args", [])],
+            pre_acceptance=[str(x) for x in a.get("pre_acceptance", [])],
             max_retries=int(a["max_retries"]),
             concurrency_start=int(a["concurrency_start"]),
             error_window_min=float(a["error_window_min"]),

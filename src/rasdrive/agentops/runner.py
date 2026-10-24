@@ -151,6 +151,9 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
             result = RunResult(card.id, "quota", attempt, wt, branch, p.stderr[-500:])
             break
 
+        if ok_call:
+            for cmd in cfg.agy.pre_acceptance:  # mechanical fixes (e.g. lint autofix); best effort
+                _shell(cmd, wt)
         acc = _shell(card.acceptance, wt)
         if ok_call and acc.returncode == 0:
             _git(wt, "add", "-A")

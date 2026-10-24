@@ -112,6 +112,16 @@ def test_success_envelope_with_empty_response_is_a_failed_call(
     assert rec["ok"] is False and "auto-denied" in rec["stderr_tail"]
 
 
+def test_pre_acceptance_runs_before_acceptance(repo_cfg: AgentOpsConfig) -> None:
+    # The delegate writes the wrong text; a mechanical pre-acceptance step repairs it.
+    repo_cfg.agy.pre_acceptance = [
+        'python -c "import pathlib; pathlib.Path(\'hello.txt\').write_text(\'hi\')"',
+        'python -c "import sys; sys.exit(5)"',  # failures here are ignored
+    ]
+    res = runner.run_card(repo_cfg, _card(repo_cfg, prompt="WRITE hello.txt=nope"))
+    assert res.state == "done" and res.attempts == 1
+
+
 def test_ledger_keeps_response_tail(repo_cfg: AgentOpsConfig) -> None:
     runner.run_card(repo_cfg, _card(repo_cfg))
     assert ledger.read(repo_cfg.ledger_path)[-1]["response_tail"] == "done"
