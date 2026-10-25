@@ -51,7 +51,8 @@ def test_least_cost_path_finds_gap() -> None:
     path = least_cost_path(cost, (2, 2), (2, 17))
     assert path[0] == (2, 2) and path[-1] == (2, 17)
     assert (15, 10) in path
-    assert all(max(abs(a[0] - b[0]), abs(a[1] - b[1])) == 1 for a, b in zip(path, path[1:], strict=False))
+    steps = zip(path, path[1:], strict=False)
+    assert all(max(abs(a[0] - b[0]), abs(a[1] - b[1])) == 1 for a, b in steps)   # 8-connected
     with pytest.raises(ValueError):
         least_cost_path(cost, (0, 0), (25, 0))
 
