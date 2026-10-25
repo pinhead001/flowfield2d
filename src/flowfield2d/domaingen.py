@@ -798,16 +798,21 @@ def cut_between(
     return chosen_piece, la, lb
 
 
-def cross_line(area: Polygon, point: Point, *, n_angles: int = 180) -> LineString:
+def cross_line(area: Polygon, point: Point, *, along: tuple[float, float] | None = None,
+               n_angles: int = 180) -> LineString:
     """The shortest chord of `area` through `point`: a cross-section for a BC line placed by a
-    single point (e.g. a pour point), so a domain can be defined by two points."""
+    single point (e.g. a pour point), so a domain can be defined by two points.
+
+    With `along` (a flow direction), the chord is perpendicular to it instead: robust near
+    corridor ends and in bends, where the shortest chord can cut a corner."""
     if not area.covers(point):
         raise ValueError(f"point {point} is outside the area")
     minx, miny, maxx, maxy = area.bounds
     reach = 2.0 * math.hypot(maxx - minx, maxy - miny)
     best: LineString | None = None
-    for k in range(n_angles):
-        a = math.pi * k / n_angles
+    angles = ([math.atan2(along[1], along[0]) + math.pi / 2] if along is not None
+              else [math.pi * k / n_angles for k in range(n_angles)])
+    for a in angles:
         dx, dy = math.cos(a) * reach, math.sin(a) * reach
         probe = LineString([(point.x - dx, point.y - dy), (point.x + dx, point.y + dy)])
         parts = [ls for ls in _extract_linestrings(probe.intersection(area))

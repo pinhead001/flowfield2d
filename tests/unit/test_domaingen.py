@@ -221,3 +221,13 @@ def test_cut_between_without_inside_point() -> None:
     b = cross_line(corridor, Point(150, 400))
     mid, la, lb = cut_between(corridor, a, b, None)
     assert mid.area == pytest.approx(300 * 2100, rel=0.01)
+
+
+def test_cross_line_perpendicular_to_a_flow_direction() -> None:
+    from flowfield2d.domaingen import cross_line
+
+    wide = Polygon([(-1300, -100), (1300, -100), (1300, 3000), (-1300, 3000)])
+    near_end = Point(0, 2900)                                       # corner chords are shorter
+    line = cross_line(wide, near_end, along=(0.0, -1.0))
+    assert line.length == pytest.approx(2600.0, rel=0.01)
+    assert abs(line.coords[0][1] - 2900) < 1e-6 and abs(line.coords[-1][1] - 2900) < 1e-6
