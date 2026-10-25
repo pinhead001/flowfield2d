@@ -22,8 +22,8 @@ from typing import Any
 
 import h5py
 import numpy as np
+import shapely
 from numpy.typing import NDArray
-from shapely.geometry import Point
 
 from flowfield2d.engines.ras2025.split import bc_polylines
 
@@ -85,15 +85,9 @@ class ResultsReader:
     def cell_wse_series(
         self, area: str, cells: Sequence[int], min_depth: float = 0.0
     ) -> NDArray[np.float64]:
-        cell_idx = [int(c) for c in cells]
-        with h5py.File(self.path, "r", locking=False) as f:
-            ds = f[f"{BASE}/2D Flow Areas/{area}/Cell Depth"]
-            try:
-                depth = np.asarray(ds[:, cell_idx], dtype=np.float64)
-            except (IndexError, TypeError):
-                depth = np.asarray(ds[()], dtype=np.float64)[:, cell_idx]
-        elev = self.cell_min_elevation(area)[cell_idx]
-        wse = depth + elev
+        idx = np.asarray(cells, dtype=np.int64)
+        depth = self._read(f"{BASE}/2D Flow Areas/{area}/Cell Depth").astype(np.float64)[:, idx]
+        wse = depth + self.cell_min_elevation(area)[idx]
         return np.where(depth > min_depth, wse, np.nan)
 
     def boundary_faces(self, area: str, line: str, tol: float) -> NDArray[np.int64]:
@@ -106,32 +100,18 @@ class ResultsReader:
             face_data = np.asarray(f[f"{GEOM}/{area}/Face Data"][()])
             nodes = np.asarray(f[f"{GEOM}/{area}/Node Coordinates"][()], dtype=np.float64)
 
-        matching: list[int] = []
-        for face_idx in range(len(face_data)):
-            cell_b = int(face_data[face_idx, 1])
-            if cell_b != -1:
-                continue
-            fp_a = int(face_data[face_idx, 2])
-            fp_b = int(face_data[face_idx, 3])
-            pt_a = Point(float(nodes[fp_a, 0]), float(nodes[fp_a, 1]))
-            pt_b = Point(float(nodes[fp_b, 0]), float(nodes[fp_b, 1]))
-            if poly.distance(pt_a) <= tol and poly.distance(pt_b) <= tol:
-                matching.append(face_idx)
-
-        if not matching:
+        perim = np.flatnonzero(face_data[:, 1] == -1)
+        near_a = shapely.distance(poly, shapely.points(nodes[face_data[perim, 2]])) <= tol
+        near_b = shapely.distance(poly, shapely.points(nodes[face_data[perim, 3]])) <= tol
+        matching: NDArray[np.int64] = perim[np.asarray(near_a & near_b, dtype=bool)].astype(np.int64)
+        if matching.size == 0:
             raise ValueError(f"no faces qualify for boundary line {line!r} within tolerance {tol}")
-        return np.array(matching, dtype=np.int64)
+        return matching
 
     def boundary_flow(self, area: str, line: str, tol: float) -> NDArray[np.float64]:
         faces = self.boundary_faces(area, line, tol)
-        face_idx = [int(i) for i in faces]
-        with h5py.File(self.path, "r", locking=False) as f:
-            ds = f[f"{BASE}/2D Flow Areas/{area}/DEBUG/FaceFlow"]
-            try:
-                flows = np.asarray(ds[:, face_idx], dtype=np.float64)
-            except (IndexError, TypeError):
-                flows = np.asarray(ds[()], dtype=np.float64)[:, face_idx]
-        return np.asarray(flows.sum(axis=1), dtype=np.float64)
+        flows = self._read(f"{BASE}/2D Flow Areas/{area}/DEBUG/FaceFlow").astype(np.float64)
+        return np.asarray(flows[:, faces].sum(axis=1), dtype=np.float64)
 
     def compute_summary(self) -> ComputeSummary:
         with h5py.File(self.path, "r", locking=False) as f:
