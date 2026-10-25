@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from flowfield2d.stages import is_fresh, mark_done, stage_key
 
 
