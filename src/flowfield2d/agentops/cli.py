@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from flowfield2d.agentops import governor, hooks, ledger, runner, statusline
-from flowfield2d.agentops.config import AgentOpsConfig, load_config
+from flowfield2d.agentops.config import AgentOpsConfig, load_config, set_governor_profile
 from flowfield2d.agentops.queue import STATES, Queue
 
 
@@ -80,6 +80,8 @@ def main(argv: list[str] | None = None) -> int:
     st.add_argument("--json", action="store_true")
     gsub.add_parser("next")
     gsub.add_parser("plan")
+    pr = gsub.add_parser("profile", help="list governor profiles, or select one")
+    pr.add_argument("name", nargs="?")
     cal = gsub.add_parser("calibrate")
     cal.add_argument("--agy-remaining", type=float, required=True,
                      help="agy remaining %% read from its /usage view")
@@ -134,6 +136,13 @@ def main(argv: list[str] | None = None) -> int:
             print(_next(cfg))
         elif a.gcmd == "plan":
             print(_plan(cfg))
+        elif a.gcmd == "profile":
+            if a.name:
+                set_governor_profile(cfg.source, a.name)
+                print(f"governor profile: {a.name}")
+            else:
+                for n in cfg.governor.profiles:
+                    print(("*" if n == cfg.governor.profile else "") + n)
         elif a.gcmd == "calibrate":
             governor.calibrate(cfg, a.agy_remaining)
             print(governor.render(governor.status(cfg)))

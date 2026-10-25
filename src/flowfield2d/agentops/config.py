@@ -7,6 +7,7 @@ project default: every path and threshold comes from the file.
 from __future__ import annotations
 
 import os
+import re
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -21,6 +22,8 @@ class GovernorConfig:
     conserve_min_remaining: float
     weekly_pace_slack: float
     unknown_mode: str
+    profile: str = ""                                    # active set in [governor.profiles], if any
+    profiles: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -94,6 +97,44 @@ def _path(base: Path, value: str) -> Path:
     return p if p.is_absolute() else (base / p).resolve()
 
 
+def _governor(g: dict[str, Any]) -> GovernorConfig:
+    """Thresholds from [governor], or from the set named by `profile` in [governor.profiles]."""
+    profiles: dict[str, Any] = g.get("profiles", {})
+    name = str(g.get("profile", ""))
+    t = g
+    if profiles:
+        if name not in profiles:
+            raise KeyError(f"governor profile {name!r} not in [governor.profiles] "
+                           f"({', '.join(profiles)})")
+        t = profiles[name]
+    return GovernorConfig(
+        normal_min_remaining=float(t["normal_min_remaining"]),
+        conserve_min_remaining=float(t["conserve_min_remaining"]),
+        weekly_pace_slack=float(t["weekly_pace_slack"]),
+        unknown_mode=str(t["unknown_mode"]),
+        profile=name if profiles else "",
+        profiles=list(profiles),
+    )
+
+
+_PROFILE_LINE = re.compile(r'^(profile\s*=\s*")[^"]*(")', re.MULTILINE)
+
+
+def set_governor_profile(path: Path | str, name: str) -> None:
+    """Select a governor profile by rewriting the `profile = "..."` line (comments kept)."""
+    src = Path(path)
+    text = src.read_text(encoding="utf-8")
+    profiles = tomllib.loads(text).get("governor", {}).get("profiles", {})
+    if not profiles:
+        raise ValueError(f"{src}: no [governor.profiles] defined")
+    if name not in profiles:
+        raise KeyError(f"unknown governor profile {name!r} ({', '.join(profiles)})")
+    new, n = _PROFILE_LINE.subn(lambda m: f"{m.group(1)}{name}{m.group(2)}", text, count=1)
+    if n != 1:
+        raise ValueError(f"{src}: no profile = \"...\" line under [governor]")
+    src.write_text(new, encoding="utf-8")
+
+
 def load_config(path: Path | str | None = None) -> AgentOpsConfig:
     if path is None:
         env = os.environ.get(ENV_VAR)
@@ -111,12 +152,7 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
         worktree_root=_path(base, p["worktree_root"]),
         worktree_prefix=p.get("worktree_prefix", ""),
         repos={k: _path(base, v) for k, v in raw.get("repos", {}).items()},
-        governor=GovernorConfig(
-            normal_min_remaining=float(g["normal_min_remaining"]),
-            conserve_min_remaining=float(g["conserve_min_remaining"]),
-            weekly_pace_slack=float(g["weekly_pace_slack"]),
-            unknown_mode=str(g["unknown_mode"]),
-        ),
+        governor=_governor(g),
         agy=AgyConfig(
             command=list(exe) if isinstance(exe, list) else [str(exe)],
             models=([str(m) for m in a.get("models", [])]
