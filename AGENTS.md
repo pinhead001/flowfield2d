@@ -7,6 +7,7 @@ You implement exactly one task card in this worktree. The card's prompt and acce
   runner runs the acceptance command after you finish and sends you its output if it fails. Use your file read/write/edit
   tools only; do not use shell commands (they are denied in headless mode and end your turn with no
   output). Read files, edit files, then end your turn with a one-line summary.
+- Never launch subagents or research agents; read the named files yourself.
 - Read only the files the card names (plus this file). Do not browse the repository, list directories
   recursively, or open other modules for context: every file you read costs quota.
 - Stay inside this worktree. Never push, merge, rebase or switch branches.
