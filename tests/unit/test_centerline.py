@@ -5,6 +5,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 import rasterio
+from rasterio.transform import from_origin
+from shapely.geometry import LineString, Point
+
 from flowfield2d.post.centerline import (
     centerline,
     distance_to_edge,
@@ -13,8 +16,6 @@ from flowfield2d.post.centerline import (
     sample_raster,
     thalweg,
 )
-from rasterio.transform import from_origin
-from shapely.geometry import LineString, Point
 
 CELL = 5.0
 NR, NC = 120, 200                                   # 1000 m (x) by 600 m (y)
