@@ -15,7 +15,35 @@ from typing import Any
 import numpy as np
 import rasterio
 import rasterio.features
+from numpy.typing import ArrayLike, NDArray
+from scipy.ndimage import generate_binary_structure, label
 from shapely.geometry import Polygon, mapping, shape
+
+
+def isolated_wet(depth: ArrayLike, connected_to: ArrayLike,
+                 min_depth: float = 0.0) -> NDArray[np.bool_]:
+    """Wet cells (finite depth > `min_depth`) whose 4-connected wet component contains
+    no True cell of `connected_to`.
+
+    These are terrain pits / ponds disconnected from the flow path at that time.
+    """
+    d = np.asarray(depth, dtype=np.float64)
+    c = np.asarray(connected_to, dtype=bool)
+    if d.shape != c.shape:
+        raise ValueError(f"depth and connected_to shapes differ: {d.shape} vs {c.shape}")
+
+    with np.errstate(invalid="ignore"):
+        wet = np.isfinite(d) & (d > min_depth)
+
+    struct = generate_binary_structure(d.ndim, 1)
+    labeled, num_features = label(wet, structure=struct)
+    if num_features == 0:
+        return np.zeros(d.shape, dtype=bool)
+
+    connected_labels = np.unique(labeled[c & wet])
+    is_connected = np.zeros(num_features + 1, dtype=bool)
+    is_connected[connected_labels] = True
+    return (labeled > 0) & (~is_connected[labeled])
 
 
 def inundation_polygons(depth_raster: Path, min_depth: float = 0.0,

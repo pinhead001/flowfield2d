@@ -118,7 +118,9 @@ def wse_monotonic(station: ArrayLike, wse: ArrayLike, exceptions: Iterable[float
                   tol: float = 0.0) -> CheckResult:
     """WSE must not rise going downstream (station increasing downstream) by more than `tol`.
 
-    `exceptions` lists stations whose rise is accepted (e.g. a known hydraulic jump)."""
+    Rises above `tol` fail. Rises within tolerance (0 < rise <= tol) are reported as info in
+    `detail`. `exceptions` lists stations whose rise is accepted (e.g. a known hydraulic jump).
+    """
     s, w = _f(station), _f(wse)
     _same_shape(s, w, "wse_monotonic")
     order = np.argsort(s, kind="stable")
@@ -127,8 +129,18 @@ def wse_monotonic(station: ArrayLike, wse: ArrayLike, exceptions: Iterable[float
     skip = {float(x) for x in exceptions}
     bad = [(float(s[i + 1]), float(rise[i])) for i in range(rise.size)
            if rise[i] > tol and float(s[i + 1]) not in skip]
+    info = [(float(s[i + 1]), float(rise[i])) for i in range(rise.size)
+            if 0.0 < rise[i] <= tol and float(s[i + 1]) not in skip]
     worst = max((r for _, r in bad), default=0.0)
-    detail = "; ".join(f"rise {r:.3f} at station {st:g}" for st, r in bad)
+    parts: list[str] = []
+    if bad:
+        parts.append("; ".join(f"rise {r:.3f} at station {st:g}" for st, r in bad))
+    if info:
+        max_st, max_r = max(info, key=lambda item: item[1])
+        parts.append(
+            f"info: {len(info)} rise(s) within tolerance, max {max_r:.3f} at station {max_st:g}"
+        )
+    detail = "; ".join(parts)
     return CheckResult("wse_monotonic", not bad, worst, tol, detail)
 
 
