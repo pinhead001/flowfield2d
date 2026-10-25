@@ -8,6 +8,8 @@ You implement exactly one task card in this worktree. The card's prompt and acce
   tools only; do not use shell commands (they are denied in headless mode and end your turn with no
   output). Read files, edit files, then end your turn with a one-line summary.
 - Never launch subagents or research agents; read the named files yourself.
+- No monkeypatching, import-time side effects or test-specific special cases in source code. If a test looks
+  wrong (for example it fails for a reason unrelated to the card), stop and say so instead of working around it.
 - Read only the files the card names (plus this file). Do not browse the repository, list directories
   recursively, or open other modules for context: every file you read costs quota.
 - Stay inside this worktree. Never push, merge, rebase or switch branches.
