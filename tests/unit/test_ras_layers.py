@@ -45,7 +45,8 @@ def test_copy_layer_renames_in_place(tmp_path: Path) -> None:
     assert out == p / "Geometries" / "g02_a.h5"
     with h5py.File(out, "r") as f:
         assert read_fixed_string(f["Geometry"], "Name") == "g02_a"
-        assert f["Geometry"].attrs["Name"].dtype.itemsize == len("g01_a") + 1   # type unchanged
+        stored = h5py.h5a.open(f["Geometry"].id, b"Name").get_type().get_size()
+        assert stored == len("g01_a") + 1                                  # stored type unchanged
         assert f["Geometry/x"][:].tolist() == [0, 1, 2]
     with h5py.File(p / "Geometries" / "g01_a.h5", "r") as f:
         assert read_fixed_string(f["Geometry"], "Name") == "g01_a"         # source untouched
