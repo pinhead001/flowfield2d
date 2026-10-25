@@ -8,7 +8,13 @@ import numpy as np
 import pytest
 from shapely.geometry import LineString
 
-from flowfield2d.post.profile import BandPoint, band_profile, profile_along, trace_centerline
+from flowfield2d.post.profile import (
+    BandPoint,
+    band_cells,
+    band_profile,
+    profile_along,
+    trace_centerline,
+)
 
 # (x, y, depth); band = 10 along y, min y = 0 so bands are [0,10), [10,20), [20,30).
 CELLS = [
@@ -81,3 +87,13 @@ def test_band_profile_ignores_nan_depth_and_validates_empty() -> None:
     assert [(p.x, p.depth) for p in pts] == [(2.0, 2.0)]
     with pytest.raises(ValueError):
         band_profile(np.empty((0, 2)), [], [], band=0.0)
+
+
+def test_band_cells_indices_match_profile() -> None:
+    xy = np.array([(x, y) for x, y, _ in CELLS])
+    depth = np.array([d for _, _, d in CELLS])
+    idx = band_cells(xy, depth, band=10.0)
+    assert idx.dtype == np.int64 and idx.tolist() == [2, 8]
+    assert [(p.x, p.y) for p in band_profile(xy, depth, depth, band=10.0)] == [
+        tuple(xy[i]) for i in idx]
+    assert band_cells(np.empty((0, 2)), [], band=1.0).size == 0

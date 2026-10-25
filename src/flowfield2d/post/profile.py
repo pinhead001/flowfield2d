@@ -1,4 +1,4 @@
-"""banded deepest-cell profiles and centerline tracing from 2D results"""
+"""Banded deepest-cell profiles, monitored cells and centerline tracing from 2D results."""
 
 from __future__ import annotations
 
@@ -19,6 +19,43 @@ class BandPoint:
     wse: float
 
 
+def band_cells(
+    xy: ArrayLike,
+    depth: ArrayLike,
+    band: float,
+    axis: int = 1,
+    min_depth: float = 0.5,
+) -> NDArray[np.int64]:
+    """Index of the deepest cell per band, sorted by band coordinate.
+
+    Cells are binned by coordinate `axis` into bands of width `band`; a band needs at least 2 cells
+    deeper than `min_depth`. NaN (dry) depths never count. These are the monitored cells for
+    convergence checks and the points of `band_profile`.
+    """
+    xy_arr = np.asarray(xy, dtype=np.float64)
+    depth_arr = np.asarray(depth, dtype=np.float64).ravel()
+    if band <= 0:
+        raise ValueError("band must be positive")
+    if axis not in (0, 1):
+        raise ValueError("axis must be 0 or 1")
+    if len(xy_arr) == 0:
+        return np.empty(0, dtype=np.int64)
+    if xy_arr.ndim != 2 or xy_arr.shape[1] < 2:
+        raise ValueError("xy must be a 2D array with at least 2 columns")
+    if len(xy_arr) != len(depth_arr):
+        raise ValueError("xy and depth must have the same length")
+
+    coords = xy_arr[:, axis]
+    band_indices = np.floor((coords - float(np.min(coords))) / band).astype(np.int64)
+    picked: list[int] = []
+    for b in np.unique(band_indices):
+        in_band = np.flatnonzero((band_indices == b) & (depth_arr > min_depth))
+        if in_band.size >= 2:
+            picked.append(int(in_band[np.argmax(depth_arr[in_band])]))
+    out = np.array(picked, dtype=np.int64)
+    return out[np.argsort(coords[out], kind="stable")]
+
+
 def band_profile(
     xy: ArrayLike,
     depth: ArrayLike,
@@ -27,48 +64,16 @@ def band_profile(
     axis: int = 1,
     min_depth: float = 0.5,
 ) -> list[BandPoint]:
-    """Banded deepest-cell profile from 2D results."""
+    """Banded deepest-cell profile from 2D results (see `band_cells`)."""
     xy_arr = np.asarray(xy, dtype=np.float64)
     depth_arr = np.asarray(depth, dtype=np.float64).ravel()
     wse_arr = np.asarray(wse, dtype=np.float64).ravel()
-
-    if band <= 0:
-        raise ValueError("band must be positive")
-    if axis not in (0, 1):
-        raise ValueError("axis must be 0 or 1")
-    if len(xy_arr) == 0:
-        return []
-    if xy_arr.ndim != 2 or xy_arr.shape[1] < 2:
-        raise ValueError("xy must be a 2D array with at least 2 columns")
-    if len(xy_arr) != len(depth_arr) or len(xy_arr) != len(wse_arr):
+    if len(wse_arr) != len(depth_arr):
         raise ValueError("xy, depth, and wse must have the same length")
-
-    coords = xy_arr[:, axis]
-    coord_min = float(np.min(coords))
-    band_indices = np.floor((coords - coord_min) / band).astype(np.int64)
-
-    unique_bands = np.unique(band_indices)
-    results: list[BandPoint] = []
-    for b in unique_bands:
-        mask = band_indices == b
-        valid_mask = mask & (depth_arr > min_depth)
-        if np.count_nonzero(valid_mask) < 2:
-            continue
-        in_band = np.where(valid_mask)[0]       # NaN (dry) depths never win the argmax
-        deepest_local_idx = int(np.argmax(depth_arr[in_band]))
-        idx = in_band[deepest_local_idx]
-        results.append(
-            BandPoint(
-                chainage=float(coords[idx]),
-                x=float(xy_arr[idx, 0]),
-                y=float(xy_arr[idx, 1]),
-                depth=float(depth_arr[idx]),
-                wse=float(wse_arr[idx]),
-            )
-        )
-
-    results.sort(key=lambda p: p.chainage)
-    return results
+    idx = band_cells(xy_arr, depth_arr, band, axis, min_depth)
+    return [BandPoint(chainage=float(xy_arr[i, axis]), x=float(xy_arr[i, 0]),
+                      y=float(xy_arr[i, 1]), depth=float(depth_arr[i]), wse=float(wse_arr[i]))
+            for i in idx]
 
 
 def trace_centerline(
