@@ -25,6 +25,15 @@ from .test_ras_engine import FAKE
 RING = np.array([[0, 0], [50, 0], [100, 0], [100, 250], [100, 500], [100, 750], [100, 1000],
                  [50, 1000], [0, 1000], [0, 750], [0, 500], [0, 250]], dtype="f8")
 LAYERS = {"geometry": "gB", "boundary": "bB", "plan": "pB"}
+PROJECT_XML = """<Project>
+  <PlanAssociations>
+    <PlanAssociation Plan="pB" Geometry="gB" BoundaryCondition="bB" />
+  </PlanAssociations>
+  <GeometryAssociations>
+    <GeometryAssociation Geometry="gB" Terrain="t1" N_Values="n1" />
+  </GeometryAssociations>
+</Project>
+"""
 
 
 def _geometry(path: Path) -> None:
@@ -44,7 +53,7 @@ def _template(tmp_path: Path) -> Path:
     p = tmp_path / "T"
     for d in ("Geometries", "Boundary Conditions", "Plans", "Results"):
         (p / d).mkdir(parents=True)
-    (p / "T.ras").write_text("<Project />")
+    (p / "T.ras").write_text(PROJECT_XML)
     for g in ("gA", "gB"):
         _geometry(p / "Geometries" / f"{g}.h5")
     for b in ("bA", "bB"):
@@ -198,3 +207,39 @@ def test_multi_ring_area_refused(tmp_path: Path) -> None:
         f["/Geometry/2D Flow Areas/Polygon"].attrs["Count"] = np.array([6, 6], dtype="i4")
     with pytest.raises(ValueError, match="one 2D area"):
         rebuild_perimeter(t, geometry="gB")
+
+
+def test_build_synthesised_model_with_new_outline_terrain_and_names(tmp_path: Path,
+                                                                   engine: RasEngine) -> None:
+    from flowfield2d.engines.ras2025.templates import associations
+
+    t = _template(tmp_path)
+    outline = Polygon([(-50, -100), (150, -100), (150, 1500), (-50, 1500)])
+    bcs = {"Outlet": LineString([(-50, -100), (150, -100)]),
+           "Inflow A": LineString([(-50, 1500), (150, 1500)])}
+    spec = ModelSpec(t, tmp_path / "syn", None, bcs, 30.0, layers=LAYERS, outline=outline,
+                     terrain="t3", rename={"geometry": "gC", "boundary": "bC", "plan": "pC"})
+    model = engine.build_or_verify_model(spec)
+    a = associations(model)
+    assert a["plans"]["pC"] == ("gC", "bC") and a["geometries"]["gC"] == ("t3", "n1")
+    with h5py.File(model / "Geometries" / "gC.h5", "r") as f:
+        assert Polygon(f["/Geometry/2D Flow Areas/Polygon"][:]).area == pytest.approx(outline.area)
+    assert bc_polylines(model / "Boundary Conditions" / "bC.h5")["Outlet"].coords[:] == [
+        (-50.0, -100.0), (150.0, -100.0)]
+    with h5py.File(model / "Geometries" / "gB.h5", "r") as f:   # donor layer untouched
+        assert Polygon(f["/Geometry/2D Flow Areas/Polygon"][:]).area == pytest.approx(1e5)
+    geom = model / "Geometries" / "gC.h5"
+    assert _calls(tmp_path)[-1] == ["geometry", "generate-mesh", str(geom)]
+    plan = engine.create_plan(model, PlanSpec("3s", "15min", "Explicit"))   # later steps follow
+    assert plan == model / "Plans" / "pC.h5"                                # the renamed layers
+    assert engine.write_bcs(model, BcSpec(datetime(2000, 1, 1), [0.0, 3600.0],
+                                          {"Inflow A": [1.0, 2.0]}, {})) == (
+        model / "Boundary Conditions" / "bC.h5")
+
+
+def test_outline_and_keep_are_exclusive(tmp_path: Path, engine: RasEngine) -> None:
+    t = _template(tmp_path)
+    sq = Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])
+    with pytest.raises(ValueError, match="outline"):
+        engine.build_or_verify_model(ModelSpec(t, tmp_path / "x", sq, {}, 9.0, layers=LAYERS,
+                                               outline=sq))
