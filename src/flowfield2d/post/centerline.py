@@ -23,11 +23,13 @@ F = NDArray[np.float64]
 __all__ = [
     "F",
     "centerline",
+    "cells_along",
     "distance_to_edge",
     "least_cost_path",
     "profile_from_cells",
     "sample_raster",
     "thalweg",
+    "wet_mask_from_cells",
 ]
 
 
@@ -442,3 +444,37 @@ def profile_from_cells(
     hit = np.isfinite(dist)
     v_arr[hit] = vals[ok][idx[hit]]
     return ch_arr, v_arr
+
+
+def wet_mask_from_cells(cell_xy: ArrayLike, wet: ArrayLike, cell: float,
+                        ) -> tuple[NDArray[np.bool_], Affine]:
+    """Raster wet mask (pixel = `cell`) from mesh cell centres, closed by one pixel so neighbouring
+    wet cells of an irregular mesh form one connected area. Returns (mask, transform)."""
+    xy = np.asarray(cell_xy, dtype=np.float64)
+    w = np.asarray(wet, dtype=bool).ravel()
+    if xy.ndim != 2 or len(xy) != len(w) or not w.any():
+        raise ValueError("need matching cell coordinates and at least one wet cell")
+    x0, y1 = xy[:, 0].min() - cell, xy[:, 1].max() + cell
+    ncol = int(np.ceil((xy[:, 0].max() + cell - x0) / cell)) + 1
+    nrow = int(np.ceil((y1 - (xy[:, 1].min() - cell)) / cell)) + 1
+    tr = Affine(cell, 0.0, x0, 0.0, -cell, y1)
+    cols = ((xy[w, 0] - x0) / cell).astype(np.int64)
+    rows = ((y1 - xy[w, 1]) / cell).astype(np.int64)
+    mask = np.zeros((nrow, ncol), dtype=bool)
+    mask[rows, cols] = True
+    closed = ndimage.binary_closing(mask, structure=np.ones((3, 3), dtype=bool))
+    return np.asarray(closed | mask, dtype=bool), tr
+
+
+def cells_along(line: LineString, cell_xy: ArrayLike, spacing: float) -> NDArray[np.int64]:
+    """Indices of the cells nearest to points every `spacing` along `line`, in line order,
+    without repeats (e.g. monitored cells for convergence checks)."""
+    xy = np.asarray(cell_xy, dtype=np.float64)
+    q = shapely.get_coordinates(shapely.line_interpolate_point(line, _line_chainages(line,
+                                                                                     spacing)))
+    _, idx = cKDTree(xy).query(q)
+    out: list[int] = []
+    for i in np.asarray(idx, dtype=np.int64):
+        if int(i) not in out:
+            out.append(int(i))
+    return np.array(out, dtype=np.int64)

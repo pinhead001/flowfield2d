@@ -132,3 +132,21 @@ def test_endpoints_snap_to_largest_wet_component() -> None:
     line = centerline(depth > 0, TR, (12.0, 590.0), (990.0, 300.0), dry_penalty=None)
     first = Point(line.coords[0])
     assert first.distance(Point(12.0, 590.0)) > 50.0              # not the isolated pixel
+
+
+def test_wet_mask_from_cells_and_cells_along() -> None:
+    from flowfield2d.post.centerline import cells_along, wet_mask_from_cells
+
+    xs, ys = np.meshgrid(np.arange(0.0, 1000.0, 10.0), np.arange(0.0, 200.0, 10.0))
+    xy = np.column_stack([xs.ravel(), ys.ravel()])
+    wet = np.abs(xy[:, 1] - 100.0) <= 40.0                          # wet band y in [60, 140]
+    mask, tr = wet_mask_from_cells(xy, wet, cell=10.0)
+    r, c = rasterio.transform.rowcol(tr, 500.0, 100.0)
+    assert mask[r, c]
+    r, c = rasterio.transform.rowcol(tr, 500.0, 10.0)
+    assert not mask[r, c]
+    line = centerline(mask, tr, (0.0, 100.0), (990.0, 100.0))
+    idx = cells_along(line, xy, spacing=100.0)
+    assert idx.dtype == np.int64 and len(idx) == len(set(idx.tolist())) >= 9
+    assert np.all(np.abs(xy[idx, 1] - 100.0) <= 20.0)               # mid-band cells
+    assert np.all(np.diff(xy[idx, 0]) > 0)                          # ordered along the line

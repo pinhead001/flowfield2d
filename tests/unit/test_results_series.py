@@ -89,3 +89,9 @@ def test_boundary_tolerance_and_unknown_line(tmp_path: Path) -> None:
 
 def test_reader_satisfies_results_protocol(tmp_path: Path) -> None:
     assert isinstance(ResultsReader(_result(tmp_path)), Results)
+
+
+def test_boundary_lines(tmp_path: Path) -> None:
+    lines = ResultsReader(_result(tmp_path)).boundary_lines()
+    assert set(lines) == {"Inflow", "Outflow"}
+    assert lines["Outflow"].coords[:] == [(2.0, -0.5), (2.0, 1.5)]

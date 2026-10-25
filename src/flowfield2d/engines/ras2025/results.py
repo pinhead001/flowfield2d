@@ -24,6 +24,7 @@ import h5py
 import numpy as np
 import shapely
 from numpy.typing import NDArray
+from shapely.geometry import LineString
 
 from flowfield2d.engines.ras2025.split import bc_polylines
 
@@ -113,6 +114,10 @@ class ResultsReader:
         faces = self.boundary_faces(area, line, tol)
         flows = self._read(f"{BASE}/2D Flow Areas/{area}/DEBUG/FaceFlow").astype(np.float64)
         return np.asarray(flows[:, faces].sum(axis=1), dtype=np.float64)
+
+    def boundary_lines(self) -> dict[str, LineString]:
+        """BC lines as run (the result file carries the BC layer)."""
+        return bc_polylines(self.path)
 
     def compute_summary(self) -> ComputeSummary:
         with h5py.File(self.path, "r", locking=False) as f:

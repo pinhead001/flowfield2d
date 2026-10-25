@@ -116,6 +116,10 @@ class Results(Protocol):
         """Boundary flow series through faces matching the named boundary line."""
         ...
 
+    def boundary_lines(self) -> dict[str, LineString]:
+        """The model's boundary-condition lines by name (as run)."""
+        ...
+
 
 @runtime_checkable
 class Engine(Protocol):
