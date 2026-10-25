@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from flowfield2d.qa.checks import CheckResult, ConvergenceResult, convergence
 
@@ -42,3 +43,21 @@ def test_converged_has_no_failures() -> None:
 def test_oscillation_outside_window_ignored() -> None:
     r = convergence(T, Q, Q, np.array([1.0, 1.5, 1.0, 1.0, 1.0]), hold_end_s=3600, window_s=1800)
     assert r.ok and r.oscillating == ()
+
+
+def test_convergence_without_flows_uses_wse_only_and_says_so() -> None:
+    t = np.arange(0.0, 3600.0 + 1, 900.0)
+    w = np.full((t.size, 2), 10.0)
+    r = convergence(t, None, None, w, hold_end_s=3600.0, window_s=1800.0)
+    assert r.ok and "flow balance not available" in r.detail
+    w[-1, 1] = 10.5
+    assert not convergence(t, None, None, w, hold_end_s=3600.0).ok
+
+
+def test_convergence_rejects_zero_inflow_data() -> None:
+    t = np.arange(0.0, 3600.0 + 1, 900.0)
+    zeros = np.zeros(t.size)
+    with pytest.raises(ValueError, match="inflow"):
+        convergence(t, zeros, zeros, np.full(t.size, 10.0), hold_end_s=3600.0)
+    with pytest.raises(ValueError, match="both"):
+        convergence(t, np.ones(t.size), None, np.full(t.size, 10.0), hold_end_s=3600.0)

@@ -58,29 +58,41 @@ def volume_balance(q_in: ArrayLike, q_out: ArrayLike, tol: float = 0.01) -> Chec
     return CheckResult("volume_balance", v <= tol, v, tol, f"mean in {mean_in:.6g}")
 
 
-def convergence(t_s: ArrayLike, q_in: ArrayLike, q_out: ArrayLike, wse: ArrayLike,
+def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None, wse: ArrayLike,
                 hold_end_s: float, window_s: float = 1800.0, q_tol: float = 0.01,
                 wse_tol: float = 0.005) -> ConvergenceResult:
     """Converged at the end of a hold: flow imbalance at `hold_end_s` within `q_tol` (relative) and
     WSE change over the last `window_s` within `wse_tol` at every monitored point.
 
     `wse` is (n_t,) or (n_t, n_points). The value reported is the worst WSE change.
+    `q_in`/`q_out` None (both): the results carry no boundary flows (e.g. the RAS 2025 GPU solver
+    writes zero face flows); the flow criterion is skipped and the detail says so. Given flows need
+    a positive inflow at the hold end (ValueError otherwise, never a silent NaN).
     Returns a `ConvergenceResult` with monitored points, failing count, and any oscillating points.
     """
-    t, qi, qo, w = _f(t_s), _f(q_in), _f(q_out), _f(wse)
+    if (q_in is None) != (q_out is None):
+        raise ValueError("give both q_in and q_out, or neither")
+    t, w = _f(t_s), _f(wse)
     if w.ndim == 1:
         w = w[:, None]
-    if not (t.shape[0] == qi.shape[0] == qo.shape[0] == w.shape[0]):
+    flows = None if q_in is None or q_out is None else (_f(q_in), _f(q_out))
+    if not (t.shape[0] == w.shape[0]
+            and (flows is None or flows[0].shape[0] == flows[1].shape[0] == t.shape[0])):
         raise ValueError("time, flow and WSE series must have the same length")
     sel = (t >= hold_end_s - window_s - 1e-9) & (t <= hold_end_s + 1e-9)
     if sel.sum() < 2:
         raise ValueError("fewer than two samples in the convergence window")
     end = int(np.flatnonzero(sel)[-1])
-    q_err = abs(qo[end] - qi[end]) / qi[end]
+    q_err: float | None = None
+    if flows is not None:
+        qi, qo = flows
+        if not (np.isfinite(qi[end]) and qi[end] > 0):
+            raise ValueError(f"inflow at the hold end must be positive, got {qi[end]}")
+        q_err = float(abs(qo[end] - qi[end]) / qi[end])
     w_win = w[sel]
     span = np.nanmax(w_win, axis=0) - np.nanmin(w_win, axis=0)
     dw = float(np.nanmax(span))
-    ok = bool(q_err <= q_tol and dw <= wse_tol)
+    ok = bool((q_err is None or q_err <= q_tol) and dw <= wse_tol)
     n_points = int(w.shape[1])
     n_failing = int(np.sum(span > wse_tol))
     if w_win.shape[0] >= 3:
@@ -102,10 +114,9 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike, q_out: ArrayLike, wse: ArrayLik
         oscillating = tuple(int(i) for i in np.flatnonzero(has_osc))
     else:
         oscillating = ()
-    detail = (
-        f"flow imbalance {q_err:.4f} (tol {q_tol}); "
-        f"WSE change {dw:.4f} m; failing points {n_failing}/{n_points}"
-    )
+    flow_text = ("flow balance not available" if q_err is None
+                 else f"flow imbalance {q_err:.4f} (tol {q_tol})")
+    detail = f"{flow_text}; WSE change {dw:.4f} m; failing points {n_failing}/{n_points}"
     if oscillating:
         detail += f"; oscillating (A/B/A) at points {list(oscillating)}"
     return ConvergenceResult(
