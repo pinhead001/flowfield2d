@@ -195,3 +195,29 @@ def test_cut_between_returns_middle_and_bc_segments() -> None:
     assert mid.exterior.buffer(1e-6).contains(la) and mid.exterior.buffer(1e-6).contains(lb)
     with pytest.raises(ValueError):
         cut_between(corridor, a, b, Point(150, 2900))      # inside point not between the cuts
+
+
+# --- domains from two points (R28) ----------------------------------------------------------------
+
+def test_cross_line_is_the_shortest_chord_through_the_point() -> None:
+    from flowfield2d.domaingen import cross_line
+
+    corridor = Polygon([(0, 0), (300, 0), (300, 3000), (0, 3000)])
+    line = cross_line(corridor, Point(100, 1500))
+    assert line.length == pytest.approx(300.0, rel=0.01)           # across, not along
+    assert abs(line.coords[0][1] - line.coords[-1][1]) < 10.0
+    bent = Polygon([(0, 0), (300, 0), (3000, 2700), (3000, 3000), (2700, 3000), (0, 300)])
+    diag = cross_line(bent, Point(1500, 1500))
+    assert diag.length < 600.0                                      # across the diagonal band
+    with pytest.raises(ValueError):
+        cross_line(corridor, Point(1000, 1500))                     # outside
+
+
+def test_cut_between_without_inside_point() -> None:
+    from flowfield2d.domaingen import cross_line, cut_between
+
+    corridor = Polygon([(0, 0), (300, 0), (300, 3000), (0, 3000)])
+    a = cross_line(corridor, Point(150, 2500))
+    b = cross_line(corridor, Point(150, 400))
+    mid, la, lb = cut_between(corridor, a, b, None)
+    assert mid.area == pytest.approx(300 * 2100, rel=0.01)

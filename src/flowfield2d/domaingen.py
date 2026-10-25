@@ -719,7 +719,7 @@ def cut_between(
     poly: Polygon,
     line_a: LineString,
     line_b: LineString,
-    inside: Point,
+    inside: Point | None,
     *,
     extend: float | None = None,
 ) -> tuple[Polygon, LineString, LineString]:
@@ -765,9 +765,16 @@ def cut_between(
         else:
             all_pieces.append(p)
 
-    matching = [p for p in all_pieces if p.contains(inside)]
-    if not matching:
-        raise ValueError(f"No cut piece contains inside point {inside}")
+    if inside is not None:
+        matching = [p for p in all_pieces if p.contains(inside)]
+        if not matching:
+            raise ValueError(f"No cut piece contains inside point {inside}")
+    else:                                   # the piece bounded by both cuts (between them)
+        near = 1e-6 * max(diag, 1.0)
+        matching = [p for p in all_pieces
+                    if p.distance(line_a) <= near and p.distance(line_b) <= near]
+        if len(matching) != 1:
+            raise ValueError(f"expected one piece between the cuts, found {len(matching)}")
 
     chosen_piece = max(matching, key=lambda p: float(p.area))
 
@@ -789,3 +796,26 @@ def cut_between(
     lb = max(lines_b, key=lambda ls: float(ls.length))
 
     return chosen_piece, la, lb
+
+
+def cross_line(area: Polygon, point: Point, *, n_angles: int = 180) -> LineString:
+    """The shortest chord of `area` through `point`: a cross-section for a BC line placed by a
+    single point (e.g. a pour point), so a domain can be defined by two points."""
+    if not area.covers(point):
+        raise ValueError(f"point {point} is outside the area")
+    minx, miny, maxx, maxy = area.bounds
+    reach = 2.0 * math.hypot(maxx - minx, maxy - miny)
+    best: LineString | None = None
+    for k in range(n_angles):
+        a = math.pi * k / n_angles
+        dx, dy = math.cos(a) * reach, math.sin(a) * reach
+        probe = LineString([(point.x - dx, point.y - dy), (point.x + dx, point.y + dy)])
+        parts = [ls for ls in _extract_linestrings(probe.intersection(area))
+                 if ls.distance(point) <= 1e-6 * reach]
+        if parts:
+            seg = min(parts, key=lambda ls: float(ls.length))
+            if best is None or seg.length < best.length:
+                best = seg
+    if best is None:
+        raise ValueError(f"no chord of the area passes through {point}")
+    return LineString([best.coords[0], best.coords[-1]])
