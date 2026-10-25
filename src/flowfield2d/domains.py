@@ -13,7 +13,8 @@ import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from shapely.geometry import LineString
+from shapely.geometry import LineString, MultiPolygon, Polygon
+from shapely.ops import split
 
 
 @dataclass(frozen=True)
@@ -89,3 +90,74 @@ def bc_line(line: LineString, chainage_m: float, half_width_m: float) -> LineStr
     c = line.interpolate(chainage_m)
     return LineString([(c.x + nx * half_width_m, c.y + ny * half_width_m),
                        (c.x - nx * half_width_m, c.y - ny * half_width_m)])
+
+
+def cut_line(
+    area: Polygon,
+    centerline: LineString,
+    chainage_m: float,
+    half_width_m: float,
+) -> LineString:
+    """Perpendicular cut line at chainage_m clipped to area (longest piece if multi-part)."""
+    line = bc_line(centerline, chainage_m, half_width_m)
+    inter = line.intersection(area)
+    if isinstance(inter, LineString) and not inter.is_empty:
+        return inter
+    lines: list[LineString] = []
+    if hasattr(inter, "geoms"):
+        for g in inter.geoms:
+            if isinstance(g, LineString) and not g.is_empty:
+                lines.append(g)
+    if lines:
+        return max(lines, key=lambda g: g.length)
+    raise ValueError(f"Cut line at chainage {chainage_m} did not intersect area")
+
+
+def keep_polygon(
+    area: Polygon,
+    centerline: LineString,
+    start_m: float,
+    end_m: float,
+    half_width_m: float,
+) -> Polygon:
+    """Subset area between start_m and end_m chainages along centerline."""
+    if start_m >= end_m:
+        raise ValueError(f"start_m ({start_m}) must be strictly less than end_m ({end_m})")
+
+    minx, miny, maxx, maxy = area.bounds
+    diag = math.hypot(maxx - minx, maxy - miny)
+    hw = max(half_width_m, diag * 2.0)
+
+    current_pieces: list[Polygon] = [area]
+    cutters: list[LineString] = []
+    if start_m > 0.0:
+        cutters.append(bc_line(centerline, start_m, hw))
+    if end_m < centerline.length:
+        cutters.append(bc_line(centerline, end_m, hw))
+
+    for cutter in cutters:
+        next_pieces: list[Polygon] = []
+        for poly in current_pieces:
+            res = split(poly, cutter)
+            geoms = getattr(res, "geoms", [res])
+            for g in geoms:
+                if isinstance(g, Polygon) and not g.is_empty:
+                    next_pieces.append(g)
+                elif isinstance(g, MultiPolygon):
+                    for sub_p in g.geoms:
+                        if isinstance(sub_p, Polygon) and not sub_p.is_empty:
+                            next_pieces.append(sub_p)
+        current_pieces = next_pieces
+
+    if not current_pieces:
+        return area
+
+    mid_pt = centerline.interpolate((start_m + end_m) / 2.0)
+    for poly in current_pieces:
+        if poly.contains(mid_pt):
+            return poly
+    for poly in current_pieces:
+        if poly.covers(mid_pt):
+            return poly
+    return min(current_pieces, key=lambda p: p.distance(mid_pt))
+
