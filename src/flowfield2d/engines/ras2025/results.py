@@ -27,6 +27,7 @@ from numpy.typing import NDArray
 from shapely.geometry import LineString
 
 from flowfield2d.engines.ras2025.split import bc_polylines
+from flowfield2d.ml.graph import MeshGraph
 
 BASE = "/Results/Output Blocks/Base Output"
 GEOM = "/Geometry/2D Flow Areas"
@@ -118,6 +119,23 @@ class ResultsReader:
     def boundary_lines(self) -> dict[str, LineString]:
         """BC lines as run (the result file carries the BC layer)."""
         return bc_polylines(self.path)
+
+    def mesh_graph(self, area: str) -> MeshGraph:
+        """The mesh as a graph: cells -> nodes, interior faces -> edges (see `flowfield2d.ml`)."""
+        with h5py.File(self.path, "r", locking=False) as f:
+            fd = np.asarray(f[f"{GEOM}/{area}/Face Data"][()], dtype=np.int64)
+            nodes = np.asarray(f[f"{GEOM}/{area}/Node Coordinates"][()], dtype=np.float64)
+        xy = self.cell_coordinates(area)
+        bed = self.cell_min_elevation(area)
+        n = min(len(xy), len(bed))
+        a, b = fd[:, 0], fd[:, 1]
+        interior = (a >= 0) & (b >= 0) & (a < n) & (b < n)
+        lengths = np.hypot(*(nodes[fd[:, 2]] - nodes[fd[:, 3]]).T)
+        boundary = np.zeros(n, dtype=bool)
+        perim = (b < 0) & (a >= 0) & (a < n)
+        boundary[a[perim]] = True
+        return MeshGraph(xy=xy[:n], bed=bed[:n], edges=np.vstack([a[interior], b[interior]]),
+                         face_length=lengths[interior], boundary=boundary)
 
     def compute_summary(self) -> ComputeSummary:
         with h5py.File(self.path, "r", locking=False) as f:
