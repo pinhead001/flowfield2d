@@ -8,14 +8,14 @@ from __future__ import annotations
 import heapq
 import math
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import rasterio
+import shapely
 from numpy.typing import ArrayLike, NDArray
 from rasterio.transform import Affine
-from shapely import STRtree
-from shapely.geometry import LineString, Point
+from scipy.spatial import cKDTree
+from shapely.geometry import LineString
 
 F = NDArray[np.float64]
 
@@ -212,28 +212,18 @@ def _smooth_coords(coords: list[tuple[float, float]], smooth: int) -> list[tuple
 
 
 def _simplify_line(line: LineString, max_vertices: int | None, cell: float) -> LineString:
+    """Douglas-Peucker with a doubling tolerance until <= max_vertices; both ends are kept."""
     if max_vertices is None or len(line.coords) <= max_vertices:
         return line
     if max_vertices < 2:
         raise ValueError(f"max_vertices must be at least 2, got {max_vertices}")
-
-    tol = 0.01 * cell
-    if tol <= 0.0:
-        tol = 1e-4
-
-    simplified: LineString = line
-    while len(simplified.coords) > max_vertices:
+    tol = max(0.01 * cell, 1e-9)
+    for _ in range(200):                       # 2**200 x the start: always reaches 2 vertices
         cand = line.simplify(tol, preserve_topology=False)
-        if isinstance(cand, LineString):
-            simplified = cand
-        elif hasattr(cand, "geoms"):
-            for g in cand.geoms:
-                if isinstance(g, LineString):
-                    simplified = g
-                    break
+        if isinstance(cand, LineString) and len(cand.coords) <= max_vertices:
+            return cand
         tol *= 2.0
-
-    return simplified
+    return LineString([line.coords[0], line.coords[-1]])
 
 
 def _snap_to_mask(
@@ -410,39 +400,11 @@ def profile_from_cells(
     if len(cells) == 0 or len(ch_arr) == 0:
         return ch_arr, v_arr
 
-    pts = [line.interpolate(float(d)) for d in ch_arr]
-    q_x = np.array([float(pt.x) for pt in pts], dtype=np.float64)
-    q_y = np.array([float(pt.y) for pt in pts], dtype=np.float64)
-
-    cell_pts = [Point(float(c[0]), float(c[1])) for c in cells]
-    query_pts = [Point(float(x), float(y)) for x, y in zip(q_x, q_y, strict=True)]
-
-    tree = STRtree(cell_pts)
-    res = tree.query_nearest(query_pts)
-
-    if isinstance(res, tuple):
-        res_arr: NDArray[Any] = np.asarray(res[0])
-    else:
-        res_arr = np.asarray(res)
-
-    if res_arr.ndim == 2:
-        q_idx: NDArray[np.intp] = res_arr[0].astype(np.intp)
-        t_idx: NDArray[np.intp] = res_arr[1].astype(np.intp)
-    elif res_arr.ndim == 1:
-        q_idx = np.arange(len(res_arr), dtype=np.intp)
-        t_idx = res_arr.astype(np.intp)
-    else:
-        q_idx = np.array([0], dtype=np.intp)
-        t_idx = np.array([int(res_arr)], dtype=np.intp)
-
-    cell_x = cells[:, 0]
-    cell_y = cells[:, 1]
-    best_dist = np.full(len(ch_arr), np.inf, dtype=np.float64)
-
-    for qi, ti in zip(q_idx, t_idx, strict=False):
-        dist = math.hypot(float(q_x[qi] - cell_x[ti]), float(q_y[qi] - cell_y[ti]))
-        if dist <= max_distance and dist < best_dist[qi]:
-            best_dist[qi] = dist
-            v_arr[qi] = float(vals[ti])
-
+    q = shapely.get_coordinates(shapely.line_interpolate_point(line, ch_arr))
+    ok = np.isfinite(cells).all(axis=1)
+    if not ok.any():
+        return ch_arr, v_arr
+    dist, idx = cKDTree(cells[ok]).query(q, distance_upper_bound=max_distance)
+    hit = np.isfinite(dist)
+    v_arr[hit] = vals[ok][idx[hit]]
     return ch_arr, v_arr
