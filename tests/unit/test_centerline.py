@@ -111,3 +111,24 @@ def test_profile_from_cells_nearest_within_distance() -> None:
     ch, v = profile_from_cells(line, cells, vals, spacing=100.0, max_distance=20.0)
     assert ch.tolist() == [0.0, 100.0, 200.0]
     assert v[0] == 10.0 and v[1] == 9.0 and np.isnan(v[2])  # nearest cell 50 m away > 20 m
+
+
+def test_dry_gaps_are_bridged_unless_impassable() -> None:
+    depth, _ = _sine_band()
+    gap = (np.arange(NC) >= 98) & (np.arange(NC) <= 101)          # 4 dry columns cut the band
+    depth[:, gap] = 0.0
+    line = centerline(depth > 0, TR, (10.0, 300.0), (990.0, 300.0))
+    assert line.length > 900.0                                    # crosses the gap
+    with pytest.raises(ValueError):
+        centerline(depth > 0, TR, (10.0, 300.0), (990.0, 300.0), dry_penalty=None)
+    tw = thalweg(depth, TR, (10.0, 300.0), (990.0, 300.0))
+    assert tw.length > 900.0
+
+
+def test_endpoints_snap_to_largest_wet_component() -> None:
+    depth, _ = _sine_band()
+    r, c = rasterio.transform.rowcol(TR, 12.0, 590.0)
+    depth[r, c] = 1.0                                            # isolated wet pixel near the start
+    line = centerline(depth > 0, TR, (12.0, 590.0), (990.0, 300.0), dry_penalty=None)
+    first = Point(line.coords[0])
+    assert first.distance(Point(12.0, 590.0)) > 50.0              # not the isolated pixel

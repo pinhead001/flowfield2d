@@ -14,6 +14,7 @@ import rasterio
 import shapely
 from numpy.typing import ArrayLike, NDArray
 from rasterio.transform import Affine
+from scipy import ndimage
 from scipy.spatial import cKDTree
 from shapely.geometry import LineString
 
@@ -226,12 +227,33 @@ def _simplify_line(line: LineString, max_vertices: int | None, cell: float) -> L
     return LineString([line.coords[0], line.coords[-1]])
 
 
+def _significant(mask: NDArray[np.bool_], fraction: float = 0.01) -> NDArray[np.bool_]:
+    """8-connected True regions at least `fraction` of the largest one: isolated wet pixels never
+    anchor a line, while every real pool (also across dry gaps) still can."""
+    lab, n = ndimage.label(mask, structure=np.ones((3, 3), dtype=bool))
+    if n <= 1:
+        return np.asarray(mask, dtype=bool)
+    sizes = np.bincount(lab.ravel())
+    sizes[0] = 0
+    keep = sizes >= max(1.0, fraction * float(sizes.max()))
+    keep[0] = False
+    return np.asarray(keep[lab], dtype=bool)
+
+
+def _with_dry_cost(cost: F, wet: NDArray[np.bool_], dry_penalty: float | None) -> F:
+    """Dry cells cost `dry_penalty` times the dearest wet cell (None: impassable), so a line
+    crosses the shortest dry gaps between disconnected pools instead of failing."""
+    if dry_penalty is not None and wet.any():
+        cost = np.where(wet, cost, float(np.max(cost[wet])) * dry_penalty)
+    return cost
+
+
 def _snap_to_mask(
     mask: NDArray[np.bool_],
     transform: Affine,
     pt_xy: tuple[float, float],
 ) -> tuple[int, int]:
-    rows, cols = np.nonzero(mask)
+    rows, cols = np.nonzero(_significant(mask))
     if len(rows) == 0:
         raise ValueError("Mask contains no True cells")
 
@@ -284,8 +306,13 @@ def centerline(
     power: float = 2.0,
     smooth: int = 5,
     max_vertices: int | None = None,
+    dry_penalty: float | None = 1000.0,
 ) -> LineString:
-    """Compute river centerline through True cells of mask."""
+    """Compute river centerline through True cells of mask.
+
+    Endpoints snap to the largest wet region; dry gaps are crossed at `dry_penalty` (see
+    `_with_dry_cost`; None makes dry cells impassable).
+    """
     cell = float(abs(transform.a))
     start_cell = _snap_to_mask(mask, transform, start_xy)
     end_cell = _snap_to_mask(mask, transform, end_xy)
@@ -293,6 +320,7 @@ def centerline(
     d = distance_to_edge(mask, cell)
     cost = np.full(mask.shape, np.inf, dtype=np.float64)
     cost[mask] = 1.0 / (d[mask] + cell / 2.0) ** power
+    cost = _with_dry_cost(cost, mask, dry_penalty)
 
     path = least_cost_path(cost, start_cell, end_cell)
     return _build_linestring(path, transform, smooth, max_vertices, cell)
@@ -307,8 +335,13 @@ def thalweg(
     power: float = 2.0,
     smooth: int = 3,
     max_vertices: int | None = None,
+    dry_penalty: float | None = 1000.0,
 ) -> LineString:
-    """Compute thalweg through wet cells (depth > 0) following deepest path."""
+    """Compute thalweg through wet cells (depth > 0) following deepest path.
+
+    Endpoints snap to the largest wet region; dry gaps are crossed at `dry_penalty` (see
+    `_with_dry_cost`; None makes dry cells impassable).
+    """
     cell = float(abs(transform.a))
     depth_arr: NDArray[np.float64] = np.asarray(depth, dtype=np.float64)
     wet = np.isfinite(depth_arr) & (depth_arr > 0.0)
@@ -318,6 +351,7 @@ def thalweg(
 
     cost = np.full(depth_arr.shape, np.inf, dtype=np.float64)
     cost[wet] = 1.0 / (depth_arr[wet] + 1e-3) ** power
+    cost = _with_dry_cost(cost, wet, dry_penalty)
 
     path = least_cost_path(cost, start_cell, end_cell)
     return _build_linestring(path, transform, smooth, max_vertices, cell)
