@@ -29,6 +29,12 @@ class ModelSpec:
     cuts: dict[str, LineString]
     cell_size: float
     layers: dict[str, str] = field(default_factory=dict)  # "geometry", "boundary", "plan" -> stem
+    # Synthesis (ADR-0004): replace the 2D area with `outline` (exclusive with `keep`), copy the
+    # selected layers under new names (`rename`, same keys as `layers`) and bind the geometry to
+    # `terrain`. `cuts` then holds the new BC lines.
+    outline: Polygon | None = None
+    rename: dict[str, str] = field(default_factory=dict)
+    terrain: str | None = None
 
 
 @dataclass(frozen=True)

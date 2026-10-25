@@ -108,7 +108,12 @@ def copy_layer(project: Path, kind: str, src: str, new: str) -> Path:
     shutil.copy2(src_path, dest_path)
     try:
         with h5py.File(dest_path, "r+", locking=False) as f:
+            if group not in f or "Name" not in f[group].attrs:
+                raise KeyError(f"{src_path.name} has no {group}/Name attribute")
             write_fixed_string_attr(f[group], "Name", new)
+    except KeyError as exc:
+        dest_path.unlink(missing_ok=True)
+        raise ValueError(str(exc).strip("'\"")) from exc
     except ValueError as exc:
         dest_path.unlink(missing_ok=True)
         raise ValueError(f"layer name is too long for fixed width: {new!r}") from exc

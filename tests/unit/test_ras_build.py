@@ -20,6 +20,7 @@ from flowfield2d.engines.ras2025.templates import fingerprints
 
 from .test_ras_bc_writer import HOUR, _bc_full
 from .test_ras_engine import FAKE
+from .test_ras_layers import _name_attr
 
 # Rectangle 100 x 1000 with 12 outline points, but a coarse 4-point arc (as GUI templates have).
 RING = np.array([[0, 0], [50, 0], [100, 0], [100, 250], [100, 500], [100, 750], [100, 1000],
@@ -68,6 +69,12 @@ def _template(tmp_path: Path) -> Path:
     for pl_name in ("pA", "pB"):
         with h5py.File(p / "Plans" / f"{pl_name}.h5", "w") as f:
             f.create_group("Plan Data").attrs["Compute Core Count"] = np.int32(4)
+    groups = (("Geometries", "Geometry"), ("Boundary Conditions", "Boundary Conditions"),
+              ("Plans", "Plan Data"))
+    for folder, group in groups:                            # internal layer names, as RAS writes
+        for h in (p / folder).glob("*.h5"):
+            with h5py.File(h, "a") as f:
+                _name_attr(f.require_group(group), h.stem, 8)
     return p
 
 

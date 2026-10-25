@@ -30,8 +30,18 @@ from flowfield2d.engines.ras2025.bc import (
 )
 from flowfield2d.engines.ras2025.cli import RasCli
 from flowfield2d.engines.ras2025.results import ResultsReader
-from flowfield2d.engines.ras2025.split import _layer, rebuild_perimeter, split_geometry
-from flowfield2d.engines.ras2025.templates import clone_project
+from flowfield2d.engines.ras2025.split import (
+    _layer,
+    rebuild_perimeter,
+    replace_outline,
+    split_geometry,
+)
+from flowfield2d.engines.ras2025.templates import (
+    associations,
+    clone_project,
+    copy_layer,
+    set_associations,
+)
 from flowfield2d.engines.ras2025.validate import validate_bc
 
 TAIL = 2000
@@ -111,13 +121,18 @@ class RasEngine:
         return _layer(folder, stem)
 
     def build_or_verify_model(self, spec: ModelSpec) -> Path:
+        if spec.outline is not None and spec.keep is not None:
+            raise ValueError("ModelSpec.outline and ModelSpec.keep are exclusive")
         clone_project(spec.template, spec.dest)
-        (spec.dest / "flowfield2d.json").write_text(
-            json.dumps({"layers": spec.layers}), encoding="utf-8"
-        )
-        geom_stem = spec.layers.get("geometry")
-        bc_stem = spec.layers.get("boundary")
-        if spec.keep is None:
+        layers = self._synthesise_layers(spec) if spec.rename or spec.terrain else dict(spec.layers)
+        (spec.dest / "flowfield2d.json").write_text(json.dumps({"layers": layers}),
+                                                    encoding="utf-8")
+        geom_stem = layers.get("geometry")
+        bc_stem = layers.get("boundary")
+        if spec.outline is not None:
+            replace_outline(spec.dest, spec.outline, spec.cuts, geometry=geom_stem,
+                            boundary=bc_stem)
+        elif spec.keep is None:
             rebuild_perimeter(spec.dest, geometry=geom_stem, boundary=bc_stem)
         else:
             split_geometry(
@@ -133,6 +148,23 @@ class RasEngine:
         ])
         self.cli.generate_mesh(geom)
         return spec.dest
+
+    def _synthesise_layers(self, spec: ModelSpec) -> dict[str, str]:
+        """Copy the selected layers under `spec.rename` names and bind them in the project file
+        (plan -> geometry + BC; geometry -> `spec.terrain`, keeping the donor's n values)."""
+        src = dict(spec.layers)
+        new = {kind: spec.rename.get(kind, stem) for kind, stem in src.items()}
+        for kind, stem in src.items():
+            if new[kind] != stem:
+                copy_layer(spec.dest, kind, stem, new[kind])
+        current = associations(spec.dest)
+        g_old, g_new = src.get("geometry"), new.get("geometry")
+        if g_old is not None and g_new is not None:
+            terrain, n_values = current["geometries"].get(g_old, ("", ""))
+            set_associations(spec.dest, geometries={g_new: (spec.terrain or terrain, n_values)})
+        if "plan" in new and g_new is not None and "boundary" in new:
+            set_associations(spec.dest, plans={new["plan"]: (g_new, new["boundary"])})
+        return new
 
     def write_bcs(self, model: Path, bc: BcSpec) -> Path:
         for name, slope in bc.slopes.items():
