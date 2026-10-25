@@ -278,3 +278,32 @@ def test_export_rasters_per_profile(tmp_path: Path, engine: RasEngine) -> None:
     assert again["depth"] == out["depth"]
     with pytest.raises(ValueError, match="field"):
         engine.export(run, 7, ["froude"], tmp_path / "maps")
+
+
+def _nlayer(project: Path, mode: bytes = b"Constant") -> Path:
+    p = project / "Surface Layers" / "n1.h5"
+    p.parent.mkdir(exist_ok=True)
+    with h5py.File(p, "w") as f:
+        g = f.create_group("NValues")
+        g.attrs["Mode"] = np.bytes_(mode)
+        g.attrs["Constant Value"] = np.float64(0.06)
+    return p
+
+
+def test_manning_n_sets_constant_value_in_the_clone(tmp_path: Path, engine: RasEngine) -> None:
+    t = _template(tmp_path)
+    donor = _nlayer(t)
+    model = engine.build_or_verify_model(ModelSpec(t, tmp_path / "m", None, {}, 9.0,
+                                                   layers=LAYERS, manning_n=0.045))
+    with h5py.File(model / "Surface Layers" / "n1.h5", "r") as f:
+        assert float(f["NValues"].attrs["Constant Value"]) == pytest.approx(0.045)
+    with h5py.File(donor, "r") as f:
+        assert float(f["NValues"].attrs["Constant Value"]) == pytest.approx(0.06)
+
+
+def test_manning_n_refuses_non_constant_layers(tmp_path: Path, engine: RasEngine) -> None:
+    t = _template(tmp_path)
+    _nlayer(t, mode=b"Raster")
+    with pytest.raises(ValueError, match="Constant"):
+        engine.build_or_verify_model(ModelSpec(t, tmp_path / "m", None, {}, 9.0,
+                                               layers=LAYERS, manning_n=0.045))

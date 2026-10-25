@@ -19,6 +19,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import h5py
+import numpy as np
 from shapely.geometry import LineString, Polygon
 
 from flowfield2d.engines import BcSpec, Capabilities, ModelSpec, PlanSpec, RunOutcome
@@ -141,6 +142,8 @@ class RasEngine:
                 spec.dest, spec.keep, spec.cuts, geometry=geom_stem, boundary=bc_stem
             )
         geom = self._file(spec.dest, "geometry")
+        if spec.manning_n is not None:
+            self._set_constant_n(spec.dest, geom.stem, spec.manning_n)
         self.cli.run([
             "geometry",
             "modify",
@@ -159,6 +162,23 @@ class RasEngine:
         with h5py.File(geom, "r", locking=False) as f:
             outline = Polygon(f["/Geometry/2D Flow Areas/Polygon"][:])
         return outline, bc_polylines(bc)
+
+    def _set_constant_n(self, model: Path, geometry: str, value: float) -> None:
+        """Set the uniform Manning's n of the geometry's associated n layer (in this clone only).
+        Only constant-mode layers are supported; land-cover n tables are a different mode."""
+        if not value > 0:
+            raise ValueError(f"manning_n must be > 0, got {value}")
+        _, n_layer = associations(model)["geometries"].get(geometry, ("", ""))
+        path = Path(model) / "Surface Layers" / f"{n_layer}.h5"
+        if not n_layer or not path.is_file():
+            raise FileNotFoundError(f"no n-value layer associated with {geometry!r} ({path})")
+        with h5py.File(path, "r+", locking=False) as f:
+            g = f["NValues"]
+            mode = g.attrs.get("Mode", b"")
+            mode = mode.decode() if isinstance(mode, bytes) else str(mode)
+            if mode != "Constant":
+                raise ValueError(f"n layer {n_layer!r} is in mode {mode!r}, not 'Constant'")
+            g.attrs.modify("Constant Value", np.array(value, dtype=g.attrs["Constant Value"].dtype))
 
     def _synthesise_layers(self, spec: ModelSpec) -> dict[str, str]:
         """Copy the selected layers under `spec.rename` names and bind them in the project file

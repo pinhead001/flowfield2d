@@ -35,6 +35,7 @@ class ModelSpec:
     outline: Polygon | None = None
     rename: dict[str, str] = field(default_factory=dict)
     terrain: str | None = None
+    manning_n: float | None = None   # uniform n for the geometry's n layer (sensitivity runs)
 
 
 @dataclass(frozen=True)
