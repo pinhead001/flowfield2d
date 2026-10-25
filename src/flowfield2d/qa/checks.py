@@ -26,6 +26,13 @@ class CheckResult:
     detail: str = ""
 
 
+@dataclass(frozen=True)
+class ConvergenceResult(CheckResult):
+    n_points: int = 0
+    n_failing: int = 0
+    oscillating: tuple[int, ...] = ()
+
+
 def _f(x: ArrayLike) -> F:
     return np.asarray(x, dtype=np.float64)
 
@@ -53,11 +60,12 @@ def volume_balance(q_in: ArrayLike, q_out: ArrayLike, tol: float = 0.01) -> Chec
 
 def convergence(t_s: ArrayLike, q_in: ArrayLike, q_out: ArrayLike, wse: ArrayLike,
                 hold_end_s: float, window_s: float = 1800.0, q_tol: float = 0.01,
-                wse_tol: float = 0.005) -> CheckResult:
+                wse_tol: float = 0.005) -> ConvergenceResult:
     """Converged at the end of a hold: flow imbalance at `hold_end_s` within `q_tol` (relative) and
     WSE change over the last `window_s` within `wse_tol` at every monitored point.
 
     `wse` is (n_t,) or (n_t, n_points). The value reported is the worst WSE change.
+    Returns a `ConvergenceResult` with monitored points, failing count, and any oscillating points.
     """
     t, qi, qo, w = _f(t_s), _f(q_in), _f(q_out), _f(wse)
     if w.ndim == 1:
@@ -69,11 +77,41 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike, q_out: ArrayLike, wse: ArrayLik
         raise ValueError("fewer than two samples in the convergence window")
     end = int(np.flatnonzero(sel)[-1])
     q_err = abs(qo[end] - qi[end]) / qi[end]
-    span = np.nanmax(w[sel], axis=0) - np.nanmin(w[sel], axis=0)
+    w_win = w[sel]
+    span = np.nanmax(w_win, axis=0) - np.nanmin(w_win, axis=0)
     dw = float(np.nanmax(span))
     ok = bool(q_err <= q_tol and dw <= wse_tol)
-    return CheckResult("convergence", ok, dw, wse_tol,
-                       f"flow imbalance {q_err:.4f} (tol {q_tol}); WSE change {dw:.4f} m")
+    n_points = int(w.shape[1])
+    n_failing = int(np.sum(span > wse_tol))
+    if w_win.shape[0] >= 3:
+        a = w_win[:-2]
+        b = w_win[1:-1]
+        c = w_win[2:]
+        valid = np.isfinite(a) & np.isfinite(b) & np.isfinite(c)
+        diff1 = np.where(valid, b - a, 0.0)
+        diff2 = np.where(valid, c - b, 0.0)
+        diff_ca = np.where(valid, c - a, np.inf)
+        is_aba = (
+            valid
+            & (np.abs(diff1) > wse_tol)
+            & (np.abs(diff2) > wse_tol)
+            & (((diff1 > 0) & (diff2 < 0)) | ((diff1 < 0) & (diff2 > 0)))
+            & (np.abs(diff_ca) <= wse_tol)
+        )
+        has_osc = np.any(is_aba, axis=0)
+        oscillating = tuple(int(i) for i in np.flatnonzero(has_osc))
+    else:
+        oscillating = ()
+    detail = (
+        f"flow imbalance {q_err:.4f} (tol {q_tol}); "
+        f"WSE change {dw:.4f} m; failing points {n_failing}/{n_points}"
+    )
+    if oscillating:
+        detail += f"; oscillating (A/B/A) at points {list(oscillating)}"
+    return ConvergenceResult(
+        "convergence", ok, dw, wse_tol, detail,
+        n_points=n_points, n_failing=n_failing, oscillating=oscillating,
+    )
 
 
 def wse_monotonic(station: ArrayLike, wse: ArrayLike, exceptions: Iterable[float] = (),
