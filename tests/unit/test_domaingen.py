@@ -5,9 +5,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 import rasterio
-from flowfield2d.domaingen import data_footprint, flood_envelope, simplify_to
 from rasterio.transform import from_origin
 from shapely.geometry import MultiPoint, Point, Polygon
+
+from flowfield2d.domaingen import data_footprint, flood_envelope, simplify_to
 
 CELL = 10.0
 NX, NY = 120, 200                      # 1200 m x 2000 m grid, origin (0, 2000)
