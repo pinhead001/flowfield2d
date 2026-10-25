@@ -9,7 +9,7 @@ reduced that to one GUI template per river segment, with subdomains derived in c
 many segments, even one GUI outline per segment is the main manual cost (10 minutes per outline measured), and it
 is a human step in an otherwise headless pipeline.
 
-Three probes on real RAS (consumer records in `methow-hydraulics/docs/plans/`) show the remaining GUI steps can be
+Three probes on real RAS (records in the first consumer's `docs/plans/`) show the remaining GUI steps can be
 done headless from any donor project of the same build and projection:
 1. **New layers and bindings** (`probe-t03-layers-2026-10-25.md`): copy geometry/BC/plan layers under new
    names, rewrite their fixed-width internal names in place, add plan and geometry associations to the project
