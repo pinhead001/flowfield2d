@@ -9,7 +9,14 @@ import numpy as np
 import pytest
 from shapely.geometry import LineString, Point
 
-from flowfield2d.engines.ras2025.topology import Arc, PatchType, Region, add_topology
+from flowfield2d.channel_patches import channel_patches
+from flowfield2d.engines.ras2025.topology import (
+    Arc,
+    PatchType,
+    Region,
+    add_channel,
+    add_topology,
+)
 
 TOPO = "/Geometry/Mesh Topology"
 ARC_DT = np.dtype({
@@ -103,3 +110,36 @@ def test_bad_region_rejected(tmp_path: Path) -> None:
     g = _geom(tmp_path / "g.h5")
     with pytest.raises(ValueError):
         add_topology(g, [], [Region(Point(1, 1), PatchType.QUAD, -1.0)])
+
+
+def test_add_channel_writes_patches_as_quad_regions(tmp_path: Path) -> None:
+    g = _geom(tmp_path / "g.h5")
+    patches = channel_patches(LineString([(0, 40), (80, 40)]), LineString([(0, 10), (80, 10)]),
+                              LineString([(0, 25), (80, 25)]), spacing=20.0)
+    add_channel(g, patches, cell_size=5.0)
+    with h5py.File(g, "r") as f:
+        t = f[TOPO]
+        assert len(t["Nodes"]) == 1 + 10                     # 5 cross-sections x 2 shared ends
+        conn = t["Arc Connectivity"][()]
+        assert len(conn) == 1 + 5 + 4 + 4                    # cross-sections, left and right pieces
+        attrs = t["Arc Attributes"][()][1:]
+        assert np.all(attrs["ConstantSize"] == 5.0) and np.all(attrs["FollowExactly"] == 1)
+        cpa = t["Control Point Attributes"][()][1:]
+        assert len(cpa) == 4 and np.all(cpa["PatchType"] == 0)
+        assert np.all(cpa["ConstantSize"] == 5.0)
+        cps = t["Control Points"][()][1:]
+        assert sorted(cps[:, 0].round(6).tolist()) == [10.0, 30.0, 50.0, 70.0]
+        assert np.allclose(cps[:, 1], 25.0)
+        degree = np.bincount(conn[1:].ravel(), minlength=11)[1:]
+        assert sorted(degree.tolist()) == [2, 2, 2, 2, 3, 3, 3, 3, 3, 3]   # ends 2, interior 3
+
+
+def test_missing_schema_is_reported_before_anything_is_written(tmp_path: Path) -> None:
+    g = _geom(tmp_path / "g.h5")
+    with h5py.File(g, "r+") as f:
+        del f[TOPO]["Control Point Attributes"]
+    with pytest.raises(KeyError, match="Control Point Attributes"):
+        add_topology(g, [Arc(LineString([(10, 10), (20, 20)]))],
+                     [Region(Point(15, 12), PatchType.QUAD, 4.0)])
+    with h5py.File(g, "r") as f:
+        assert len(f[TOPO]["Nodes"]) == 1 and len(f[TOPO]["Arc Attributes"]) == 1
