@@ -12,6 +12,8 @@ upstream/downstream side). An adverse or flat fit is an error, never silently us
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -107,3 +109,65 @@ def cut_slope(source: str, *, at: float, window: float, side: str = "both",
     if not s > 0:
         raise ValueError(f"{source} slope {s:.6g} is not positive (flat or adverse)")
     return s
+
+
+@dataclass(frozen=True)
+class SlopeChoice:
+    """Selected slope, its source, and any rejected primary attempt."""
+
+    slope: float
+    source: str
+    rejected: str | None = None
+
+
+def cut_slope_with_fallback(
+    primary: str,
+    fallback: str,
+    *,
+    at: float,
+    window: float,
+    side: str = "both",
+    primary_kw: Mapping[str, Any],
+    fallback_kw: Mapping[str, Any],
+) -> SlopeChoice:
+    """Fit slope using *primary* source, falling back to *fallback* source on failure.
+
+    Parameters
+    ----------
+    primary:
+        Name of primary slope source (one of :data:`SOURCES`).
+    fallback:
+        Name of fallback slope source (one of :data:`SOURCES`).
+    at:
+        Chainage location of the cut.
+    window:
+        Half-width or window size around *at*.
+    side:
+        Side of the cut to sample ('both', 'upstream', or 'downstream').
+    primary_kw:
+        Keyword arguments for *primary* source in :func:`cut_slope`.
+    fallback_kw:
+        Keyword arguments for *fallback* source in :func:`cut_slope`.
+
+    Returns
+    -------
+    SlopeChoice
+        The chosen slope and source, recording any primary error in ``rejected``.
+
+    Raises
+    ------
+    ValueError
+        If both *primary* and *fallback* fail to produce a valid slope.
+    """
+    try:
+        s = cut_slope(primary, at=at, window=window, side=side, **primary_kw)
+        return SlopeChoice(slope=s, source=primary, rejected=None)
+    except ValueError as err:
+        rejected = f"{primary}: {err}"
+        try:
+            s = cut_slope(fallback, at=at, window=window, side=side, **fallback_kw)
+            return SlopeChoice(slope=s, source=fallback, rejected=rejected)
+        except ValueError as fallback_err:
+            raise ValueError(
+                f"Both primary and fallback failed: {rejected}; {fallback}: {fallback_err}"
+            ) from fallback_err

@@ -23,6 +23,119 @@ class Plateau:
     hold_end_s: float
 
 
+def breakpoints_holds(
+    flows: Sequence[float],
+    ramp_s: float,
+    holds_s: Sequence[float],
+) -> list[tuple[float, float]]:
+    """Return (t_s, q) corner points for a stepped-ramp hydrograph with per-flow holds.
+
+    Parameters
+    ----------
+    flows:
+        Non-empty, non-negative, non-decreasing sequence of flow values.
+    ramp_s:
+        Duration of each linear ramp in seconds (must be > 0).
+    holds_s:
+        Duration of hold period for each flow value in seconds (each must be > 0).
+        Must have the same length as *flows*.
+
+    Returns
+    -------
+    list[tuple[float, float]]
+        Corner points as ``(time_seconds, flow)`` pairs.
+
+    Raises
+    ------
+    ValueError
+        If *flows* is empty, lengths of *flows* and *holds_s* differ, any flow
+        is negative, flows are not non-decreasing, *ramp_s* is not positive,
+        or any hold in *holds_s* is not positive.
+    """
+    if len(flows) == 0:
+        raise ValueError("flows must not be empty")
+    if ramp_s <= 0:
+        raise ValueError(f"ramp_s must be positive, got {ramp_s}")
+
+    flow_list = [float(q) for q in flows]
+    hold_list = [float(h) for h in holds_s]
+
+    if len(flow_list) != len(hold_list):
+        raise ValueError(
+            f"flows and holds_s must have the same length; "
+            f"got {len(flow_list)} and {len(hold_list)}"
+        )
+
+    for i, h in enumerate(hold_list):
+        if h <= 0:
+            raise ValueError(f"holds_s[{i}] = {h} must be positive")
+
+    for i, q in enumerate(flow_list):
+        if q < 0:
+            raise ValueError(f"flows[{i}] = {q} is negative")
+
+    for i in range(1, len(flow_list)):
+        if flow_list[i] < flow_list[i - 1]:
+            raise ValueError(
+                f"flows must be non-decreasing; flows[{i}]={flow_list[i]} "
+                f"< flows[{i-1}]={flow_list[i-1]}"
+            )
+
+    points: list[tuple[float, float]] = []
+    t = 0.0
+
+    # First flow: start at t=0, hold for holds_s[0]
+    points.append((t, flow_list[0]))
+    t += hold_list[0]
+    points.append((t, flow_list[0]))
+
+    # Subsequent flows: ramp then hold
+    for q, h in zip(flow_list[1:], hold_list[1:], strict=True):
+        t_ramp_end = t + ramp_s
+        points.append((t_ramp_end, q))
+        t = t_ramp_end + h
+        points.append((t, q))
+
+    return points
+
+
+def plateaus_holds(
+    flows: Sequence[float],
+    ramp_s: float,
+    holds_s: Sequence[float],
+) -> list[Plateau]:
+    """Return one :class:`Plateau` per flow value with per-flow holds.
+
+    Parameters
+    ----------
+    flows:
+        Non-empty, non-negative, non-decreasing sequence of flow values.
+    ramp_s:
+        Duration of each linear ramp in seconds (must be > 0).
+    holds_s:
+        Duration of hold period for each flow value in seconds (each must be > 0).
+        Must have the same length as *flows*.
+
+    Returns
+    -------
+    list[Plateau]
+        One plateau per entry in *flows*.
+    """
+    pts = breakpoints_holds(flows, ramp_s=ramp_s, holds_s=holds_s)
+    result: list[Plateau] = []
+    flow_list = [float(q) for q in flows]
+
+    # First plateau: points[0] .. points[1]
+    result.append(Plateau(flow_list[0], pts[0][0], pts[1][0]))
+
+    # Subsequent plateaus: each occupies the pair after the ramp
+    for idx in range(1, len(flow_list)):
+        base = 2 * idx  # ramp-end index
+        result.append(Plateau(flow_list[idx], pts[base][0], pts[base + 1][0]))
+
+    return result
+
+
 def breakpoints(
     flows: Sequence[float],
     ramp_s: float,
@@ -54,42 +167,7 @@ def breakpoints(
         If *flows* is empty, any flow is negative, flows are not
         non-decreasing, or *ramp_s* / *hold_s* are not positive.
     """
-    if len(flows) == 0:
-        raise ValueError("flows must not be empty")
-    if ramp_s <= 0:
-        raise ValueError(f"ramp_s must be positive, got {ramp_s}")
-    if hold_s <= 0:
-        raise ValueError(f"hold_s must be positive, got {hold_s}")
-
-    flow_list = list(flows)
-
-    for i, q in enumerate(flow_list):
-        if q < 0:
-            raise ValueError(f"flows[{i}] = {q} is negative")
-
-    for i in range(1, len(flow_list)):
-        if flow_list[i] < flow_list[i - 1]:
-            raise ValueError(
-                f"flows must be non-decreasing; flows[{i}]={flow_list[i]} "
-                f"< flows[{i-1}]={flow_list[i-1]}"
-            )
-
-    points: list[tuple[float, float]] = []
-    t = 0.0
-
-    # First flow: start at t=0, hold for hold_s
-    points.append((t, float(flow_list[0])))
-    t += hold_s
-    points.append((t, float(flow_list[0])))
-
-    # Subsequent flows: ramp then hold
-    for q in flow_list[1:]:
-        t_ramp_end = t + ramp_s
-        points.append((t_ramp_end, float(q)))
-        t = t_ramp_end + hold_s
-        points.append((t, float(q)))
-
-    return points
+    return breakpoints_holds(flows, ramp_s=ramp_s, holds_s=[hold_s] * len(flows))
 
 
 def plateaus(
@@ -113,21 +191,7 @@ def plateaus(
     list[Plateau]
         One plateau per entry in *flows*.
     """
-    pts = breakpoints(flows, ramp_s=ramp_s, hold_s=hold_s)
-    result: list[Plateau] = []
-    flow_list = list(flows)
-
-    # First plateau: points[0] .. points[1]
-    result.append(Plateau(float(flow_list[0]), pts[0][0], pts[1][0]))
-
-    # Subsequent plateaus: each occupies the pair after the ramp
-    for idx in range(1, len(flow_list)):
-        # index in pts: each flow after the first consumes 2 points (ramp-end, hold-end)
-        # first flow uses pts[0], pts[1]; flow i uses pts[1 + 2*(i-1)+1], pts[1 + 2*(i-1)+2]
-        base = 2 * idx  # ramp-end index
-        result.append(Plateau(float(flow_list[idx]), pts[base][0], pts[base + 1][0]))
-
-    return result
+    return plateaus_holds(flows, ramp_s=ramp_s, holds_s=[hold_s] * len(flows))
 
 
 def sample(
