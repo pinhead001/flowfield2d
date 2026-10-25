@@ -7,7 +7,7 @@ The core never imports an engine module directly. It talks to an `Engine` and ch
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
@@ -28,6 +28,7 @@ class ModelSpec:
     keep: Polygon | None
     cuts: dict[str, LineString]
     cell_size: float
+    layers: dict[str, str] = field(default_factory=dict)  # "geometry", "boundary", "plan" -> stem
 
 
 @dataclass(frozen=True)

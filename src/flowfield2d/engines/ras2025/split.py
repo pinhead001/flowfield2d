@@ -31,9 +31,28 @@ def _one(folder: Path) -> Path:
     return files[0]
 
 
+def _layer(folder: Path, stem: str | None) -> Path:
+    if stem:
+        p = folder / f"{stem}.h5"
+        if not p.is_file():
+            raise FileNotFoundError(f"layer {stem!r} not found in {folder}")
+        return p
+    return _one(folder)
+
+
 def _set_count(ds: h5py.Dataset, counts: list[int], starts: list[int]) -> None:
     ds.attrs.modify("Count", np.array(counts, dtype=ds.attrs["Count"].dtype))
     ds.attrs.modify("Start", np.array(starts, dtype=ds.attrs["Start"].dtype))
+
+
+def _write_topology(f: h5py.File, poly: Polygon) -> None:
+    ring = np.asarray(poly.exterior.coords)[:-1]
+    topo = f[TOPO]
+    recreate_dataset(topo, "Nodes", ring[:1].copy())
+    recreate_dataset(topo, "Arc Internal Points", ring[1:].copy())
+    _set_count(topo["Arc Internal Points"], [len(ring) - 1], [0])
+    cp = poly.representative_point()
+    recreate_dataset(topo, "Control Points", np.array([[cp.x, cp.y]]))
 
 
 def bc_polylines(bc_file: Path) -> dict[str, LineString]:
@@ -45,13 +64,20 @@ def bc_polylines(bc_file: Path) -> dict[str, LineString]:
             for ln in lines}
 
 
-def split_geometry(project: Path, keep: Polygon, cut_bcs: dict[str, LineString]) -> Polygon:
+def split_geometry(
+    project: Path,
+    keep: Polygon,
+    cut_bcs: dict[str, LineString],
+    *,
+    geometry: str | None = None,
+    boundary: str | None = None,
+) -> Polygon:
     """Clip the project's 2D area to `keep` and move each named BC line to its cut line.
 
     Returns the subdomain polygon. The largest piece is kept if the clip splits the area.
     """
-    geom = _one(Path(project) / "Geometries")
-    bc = _one(Path(project) / "Boundary Conditions")
+    geom = _layer(Path(project) / "Geometries", geometry)
+    bc = _layer(Path(project) / "Boundary Conditions", boundary)
     names = {ln.name: ln.index for ln in bc_lines(bc)}
     missing = sorted(set(cut_bcs) - set(names))
     if missing:
@@ -66,12 +92,7 @@ def split_geometry(project: Path, keep: Polygon, cut_bcs: dict[str, LineString])
         ring = np.asarray(sub.exterior.coords)[:-1]
         recreate_dataset(f[POLY].parent, "Polygon", ring)
         _set_count(f[POLY], [len(ring)], [0])
-        topo = f[TOPO]
-        recreate_dataset(topo, "Nodes", ring[:1].copy())
-        recreate_dataset(topo, "Arc Internal Points", ring[1:].copy())
-        _set_count(topo["Arc Internal Points"], [len(ring) - 1], [0])
-        cp = sub.representative_point()
-        recreate_dataset(topo, "Control Points", np.array([[cp.x, cp.y]]))
+        _write_topology(f, sub)
     if cut_bcs:
         current = bc_polylines(bc)
         order = sorted(names, key=lambda n: names[n])
@@ -82,3 +103,21 @@ def split_geometry(project: Path, keep: Polygon, cut_bcs: dict[str, LineString])
             recreate_dataset(f[BC_POLY].parent, "Polyline", np.concatenate(parts))
             _set_count(f[BC_POLY], counts, starts)
     return sub
+
+
+def rebuild_perimeter(
+    project: Path,
+    *,
+    geometry: str | None = None,
+    boundary: str | None = None,
+) -> Polygon:
+    """GUI templates often carry a coarse perimeter arc; every model (the full domain
+    included) gets its arc from the polygon so all meshes follow one outline.
+    """
+    geom = _layer(Path(project) / "Geometries", geometry)
+    if boundary:
+        _layer(Path(project) / "Boundary Conditions", boundary)
+    with h5py.File(geom, "r+", locking=False) as f:
+        poly = Polygon(f[POLY][:])
+        _write_topology(f, poly)
+    return poly

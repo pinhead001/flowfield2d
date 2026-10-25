@@ -1,25 +1,42 @@
 """RAS 2025 engine (Tier B, ADR-0001).
 
+Tier B models are assembled from a GUI template. The pipeline clones the template, selects
+layers, rebuilds the perimeter or cuts a subdomain, modifies cell size, and regenerates the mesh.
+Plans and boundary conditions are written onto the cloned project.
+
 The run step trusts neither the exit code nor RAS's own BC checks:
 1. every BC layer in the project is validated first (`validate.validate_bc`); problems block it;
 2. `ras plan solve` runs on the clone, CPU only;
 3. a run is ok only if the exit code is 0 **and** the new result's `Compute Summary/Success` is set.
-Model building and plan creation stay with the pipeline on top of GUI-authored templates.
 """
 
 from __future__ import annotations
 
+import json
 import time
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 
-from flowfield2d.engines import Capabilities, RunOutcome
+from flowfield2d.engines import BcSpec, Capabilities, ModelSpec, PlanSpec, RunOutcome
 from flowfield2d.engines.ras2025 import CAPABILITIES
+from flowfield2d.engines.ras2025.bc import (
+    set_normal_depth_slope,
+    set_time_window,
+    write_flow_series,
+)
 from flowfield2d.engines.ras2025.cli import RasCli
 from flowfield2d.engines.ras2025.results import ResultsReader
+from flowfield2d.engines.ras2025.split import _layer, rebuild_perimeter, split_geometry
+from flowfield2d.engines.ras2025.templates import clone_project
 from flowfield2d.engines.ras2025.validate import validate_bc
 
 TAIL = 2000
+FOLDERS: dict[str, str] = {
+    "geometry": "Geometries",
+    "boundary": "Boundary Conditions",
+    "plan": "Plans",
+}
 
 
 class RasEngine:
@@ -60,15 +77,82 @@ class RasEngine:
             raise ValueError("run produced no result file")
         return ResultsReader(run.result_path)
 
-    # Tier B: base geometry and plan binding are authored in the GUI; the pipeline clones them.
-    def build_or_verify_model(self, domain: Any) -> Any:
-        raise NotImplementedError("Tier B: use templates.clone_project + verify_template")
+    def _layers(self, model: Path) -> dict[str, str]:
+        path = Path(model) / "flowfield2d.json"
+        if not path.is_file():
+            return {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            layers = data.get("layers", {})
+            if isinstance(layers, dict):
+                return {str(k): str(v) for k, v in layers.items()}
+            return {}
+        except Exception:
+            return {}
 
-    def write_bcs(self, model: Any, hydrograph: Any) -> Any:
-        raise NotImplementedError("use engines.ras2025.bc (multi-line BC writer pending)")
+    def _file(self, model: Path, kind: str) -> Path:
+        if kind not in FOLDERS:
+            raise ValueError(f"unknown layer kind {kind!r}")
+        folder = Path(model) / FOLDERS[kind]
+        stem = self._layers(model).get(kind)
+        return _layer(folder, stem)
 
-    def create_plan(self, model: Any, spec: Any) -> Any:
-        raise NotImplementedError("Tier B: plans come from the template; settings via plan modify")
+    def build_or_verify_model(self, spec: ModelSpec) -> Path:
+        clone_project(spec.template, spec.dest)
+        (spec.dest / "flowfield2d.json").write_text(
+            json.dumps({"layers": spec.layers}), encoding="utf-8"
+        )
+        geom_stem = spec.layers.get("geometry")
+        bc_stem = spec.layers.get("boundary")
+        if spec.keep is None:
+            rebuild_perimeter(spec.dest, geometry=geom_stem, boundary=bc_stem)
+        else:
+            split_geometry(
+                spec.dest, spec.keep, spec.cuts, geometry=geom_stem, boundary=bc_stem
+            )
+        geom = self._file(spec.dest, "geometry")
+        self.cli.run([
+            "geometry",
+            "modify",
+            str(geom),
+            f"topology.region.cellsize = {spec.cell_size:g}",
+            f"topology.arc.cellsize = {spec.cell_size:g}",
+        ])
+        self.cli.generate_mesh(geom)
+        return spec.dest
+
+    def write_bcs(self, model: Path, bc: BcSpec) -> Path:
+        for name, slope in bc.slopes.items():
+            if not (slope > 0):
+                raise ValueError(f"slope for {name!r} must be > 0, got {slope}")
+        if len(bc.offsets_s) < 1 or any(
+            b <= a for a, b in zip(bc.offsets_s, bc.offsets_s[1:], strict=False)
+        ):
+            raise ValueError("offsets_s must be strictly increasing")
+        for name, flow in bc.flows.items():
+            if len(flow) != len(bc.offsets_s):
+                raise ValueError(
+                    f"flow list for {name!r} has length {len(flow)}, expected {len(bc.offsets_s)}"
+                )
+        path = self._file(model, "boundary")
+        for line, values in bc.flows.items():
+            write_flow_series(path, line, bc.offsets_s, values)
+        set_time_window(path, bc.start, bc.start + timedelta(seconds=bc.offsets_s[-1]))
+        for name, s in bc.slopes.items():
+            set_normal_depth_slope(path, s, line=name)
+        problems = validate_bc(path)
+        if problems:
+            raise ValueError("BC validation failed: " + "; ".join(p.message for p in problems))
+        return path
+
+    def create_plan(self, model: Path, spec: PlanSpec) -> Path:
+        plan = self._file(model, "plan")
+        self.cli.plan_modify(plan, {
+            "ComputeTimestep": spec.compute_timestep,
+            "BaseOutputInterval": spec.output_interval,
+            "TimeStepping": spec.time_stepping,
+        })
+        return plan
 
     def export(self, run: Any, plateau: Any, fields: Any, out_dir: Path) -> Any:
         raise NotImplementedError("use RasCli.result_map / post.rasters (pending)")
