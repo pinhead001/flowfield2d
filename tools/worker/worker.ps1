@@ -25,13 +25,24 @@ $ras = Join-Path $RasDir "ras.exe"
 foreach ($d in "pending", "running\$hostName", "done", "failed") {
     New-Item -ItemType Directory -Force -Path (Join-Path $Queue $d) | Out-Null
 }
-$jobs = @{}   # job name -> process
+$jobs = @{}   # job name -> @{ proc; started (UTC); own = started by this worker (exit code known) }
 
-function Finish-Job([string]$name, $proc) {
+# A solve counts as ok only with a result file and RAS's completion line (exit codes are not
+# available for solves adopted after a worker restart).
+function Solve-Ok([string]$dir, $exitCode) {
+    $log = Join-Path $dir "solve.log"
+    $completed = (Test-Path $log) -and (Select-String -Path $log -Pattern "Computations completed" -Quiet)
+    $exitOk = ($null -eq $exitCode) -or ($exitCode -eq 0)
+    return $exitOk -and $completed -and (Test-Path (Join-Path $dir "result.h5"))
+}
+
+function Finish-Job([string]$name, $job) {
     $dir = Join-Path $Queue "running\$hostName\$name"
-    $ok = ($proc.ExitCode -eq 0) -and (Test-Path (Join-Path $dir "result.h5"))
-    $status = @{ job = $name; host = $hostName; processor = $Processor; exit = $proc.ExitCode;
-                 ok = $ok; started = $proc.StartTime.ToUniversalTime().ToString("o");
+    $exitCode = $null
+    if ($job.own) { $exitCode = $job.proc.ExitCode }
+    $ok = Solve-Ok $dir $exitCode
+    $status = @{ job = $name; host = $hostName; processor = $Processor; exit = $exitCode;
+                 ok = $ok; started = $job.started.ToString("o");
                  finished = (Get-Date).ToUniversalTime().ToString("o") }
     $status | ConvertTo-Json | Set-Content (Join-Path $dir "status.json")
     $target = Join-Path $Queue ($(if ($ok) { "done" } else { "failed" }))
@@ -39,10 +50,23 @@ function Finish-Job([string]$name, $proc) {
     Write-Host "$(Get-Date -Format s) $name -> $(if ($ok) {'done'} else {'FAILED'})"
 }
 
+# Restart: jobs this host left in running\ are adopted if their ras.exe still runs, else finished.
+foreach ($d in Get-ChildItem (Join-Path $Queue "running\$hostName") -Directory) {
+    $proc = $null
+    $pidFile = Join-Path $d.FullName "pid.txt"
+    if (Test-Path $pidFile) {
+        $proc = Get-Process -Id ([int](Get-Content $pidFile)) -ErrorAction SilentlyContinue |
+                Where-Object { $_.ProcessName -eq "ras" }
+    }
+    $job = @{ proc = $proc; started = $d.CreationTimeUtc; own = $false }
+    if ($proc) { $jobs[$d.Name] = $job; Write-Host "$(Get-Date -Format s) $($d.Name) adopted (pid $($proc.Id))" }
+    else { Finish-Job $d.Name $job }
+}
+
 Write-Host "worker ${hostName}: $Slots slot(s), $Processor, queue $Queue"
 while ($true) {
     foreach ($name in @($jobs.Keys)) {
-        if ($jobs[$name].HasExited) { Finish-Job $name $jobs[$name]; $jobs.Remove($name) }
+        if ($jobs[$name].proc.HasExited) { Finish-Job $name $jobs[$name]; $jobs.Remove($name) }
     }
     while ($jobs.Count -lt $Slots) {
         $next = Get-ChildItem (Join-Path $Queue "pending") -Filter "*.r2r.h5" |
@@ -59,7 +83,9 @@ while ($true) {
         if ($CoresPerJob -gt 0) { $solveArgs += @("--core-count", "$CoresPerJob") }
         $p = Start-Process -FilePath $ras -ArgumentList $solveArgs -PassThru -NoNewWindow `
              -RedirectStandardOutput (Join-Path $dir "solve.log") -RedirectStandardError (Join-Path $dir "solve.err")
-        $jobs[$name] = $p
+        $null = $p.Handle   # cache the handle, or ExitCode reads as null after exit
+        Set-Content (Join-Path $dir "pid.txt") $p.Id
+        $jobs[$name] = @{ proc = $p; started = (Get-Date).ToUniversalTime(); own = $true }
         Write-Host "$(Get-Date -Format s) $name started (pid $($p.Id))"
     }
     Start-Sleep -Seconds $PollSeconds
