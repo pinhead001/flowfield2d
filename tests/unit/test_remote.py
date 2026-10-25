@@ -42,7 +42,8 @@ def test_launch_prepares_a_job_and_collect_finishes_the_run(tmp_path: Path) -> N
     reg, backend, q = _setup(tmp_path)
     started = tick(reg, 2, lambda rec: backend.launch(reg, rec), backend.is_alive)
     assert started == ["r1"]
-    assert (q / "pending" / "r1.r2r.h5").exists() and (q / "pending" / "r1.r2r.h5.ready").exists()
+    assert (q / "pending" / "r1.r2r.h5").exists()
+    assert (q / "pending" / "r1.r2r.h5.ready").read_text(encoding="utf-8") == "CPU"   # default
     assert backend.is_alive(reg.get("r1").pid) is True               # pending counts as alive
     backend.collect(reg)
     assert reg.get("r1").state is RunState.RUNNING                    # nothing finished yet
@@ -75,3 +76,15 @@ def test_prepare_failure_is_raised(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     with pytest.raises(RuntimeError, match="prepare"):
         backend.launch(reg, reg.get("r1"))
     assert not list((q / "pending").glob("*.ready"))
+
+
+def test_ready_marker_names_the_processor(tmp_path: Path) -> None:
+    proj = _project(tmp_path)
+    reg = Registry(tmp_path / "runs" / "registry.json")
+    reg.add("r1", "d1", "s1", str(proj / "Plans" / "p01.h5"))
+    q = tmp_path / "queue"
+    gpu = QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), processor="GPU")
+    tick(reg, 2, lambda rec: gpu.launch(reg, rec), gpu.is_alive)
+    assert (q / "pending" / "r1.r2r.h5.ready").read_text(encoding="utf-8") == "GPU"
+    with pytest.raises(ValueError, match="processor"):
+        QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), processor="TPU")

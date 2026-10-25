@@ -4,7 +4,9 @@ The host prepares each run as a standalone ready-to-run file (`ras plan prepare`
 mesh, property tables, BCs and plan settings, so a worker needs only the pinned RAS build
 (`tools/worker/worker.ps1`).
 
-Queue layout: `pending/<run>.r2r.h5` plus a `<run>.r2r.h5.ready` marker written last; workers claim
+Queue layout: `pending/<run>.r2r.h5` plus a `<run>.r2r.h5.ready` marker written last, holding the
+processor the run needs ("CPU" or "GPU"; workers take only matching jobs, an empty marker fits any
+worker, and GPU results differ from CPU); workers claim
 a job by moving it to `running/<host>/<run>/` and finish in `done/<run>/` (`result.h5`,
 `status.json`) or `failed/<run>/`. `jobs/<run>.json` keeps the host-side record (registry, plan,
 synthetic pid), so a restarted host can resume.
@@ -30,9 +32,12 @@ _PID_BASE = 2_000_000_000          # synthetic pids, above real Windows pids
 
 
 class QueueBackend:
-    def __init__(self, queue: Path, cli: RasCli) -> None:
+    def __init__(self, queue: Path, cli: RasCli, processor: str = "CPU") -> None:
+        if processor not in ("CPU", "GPU"):
+            raise ValueError(f"processor must be 'CPU' or 'GPU', not {processor!r}")
         self.queue = Path(queue)
         self.cli = cli
+        self.processor = processor
         for d in ("pending", "running", "done", "failed", "jobs"):
             (self.queue / d).mkdir(parents=True, exist_ok=True)
 
@@ -54,7 +59,8 @@ class QueueBackend:
         pid = self.pid_for(rec.run_id)
         self._job(rec.run_id).write_text(json.dumps(
             {"run_id": rec.run_id, "registry": str(registry.path), "plan": rec.plan, "pid": pid}))
-        (self.queue / "pending" / f"{out.name}.ready").write_bytes(b"")   # visible to workers last
+        ready = self.queue / "pending" / f"{out.name}.ready"
+        ready.write_text(self.processor, encoding="utf-8")                # visible to workers last
         return pid
 
     def _run_for_pid(self, pid: int) -> str | None:

@@ -2,7 +2,8 @@
 #
 # Queue layout (on a share every machine can reach):
 #   <Queue>\pending\<job>.r2r.h5        jobs waiting (written by the pipeline host; a <job>.r2r.h5.ready
-#                                        marker file appears when the copy is complete)
+#                                        marker file appears when the copy is complete; it holds the
+#                                        processor the job needs, CPU or GPU; empty = any worker)
 #   <Queue>\running\<host>\<job>\        claimed by a worker (atomic move of the job file)
 #   <Queue>\done\<job>\                  result.h5, solve.log, status.json  (ok/failed, host, times)
 #   <Queue>\failed\<job>\                same, for failed solves
@@ -26,6 +27,14 @@ foreach ($d in "pending", "running\$hostName", "done", "failed") {
     New-Item -ItemType Directory -Force -Path (Join-Path $Queue $d) | Out-Null
 }
 $jobs = @{}   # job name -> @{ proc; started (UTC); own = started by this worker (exit code known) }
+
+# A job fits this worker when its ready marker is empty (any processor) or names $Processor.
+function Job-Fits($file) {
+    $ready = $file.FullName + ".ready"
+    if (-not (Test-Path $ready)) { return $false }
+    $want = (Get-Content $ready -Raw -ErrorAction SilentlyContinue)
+    return [string]::IsNullOrWhiteSpace($want) -or ($want.Trim() -eq $Processor)
+}
 
 # A solve counts as ok only with a result file and RAS's completion line (exit codes are not
 # available for solves adopted after a worker restart).
@@ -70,7 +79,7 @@ while ($true) {
     }
     while ($jobs.Count -lt $Slots) {
         $next = Get-ChildItem (Join-Path $Queue "pending") -Filter "*.r2r.h5" |
-                Where-Object { Test-Path ($_.FullName + ".ready") } | Sort-Object Name | Select-Object -First 1
+                Where-Object { Job-Fits $_ } | Sort-Object Name | Select-Object -First 1
         if (-not $next) { break }
         $name = $next.Name -replace "\.r2r\.h5$", ""
         $dir = Join-Path $Queue "running\$hostName\$name"
