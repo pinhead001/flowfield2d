@@ -14,9 +14,12 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Mapping
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
+
+import h5py
 
 from flowfield2d.engines import BcSpec, Capabilities, ModelSpec, PlanSpec, RunOutcome
 from flowfield2d.engines.ras2025 import CAPABILITIES
@@ -32,6 +35,7 @@ from flowfield2d.engines.ras2025.templates import clone_project
 from flowfield2d.engines.ras2025.validate import validate_bc
 
 TAIL = 2000
+UNIT_M: dict[str, float] = {"USC": 0.3048, "SI": 1.0}   # `Project Units` -> metres per unit
 FOLDERS: dict[str, str] = {
     "geometry": "Geometries",
     "boundary": "Boundary Conditions",
@@ -82,13 +86,22 @@ class RasEngine:
         if not path.is_file():
             return {}
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            layers = data.get("layers", {})
-            if isinstance(layers, dict):
-                return {str(k): str(v) for k, v in layers.items()}
-            return {}
-        except Exception:
-            return {}
+            layers = json.loads(path.read_text(encoding="utf-8")).get("layers", {})
+        except (OSError, json.JSONDecodeError, AttributeError) as err:
+            raise ValueError(f"unreadable layer selection {path}: {err}") from err
+        if not isinstance(layers, dict):
+            raise ValueError(f"layer selection in {path} is not a mapping")
+        return {str(k): str(v) for k, v in layers.items()}
+
+    def model_unit_m(self, template: Path, layers: Mapping[str, str]) -> float:
+        """Metres per model unit, from the geometry layer's `Project Units` attribute."""
+        geom = _layer(Path(template) / FOLDERS["geometry"], layers.get("geometry"))
+        with h5py.File(geom, "r", locking=False) as f:
+            raw = f.attrs.get("Project Units", b"")
+        units = raw.decode() if isinstance(raw, bytes) else str(raw)
+        if units not in UNIT_M:
+            raise ValueError(f"unknown Project Units {units!r} in {geom}")
+        return UNIT_M[units]
 
     def _file(self, model: Path, kind: str) -> Path:
         if kind not in FOLDERS:

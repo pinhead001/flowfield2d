@@ -45,6 +45,14 @@ def _set_count(ds: h5py.Dataset, counts: list[int], starts: list[int]) -> None:
     ds.attrs.modify("Start", np.array(starts, dtype=ds.attrs["Start"].dtype))
 
 
+def _area_polygon(f: h5py.File) -> Polygon:
+    """The single 2D area's outline; multi-area or multi-ring layers are refused, not flattened."""
+    counts = f[POLY].attrs.get("Count")
+    if counts is not None and len(np.atleast_1d(counts)) != 1:
+        raise ValueError(f"expected one 2D area ring, found {len(np.atleast_1d(counts))}")
+    return Polygon(f[POLY][:])
+
+
 def _write_topology(f: h5py.File, poly: Polygon) -> None:
     ring = np.asarray(poly.exterior.coords)[:-1]
     topo = f[TOPO]
@@ -83,7 +91,7 @@ def split_geometry(
     if missing:
         raise ValueError(f"no BC line named {missing}")
     with h5py.File(geom, "r+", locking=False) as f:
-        piece = Polygon(f[POLY][:]).intersection(keep)
+        piece = _area_polygon(f).intersection(keep)
         if piece.is_empty:
             raise ValueError("clip polygon leaves the 2D area empty")
         sub = max(piece.geoms, key=lambda g: g.area) if isinstance(piece, MultiPolygon) else piece
@@ -118,6 +126,6 @@ def rebuild_perimeter(
     if boundary:
         _layer(Path(project) / "Boundary Conditions", boundary)
     with h5py.File(geom, "r+", locking=False) as f:
-        poly = Polygon(f[POLY][:])
+        poly = _area_polygon(f)
         _write_topology(f, poly)
     return poly

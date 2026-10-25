@@ -169,3 +169,32 @@ def test_create_plan_sets_solver_settings(tmp_path: Path, engine: RasEngine) -> 
     assert call[:3] == ["plan", "modify", str(plan)]
     assert {"ComputeTimestep = 3s", "BaseOutputInterval = 15min",
             "TimeStepping = Explicit"} <= set(call)
+
+
+def test_model_unit_m_from_project_units(tmp_path: Path, engine: RasEngine) -> None:
+    t = _template(tmp_path)
+    for g, units in (("gA", "SI"), ("gB", "USC")):
+        with h5py.File(t / "Geometries" / f"{g}.h5", "a") as f:
+            f.attrs["Project Units"] = np.bytes_(units)
+    assert engine.model_unit_m(t, LAYERS) == pytest.approx(0.3048)
+    assert engine.model_unit_m(t, {"geometry": "gA"}) == 1.0
+    with h5py.File(t / "Geometries" / "gA.h5", "a") as f:
+        f.attrs["Project Units"] = np.bytes_("Furlongs")
+    with pytest.raises(ValueError, match="Furlongs"):
+        engine.model_unit_m(t, {"geometry": "gA"})
+
+
+def test_corrupt_layer_selection_raises(tmp_path: Path, engine: RasEngine) -> None:
+    model = engine.build_or_verify_model(ModelSpec(_template(tmp_path), tmp_path / "m", None, {},
+                                                   9.0, layers=LAYERS))
+    (model / "flowfield2d.json").write_text("{not json")
+    with pytest.raises(ValueError, match="layer selection"):
+        engine.create_plan(model, PlanSpec("3s", "15min", "Explicit"))
+
+
+def test_multi_ring_area_refused(tmp_path: Path) -> None:
+    t = _template(tmp_path)
+    with h5py.File(t / "Geometries" / "gB.h5", "a") as f:
+        f["/Geometry/2D Flow Areas/Polygon"].attrs["Count"] = np.array([6, 6], dtype="i4")
+    with pytest.raises(ValueError, match="one 2D area"):
+        rebuild_perimeter(t, geometry="gB")
