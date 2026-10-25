@@ -5,6 +5,7 @@ from __future__ import annotations
 import warnings
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -294,3 +295,62 @@ def lateral_inflow(
 
     result = np.maximum(diff, 0.0)
     return result
+
+
+def merge_flows(
+    flows: Sequence[float],
+    rel_tol: float,
+    pick: Literal["max", "mean"],
+) -> tuple[list[float], list[int]]:
+    """Fewer runs when monthly flows nearly coincide; groups within rel_tol of group minimum."""
+    flow_list = [float(q) for q in flows]
+    if len(flow_list) == 0:
+        raise ValueError("flows must not be empty")
+    if not (rel_tol >= 0):
+        raise ValueError(f"rel_tol must be non-negative, got {rel_tol}")
+    if pick not in ("max", "mean"):
+        raise ValueError(f"pick must be 'max' or 'mean', got {pick!r}")
+    for i, q in enumerate(flow_list):
+        if not (q > 0):
+            raise ValueError(f"flows[{i}] = {q} must be positive")
+
+    indexed_flows = sorted(enumerate(flow_list), key=lambda item: item[1])
+
+    reps: list[float] = []
+    group_indices = [0] * len(flow_list)
+
+    current_group: list[float] = []
+    current_orig_indices: list[int] = []
+    q0: float | None = None
+
+    for orig_idx, q in indexed_flows:
+        if q0 is not None and q <= q0 * (1.0 + rel_tol):
+            current_group.append(q)
+            current_orig_indices.append(orig_idx)
+        else:
+            if current_group:
+                group_idx = len(reps)
+                for idx in current_orig_indices:
+                    group_indices[idx] = group_idx
+                rep = (
+                    max(current_group)
+                    if pick == "max"
+                    else sum(current_group) / len(current_group)
+                )
+                reps.append(float(rep))
+            q0 = q
+            current_group = [q]
+            current_orig_indices = [orig_idx]
+
+    if current_group:
+        group_idx = len(reps)
+        for idx in current_orig_indices:
+            group_indices[idx] = group_idx
+        rep = (
+            max(current_group)
+            if pick == "max"
+            else sum(current_group) / len(current_group)
+        )
+        reps.append(float(rep))
+
+    return reps, group_indices
