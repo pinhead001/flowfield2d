@@ -103,7 +103,8 @@ class ResultsReader:
         perim = np.flatnonzero(face_data[:, 1] == -1)
         near_a = shapely.distance(poly, shapely.points(nodes[face_data[perim, 2]])) <= tol
         near_b = shapely.distance(poly, shapely.points(nodes[face_data[perim, 3]])) <= tol
-        matching: NDArray[np.int64] = perim[np.asarray(near_a & near_b, dtype=bool)].astype(np.int64)
+        keep = np.asarray(near_a & near_b, dtype=bool)
+        matching: NDArray[np.int64] = perim[keep].astype(np.int64)
         if matching.size == 0:
             raise ValueError(f"no faces qualify for boundary line {line!r} within tolerance {tol}")
         return matching
