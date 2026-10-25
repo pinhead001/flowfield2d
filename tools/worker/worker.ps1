@@ -23,6 +23,7 @@ param(
 $ErrorActionPreference = "Stop"
 $hostName = $env:COMPUTERNAME
 $ras = Join-Path $RasDir "ras.exe"
+if (-not (Test-Path $ras)) { throw "ras.exe not found in -RasDir '$RasDir' (no job claimed)" }
 foreach ($d in "pending", "running\$hostName", "done", "failed") {
     New-Item -ItemType Directory -Force -Path (Join-Path $Queue $d) | Out-Null
 }
@@ -59,10 +60,27 @@ function Finish-Job([string]$name, $job) {
     Write-Host "$(Get-Date -Format s) $name -> $(if ($ok) {'done'} else {'FAILED'})"
 }
 
-# Restart: jobs this host left in running\ are adopted if their ras.exe still runs, else finished.
+# A claimed job whose solve never started goes back to pending with its original marker.
+function Requeue-Job([string]$name) {
+    $dir = Join-Path $Queue "running\$hostName\$name"
+    $need = ""
+    if (Test-Path (Join-Path $dir "need.txt")) { $need = (Get-Content (Join-Path $dir "need.txt") -Raw).Trim() }
+    $dst = Join-Path $Queue "pending\$name.r2r.h5"
+    Move-Item (Join-Path $dir "job.r2r.h5") $dst -Force
+    Set-Content -Path ($dst + ".ready") -Value $need -NoNewline   # marker last, as the host writes it
+    Remove-Item $dir -Recurse -Force
+    Write-Host "$(Get-Date -Format s) $name requeued (solve never started)"
+}
+
+# Restart: jobs this host left in running\ are adopted if their ras.exe still runs, finished if
+# their solve started, and requeued if it never started.
 foreach ($d in Get-ChildItem (Join-Path $Queue "running\$hostName") -Directory) {
     $proc = $null
     $pidFile = Join-Path $d.FullName "pid.txt"
+    if (-not (Test-Path $pidFile) -and (Test-Path (Join-Path $d.FullName "job.r2r.h5"))) {
+        Requeue-Job $d.Name
+        continue
+    }
     if (Test-Path $pidFile) {
         $proc = Get-Process -Id ([int](Get-Content $pidFile)) -ErrorAction SilentlyContinue |
                 Where-Object { $_.ProcessName -eq "ras" }
@@ -86,12 +104,20 @@ while ($true) {
         New-Item -ItemType Directory -Force -Path $dir | Out-Null
         try { Move-Item $next.FullName (Join-Path $dir "job.r2r.h5") -ErrorAction Stop }
         catch { Remove-Item $dir -Recurse -Force; continue }        # another worker claimed it first
-        Remove-Item ($next.FullName + ".ready") -ErrorAction SilentlyContinue
+        $marker = $next.FullName + ".ready"
+        $need = (Get-Content $marker -Raw -ErrorAction SilentlyContinue)
+        Set-Content -Path (Join-Path $dir "need.txt") -Value ("$need".Trim()) -NoNewline
+        Remove-Item $marker -ErrorAction SilentlyContinue
         $solveArgs = @("plan", "solve", (Join-Path $dir "job.r2r.h5"), (Join-Path $dir "result.h5"),
                   "--processor", $Processor, "--if-exists", "force")
         if ($CoresPerJob -gt 0) { $solveArgs += @("--core-count", "$CoresPerJob") }
-        $p = Start-Process -FilePath $ras -ArgumentList $solveArgs -PassThru -NoNewWindow `
-             -RedirectStandardOutput (Join-Path $dir "solve.log") -RedirectStandardError (Join-Path $dir "solve.err")
+        try {
+            $p = Start-Process -FilePath $ras -ArgumentList $solveArgs -PassThru -NoNewWindow `
+                 -RedirectStandardOutput (Join-Path $dir "solve.log") -RedirectStandardError (Join-Path $dir "solve.err")
+        } catch {
+            Requeue-Job $name
+            throw "could not start ras.exe ($ras): $($_.Exception.Message)"
+        }
         $null = $p.Handle   # cache the handle, or ExitCode reads as null after exit
         Set-Content (Join-Path $dir "pid.txt") $p.Id
         $jobs[$name] = @{ proc = $p; started = (Get-Date).ToUniversalTime(); own = $true }
