@@ -7,6 +7,7 @@ import typer
 from flowfield2d import __version__
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
+WORKER_TIMEOUT_S = 72 * 3600.0
 bc_app = typer.Typer(no_args_is_help=True, help="Edit RAS 2025 BC files (use on scratch copies).")
 app.add_typer(bc_app, name="bc")
 runs_app = typer.Typer(no_args_is_help=True, help="Background, resumable run scheduler.")
@@ -70,7 +71,9 @@ def runs_worker(
     from flowfield2d.runs import Registry
     from flowfield2d.scheduler import run_worker
 
-    run_worker(Registry(registry), run_id, RasEngine(RasCli(ras), core_count or None))
+    # A production solve can take many hours; the timeout only guards against a hung solver.
+    cli = RasCli(ras, timeout_s=WORKER_TIMEOUT_S)
+    run_worker(Registry(registry), run_id, RasEngine(cli, core_count or None))
 
 
 @app.command()
