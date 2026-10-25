@@ -86,10 +86,7 @@ def split_geometry(
     """
     geom = _layer(Path(project) / "Geometries", geometry)
     bc = _layer(Path(project) / "Boundary Conditions", boundary)
-    names = {ln.name: ln.index for ln in bc_lines(bc)}
-    missing = sorted(set(cut_bcs) - set(names))
-    if missing:
-        raise ValueError(f"no BC line named {missing}")
+    _check_bc_names(bc, cut_bcs)
     with h5py.File(geom, "r+", locking=False) as f:
         piece = _area_polygon(f).intersection(keep)
         if piece.is_empty:
@@ -97,20 +94,58 @@ def split_geometry(
         sub = max(piece.geoms, key=lambda g: g.area) if isinstance(piece, MultiPolygon) else piece
         if not isinstance(sub, Polygon):
             raise ValueError(f"clip produced {sub.geom_type}, not a polygon")
-        ring = np.asarray(sub.exterior.coords)[:-1]
-        recreate_dataset(f[POLY].parent, "Polygon", ring)
-        _set_count(f[POLY], [len(ring)], [0])
-        _write_topology(f, sub)
-    if cut_bcs:
-        current = bc_polylines(bc)
-        order = sorted(names, key=lambda n: names[n])
-        parts = [np.asarray((cut_bcs.get(n) or current[n]).coords, dtype="f8") for n in order]
-        counts = [len(x) for x in parts]
-        starts = [int(s) for s in np.cumsum([0, *counts[:-1]])]
-        with h5py.File(bc, "r+", locking=False) as f:
-            recreate_dataset(f[BC_POLY].parent, "Polyline", np.concatenate(parts))
-            _set_count(f[BC_POLY], counts, starts)
+        _write_outline(f, sub)
+    _write_bc_lines(bc, cut_bcs)
     return sub
+
+
+def replace_outline(
+    project: Path,
+    outline: Polygon,
+    bc_lines_new: dict[str, LineString],
+    *,
+    geometry: str | None = None,
+    boundary: str | None = None,
+) -> Polygon:
+    """Replace the 2D area with `outline` (any size, e.g. an automated domain) and move the named
+    BC lines; the rest of the template (terrain, n values, plan, BC payloads) is kept."""
+    geom = _layer(Path(project) / "Geometries", geometry)
+    bc = _layer(Path(project) / "Boundary Conditions", boundary)
+    _check_bc_names(bc, bc_lines_new)
+    if not outline.is_valid or outline.is_empty:
+        raise ValueError("outline must be a valid, non-empty polygon")
+    poly = Polygon(outline.exterior.coords)
+    with h5py.File(geom, "r+", locking=False) as f:
+        _write_outline(f, poly)
+    _write_bc_lines(bc, bc_lines_new)
+    return poly
+
+
+def _check_bc_names(bc: Path, lines: dict[str, LineString]) -> None:
+    missing = sorted(set(lines) - {ln.name for ln in bc_lines(bc)})
+    if missing:
+        raise ValueError(f"no BC line named {missing}")
+
+
+def _write_outline(f: h5py.File, poly: Polygon) -> None:
+    ring = np.asarray(poly.exterior.coords)[:-1]
+    recreate_dataset(f[POLY].parent, "Polygon", ring)
+    _set_count(f[POLY], [len(ring)], [0])
+    _write_topology(f, poly)
+
+
+def _write_bc_lines(bc: Path, new: dict[str, LineString]) -> None:
+    if not new:
+        return
+    names = {ln.name: ln.index for ln in bc_lines(bc)}
+    current = bc_polylines(bc)
+    order = sorted(names, key=lambda n: names[n])
+    parts = [np.asarray((new.get(n) or current[n]).coords, dtype="f8") for n in order]
+    counts = [len(x) for x in parts]
+    starts = [int(s) for s in np.cumsum([0, *counts[:-1]])]
+    with h5py.File(bc, "r+", locking=False) as f:
+        recreate_dataset(f[BC_POLY].parent, "Polyline", np.concatenate(parts))
+        _set_count(f[BC_POLY], counts, starts)
 
 
 def rebuild_perimeter(

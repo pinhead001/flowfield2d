@@ -73,3 +73,23 @@ def test_split_rejects_bad_requests(tmp_path: Path) -> None:
         split_geometry(p, box(-10, 400, 110, 1010), {"Nope": LineString([(0, 401), (1, 401)])})
     with pytest.raises(ValueError, match="empty"):
         split_geometry(p, box(500, 500, 600, 600), {})
+
+
+def test_replace_outline_writes_new_polygon_and_bc_lines(tmp_path: Path) -> None:
+    from flowfield2d.engines.ras2025.split import replace_outline
+
+    p = _project(tmp_path)
+    new = Polygon([(-50, -100), (150, -100), (150, 1500), (-50, 1500)])   # larger than the original
+    cuts = {"Outlet": LineString([(-50, -100), (150, -100)]),
+            "Inflow": LineString([(-50, 1500), (150, 1500)])}
+    out = replace_outline(p, new, cuts)
+    assert out.area == pytest.approx(new.area)
+    with h5py.File(p / "Geometries" / "g.h5", "r") as f:
+        ring = f["/Geometry/2D Flow Areas/Polygon"][:]
+        assert Polygon(ring).area == pytest.approx(new.area)
+        assert f["/Geometry/Mesh Topology/Arc Internal Points"].attrs["Count"].tolist() == [
+            len(ring) - 1]
+    lines = bc_polylines(p / "Boundary Conditions" / "b.h5")
+    assert lines["Outlet"].coords[:] == [(-50.0, -100.0), (150.0, -100.0)]
+    with pytest.raises(ValueError):
+        replace_outline(p, new, {"Nope": cuts["Outlet"]})
