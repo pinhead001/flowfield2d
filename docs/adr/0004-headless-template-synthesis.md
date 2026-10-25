@@ -1,6 +1,6 @@
 # ADR-0004 — Headless template synthesis from a donor project
 
-- Status: **proposed** (lead, 2026-10-25) · Decision owner: Chris Nelson · Amends ADR-0001 (Tier B) and its
+- Status: **accepted** (Chris Nelson, 2026-10-25; proposed by the lead) · Amends ADR-0001 (Tier B) and its
   addendum 1 (one GUI-authored template per river segment)
 
 ## Context
