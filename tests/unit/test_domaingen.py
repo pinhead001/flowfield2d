@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import rasterio
 from rasterio.transform import from_origin
-from shapely.geometry import MultiPoint, Point, Polygon
+from shapely.geometry import LineString, MultiPoint, Point, Polygon
 
 from flowfield2d.domaingen import data_footprint, flood_envelope, simplify_to
 
@@ -152,3 +152,46 @@ def test_large_sparse_raster_time_and_memory(tmp_path: Path) -> None:
     assert fp.is_valid and env.is_valid and env.area > 0
     assert elapsed < 30.0, f"{elapsed:.1f} s"
     assert peak < 300e6, f"peak {peak / 1e6:.0f} MB"            # never the full 64 MB x many copies
+
+
+# --- domain generator helpers from the v01 benchmark (R24) ---------------------------------------
+
+def test_valid_area_keeps_holes_and_erodes(tmp_path: Path) -> None:
+    from flowfield2d.domaingen import valid_area
+
+    p = _dem(tmp_path, nodata_left=20)
+    with rasterio.open(p, "r+") as ds:                     # an interior void
+        z = ds.read(1)
+        z[100:110, 60:70] = -9999.0
+        ds.write(z, 1)
+    v = valid_area(p)
+    assert sum(len(g.interiors) for g in getattr(v, "geoms", [v])) == 1
+    e = valid_area(p, erode=30.0)
+    assert e.area < v.area and v.buffer(-29.0).buffer(1e-6).contains(e.buffer(-1.0))
+    w = valid_area(p, bounds=(400.0, 500.0, 800.0, 1500.0))
+    assert w.bounds[0] >= 400.0 - CELL and w.bounds[2] <= 800.0 + CELL
+
+
+def test_fit_inside_is_smooth_and_on_valid_ground(tmp_path: Path) -> None:
+    from flowfield2d.domaingen import fit_inside, valid_area
+
+    v = valid_area(_dem(tmp_path, nodata_left=20))
+    big = Polygon([(0, 0), (1200, 0), (1200, 2000), (0, 2000)])
+    out = fit_inside(big, v, inset=60.0, smooth=30.0)
+    assert out.is_valid and isinstance(out, Polygon)
+    assert v.buffer(-25.0).contains(out)                    # >= inset - smooth inside the data
+    assert len(out.exterior.coords) < 40                    # staircase removed
+
+
+def test_cut_between_returns_middle_and_bc_segments() -> None:
+    from flowfield2d.domaingen import cut_between
+
+    corridor = Polygon([(0, 0), (300, 0), (300, 3000), (0, 3000)])
+    a = LineString([(140, 2500), (160, 2500)])              # short GUI-style BC lines, mid-channel
+    b = LineString([(140, 400), (160, 400)])
+    mid, la, lb = cut_between(corridor, a, b, Point(150, 1500))
+    assert mid.area == pytest.approx(300 * 2100)
+    assert la.length == pytest.approx(300) and lb.length == pytest.approx(300)
+    assert mid.exterior.buffer(1e-6).contains(la) and mid.exterior.buffer(1e-6).contains(lb)
+    with pytest.raises(ValueError):
+        cut_between(corridor, a, b, Point(150, 2900))      # inside point not between the cuts
