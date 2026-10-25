@@ -134,11 +134,11 @@ def associations(project: Path) -> dict[str, dict[str, tuple[str, str]]]:
 
     geometries: dict[str, tuple[str, str]] = {}
     for elem in root.iter("GeometryAssociation"):
-        geom = elem.attrib.get("Geometry")
+        gname = elem.attrib.get("Geometry")
         terrain = elem.attrib.get("Terrain", "")
         n_values = elem.attrib.get("N_Values", "")
-        if geom is not None:
-            geometries[geom] = (terrain, n_values)
+        if gname is not None:
+            geometries[gname] = (terrain, n_values)
 
     return {"plans": plans, "geometries": geometries}
 
