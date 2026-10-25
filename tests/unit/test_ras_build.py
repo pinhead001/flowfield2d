@@ -250,3 +250,11 @@ def test_outline_and_keep_are_exclusive(tmp_path: Path, engine: RasEngine) -> No
     with pytest.raises(ValueError, match="outline"):
         engine.build_or_verify_model(ModelSpec(t, tmp_path / "x", sq, {}, 9.0, layers=LAYERS,
                                                outline=sq))
+
+
+def test_template_outline_reads_donor_polygon_and_bc_lines(tmp_path: Path,
+                                                           engine: RasEngine) -> None:
+    outline, lines = engine.template_outline(_template(tmp_path), LAYERS)
+    assert outline.area == pytest.approx(100 * 1000)
+    assert set(lines) == {"Outlet", "Inflow A", "Inflow B"}
+    assert lines["Outlet"].coords[:] == [(0.0, 1.0), (100.0, 1.0)]

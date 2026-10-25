@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import h5py
+from shapely.geometry import LineString, Polygon
 
 from flowfield2d.engines import BcSpec, Capabilities, ModelSpec, PlanSpec, RunOutcome
 from flowfield2d.engines.ras2025 import CAPABILITIES
@@ -32,6 +33,7 @@ from flowfield2d.engines.ras2025.cli import RasCli
 from flowfield2d.engines.ras2025.results import ResultsReader
 from flowfield2d.engines.ras2025.split import (
     _layer,
+    bc_polylines,
     rebuild_perimeter,
     replace_outline,
     split_geometry,
@@ -148,6 +150,15 @@ class RasEngine:
         ])
         self.cli.generate_mesh(geom)
         return spec.dest
+
+    def template_outline(self, template: Path, layers: Mapping[str, str],
+                         ) -> tuple[Polygon, dict[str, LineString]]:
+        """A donor project's 2D-area outline and BC lines (seeds for the domain generator)."""
+        geom = _layer(Path(template) / FOLDERS["geometry"], layers.get("geometry"))
+        bc = _layer(Path(template) / FOLDERS["boundary"], layers.get("boundary"))
+        with h5py.File(geom, "r", locking=False) as f:
+            outline = Polygon(f["/Geometry/2D Flow Areas/Polygon"][:])
+        return outline, bc_polylines(bc)
 
     def _synthesise_layers(self, spec: ModelSpec) -> dict[str, str]:
         """Copy the selected layers under `spec.rename` names and bind them in the project file
