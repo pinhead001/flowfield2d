@@ -5,14 +5,18 @@ param(
     [Parameter(Mandatory = $true)][string]$RasDir,
     [Parameter(Mandatory = $true)][string]$Pin
 )
-$pin = Get-Content $Pin -Raw | ConvertFrom-Json
+# Not $pin: PowerShell names are case-insensitive, so that would be the [string] parameter $Pin and
+# the parsed object would silently become an empty string (no files checked, false OK).
+$pinData = Get-Content $Pin -Raw | ConvertFrom-Json
+$entries = @($pinData.sha256.PSObject.Properties)
+if (-not $pinData.build -or $entries.Count -eq 0) { Write-Host "FAILED: no build or hashes in $Pin"; exit 1 }
 $bad = 0
-foreach ($p in $pin.sha256.PSObject.Properties) {
+foreach ($p in $entries) {
     $f = Join-Path $RasDir $p.Name
     if (-not (Test-Path $f)) { Write-Host "MISSING  $($p.Name)"; $bad++; continue }
     $h = (Get-FileHash -Algorithm SHA256 $f).Hash.ToLower()
     if ($h -ne $p.Value.ToLower()) { Write-Host "MISMATCH $($p.Name)"; $bad++ }
     else { Write-Host "ok       $($p.Name)" }
 }
-if ($bad -gt 0) { Write-Host "FAILED: $bad file(s) differ from build $($pin.build)"; exit 1 }
-Write-Host "OK: install matches build $($pin.build)"
+if ($bad -gt 0) { Write-Host "FAILED: $bad file(s) differ from build $($pinData.build)"; exit 1 }
+Write-Host "OK: install matches build $($pinData.build) ($($entries.Count) files)"
