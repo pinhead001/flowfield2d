@@ -43,6 +43,12 @@ elif args[:2] == ["plan", "solve"]:
             cs.attrs["Solver"] = np.bytes_("CPU_Explicit")
             cs.attrs["Compute Log"] = np.bytes_("fake log")
     print("progress 100%")
+elif args[:2] == ["plan", "prepare"]:          # plan prepare <plan> <out.r2r.h5> [...]
+    if os.environ.get("FAKE_RAS_FAIL_PREPARE"):
+        sys.stderr.write("Error: prepare failed\n")
+        sys.exit(5)
+    Path(args[3]).write_bytes(b"r2r for " + args[2].encode())
+    print("OK: prepared")
 elif args[:2] == ["result", "map"]:            # result map <result> <out.tif> --type T -p P
     import numpy as np
     import rasterio
