@@ -258,3 +258,23 @@ def test_template_outline_reads_donor_polygon_and_bc_lines(tmp_path: Path,
     assert outline.area == pytest.approx(100 * 1000)
     assert set(lines) == {"Outlet", "Inflow A", "Inflow B"}
     assert lines["Outlet"].coords[:] == [(0.0, 1.0), (100.0, 1.0)]
+
+
+def test_export_rasters_per_profile(tmp_path: Path, engine: RasEngine) -> None:
+    import rasterio
+
+    from flowfield2d.engines import RunOutcome
+
+    result = tmp_path / "r.h5"
+    result.write_bytes(b"")
+    run = RunOutcome(True, 0, True, result, 1.0)
+    out = engine.export(run, 7, ["depth", "velocity", "wse"], tmp_path / "maps")
+    assert set(out) == {"depth", "velocity", "wse"}
+    with rasterio.open(out["wse"]) as ds:
+        assert ds.tags()["kind"] == "watersurface" and ds.tags()["profile"] == "7"
+        assert float(ds.read(1)[0, 0]) == pytest.approx(101.5)
+    assert out["depth"].name == "depth_p007.tif"
+    again = engine.export(run, 7, ["depth"], tmp_path / "maps")       # overwrite is allowed
+    assert again["depth"] == out["depth"]
+    with pytest.raises(ValueError, match="field"):
+        engine.export(run, 7, ["froude"], tmp_path / "maps")

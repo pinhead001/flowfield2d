@@ -43,6 +43,19 @@ elif args[:2] == ["plan", "solve"]:
             cs.attrs["Solver"] = np.bytes_("CPU_Explicit")
             cs.attrs["Compute Log"] = np.bytes_("fake log")
     print("progress 100%")
+elif args[:2] == ["result", "map"]:            # result map <result> <out.tif> --type T -p P
+    import numpy as np
+    import rasterio
+    from rasterio.transform import from_origin
+
+    out = Path(args[3])
+    kind = args[args.index("--type") + 1]
+    value = {"depth": 1.5, "velocity": 2.0, "watersurface": 101.5}.get(kind, 0.0)
+    profile = args[args.index("-p") + 1] if "-p" in args else "max"
+    with rasterio.open(out, "w", driver="GTiff", width=4, height=3, count=1, dtype="float32",
+                       transform=from_origin(0.0, 3.0, 1.0, 1.0), nodata=-9999.0) as ds:
+        ds.write(np.full((3, 4), value, dtype="float32"), 1)
+        ds.update_tags(profile=profile, kind=kind)
 elif args[:1] == ["sleep"]:
     child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
     print(child.pid, flush=True)

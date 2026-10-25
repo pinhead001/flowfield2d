@@ -14,10 +14,9 @@ from __future__ import annotations
 
 import json
 import time
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
 
 import h5py
 from shapely.geometry import LineString, Polygon
@@ -48,6 +47,7 @@ from flowfield2d.engines.ras2025.validate import validate_bc
 
 TAIL = 2000
 UNIT_M: dict[str, float] = {"USC": 0.3048, "SI": 1.0}   # `Project Units` -> metres per unit
+MAP_TYPES: dict[str, str] = {"depth": "depth", "velocity": "velocity", "wse": "watersurface"}
 FOLDERS: dict[str, str] = {
     "geometry": "Geometries",
     "boundary": "Boundary Conditions",
@@ -210,5 +210,22 @@ class RasEngine:
         })
         return plan
 
-    def export(self, run: Any, plateau: Any, fields: Any, out_dir: Path) -> Any:
-        raise NotImplementedError("use RasCli.result_map / post.rasters (pending)")
+    def export(self, run: RunOutcome | Path, plateau: int, fields: Sequence[str],
+               out_dir: Path) -> dict[str, Path]:
+        """Rasters of `fields` ("depth", "velocity", "wse") at output profile `plateau` (the
+        output index at a plateau's end) via `result map`, at the terrain's resolution."""
+        result = run.result_path if isinstance(run, RunOutcome) else Path(run)
+        if result is None:
+            raise ValueError("run produced no result file")
+        bad = sorted(set(fields) - set(MAP_TYPES))
+        if bad:
+            raise ValueError(f"unknown field(s) {bad}; use {sorted(MAP_TYPES)}")
+        out_dir = Path(out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out: dict[str, Path] = {}
+        for field in fields:
+            path = out_dir / f"{field}_p{int(plateau):03d}.tif"
+            self.cli.result_map(Path(result), path, map_type=MAP_TYPES[field],
+                                profile=str(int(plateau)), force=True)
+            out[field] = path
+        return out
