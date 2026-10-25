@@ -2,7 +2,8 @@
 
 import numpy as np
 import pytest
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
+from shapely.ops import substring
 
 from flowfield2d.channel_patches import channel_patches, smooth_line
 
@@ -51,8 +52,11 @@ def test_bends_follow_the_banks() -> None:
     for pt in p.patches[1:]:
         channel = channel.union(pt)
     assert channel.area == pytest.approx(total, rel=1e-9)          # no overlaps
-    for c in p.cross_sections:
-        assert not c.crosses(left) and not c.crosses(right)
+    for c in p.cross_sections:                     # ends on the banks; interior clear of both
+        inner = substring(c, 0.01, 0.99, normalized=True)
+        assert not inner.intersects(left) and not inner.intersects(right)
+        assert left.distance(Point(c.coords[0])) < 1e-9
+        assert right.distance(Point(c.coords[-1])) < 1e-9
 
 
 def test_invalid_inputs() -> None:
