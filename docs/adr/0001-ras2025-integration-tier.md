@@ -58,3 +58,11 @@ base geometry authoring.**
 - E8 confirmed by the owner (2026-10-24): HDF5 depth, and WSE = depth + cell minimum elevation, match the GUI.
 - Still open: E12 (egress Enforce, once the Audit sampler works);
   the list of engine DLLs loaded at solve time, for the pin (needs a Process Monitor run).
+
+## Addendum 1 — code-derived subdomains (accepted by the owner, 2026-10-24)
+A split probe showed that overlapping subdomains can be derived headlessly from one GUI-authored full-domain
+template: `engines.ras2025.split.split_geometry` clips the 2D-area polygon, closed perimeter arc, node and control
+point, moves named BC lines onto the cuts, and then `ras geometry generate-mesh` rebuilds the mesh. The Tier B
+GUI step is therefore **one full template per river segment**, not one per subdomain. Cut BCs need a
+normal-depth slope from one of four sources (`flowfield2d.slope`: terrain, thalweg, WSE, specified; chosen per
+project) and the downstream extension rule; overlap agreement is checked by QA.
