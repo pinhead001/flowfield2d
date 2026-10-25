@@ -14,7 +14,8 @@ XML = ('﻿<Project>\r\n  <Projection Type="EPSG">6597</Projection>\r\n  <PlanAs
        '  </PlanAssociations>\r\n  <GeometryAssociations>\r\n'
        '    <GeometryAssociation Geometry="g01_a" Terrain="t01" N_Values="n01" />\r\n'
        '  </GeometryAssociations>\r\n</Project>\r\n')
-GROUPS = {"Geometries": "Geometry", "Boundary Conditions": "Boundary Conditions", "Plans": "Plan Data"}
+GROUPS = {"Geometries": "Geometry", "Boundary Conditions": "Boundary Conditions",
+          "Plans": "Plan Data"}
 
 
 def _name_attr(group: h5py.Group, value: str, size: int) -> None:
@@ -71,7 +72,8 @@ def test_set_and_read_associations_preserves_file(tmp_path: Path) -> None:
     set_associations(p, plans={"p02_a": ("g02_a", "bc02_a")},
                      geometries={"g02_a": ("t03", "n01")})
     raw = (p / "P.ras").read_bytes()
-    assert raw.startswith(b"\xef\xbb\xbf") and b"\r\n" in raw and b"\n" not in raw.replace(b"\r\n", b"")
+    assert raw.startswith(b"\xef\xbb\xbf") and b"\r\n" in raw
+    assert b"\n" not in raw.replace(b"\r\n", b"")                          # CRLF kept throughout
     assert b'<Projection Type="EPSG">6597</Projection>' in raw
     a = associations(p)
     assert a["plans"] == {"p01_a": ("g01_a", "bc01_a"), "p02_a": ("g02_a", "bc02_a")}
