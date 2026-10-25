@@ -18,9 +18,10 @@ import h5py
 import numpy as np
 from shapely.geometry import LineString, Point
 
+from flowfield2d.channel_patches import ChannelPatches
 from flowfield2d.engines.ras2025.h5edit import recreate_dataset
 
-__all__ = ["Arc", "PatchType", "Region", "add_topology"]
+__all__ = ["Arc", "PatchType", "Region", "add_channel", "add_topology"]
 
 _TOPO: str = "/Geometry/Mesh Topology"
 
@@ -201,6 +202,37 @@ def _append_regions(topo: Any, regions: Sequence[Region]) -> None:
     recreate_dataset(topo, "Control Point Attributes", new_cpa)
 
 
+def _check_schema(topo: Any, has_arcs: bool, has_regions: bool) -> None:
+    if has_arcs:
+        required_arc_datasets = (
+            "Nodes",
+            "Arc Connectivity",
+            "Arc Internal Points",
+            "Arc Attributes",
+        )
+        for name in required_arc_datasets:
+            if name not in topo:
+                raise KeyError(name)
+        aip = topo["Arc Internal Points"]
+        if "Count" not in aip.attrs:
+            raise KeyError("Arc Internal Points Count")
+        if "Start" not in aip.attrs:
+            raise KeyError("Arc Internal Points Start")
+        if len(topo["Arc Attributes"]) == 0:
+            raise KeyError("Arc Attributes")
+
+    if has_regions:
+        required_region_datasets = (
+            "Control Points",
+            "Control Point Attributes",
+        )
+        for name in required_region_datasets:
+            if name not in topo:
+                raise KeyError(name)
+        if len(topo["Control Point Attributes"]) == 0:
+            raise KeyError("Control Point Attributes")
+
+
 def add_topology(
     geom: Path,
     arcs: Sequence[Arc],
@@ -221,8 +253,40 @@ def add_topology(
             raise KeyError(f"Group {_TOPO!r} not found in {geom}")
         topo = f[_TOPO]
 
+        _check_schema(topo, has_arcs=bool(arcs), has_regions=bool(regions))
+
         if arcs:
             _append_arcs(topo, arcs, snap_tol)
 
         if regions:
             _append_regions(topo, regions)
+
+
+def add_channel(
+    geom: Path,
+    patches: ChannelPatches,
+    cell_size: float,
+    snap_tol: float = 1e-6,
+) -> None:
+    """Neighbouring patches share cross-section end nodes (snapped), each region is
+    bounded by four arcs as RAS requires for a quad patch.
+    """
+    arcs: list[Arc] = []
+    for cs in patches.cross_sections:
+        arcs.append(Arc(cs, cell_size=cell_size, follow_exactly=True))
+    for left_piece in patches.left:
+        arcs.append(Arc(left_piece, cell_size=cell_size, follow_exactly=True))
+    for right_piece in patches.right:
+        arcs.append(Arc(right_piece, cell_size=cell_size, follow_exactly=True))
+
+    regions: list[Region] = []
+    for patch in patches.patches:
+        centroid = patch.centroid
+        pt = (
+            centroid
+            if patch.contains(centroid)
+            else patch.representative_point()
+        )
+        regions.append(Region(pt, PatchType.QUAD, cell_size))
+
+    add_topology(geom, arcs, regions, snap_tol=snap_tol)
