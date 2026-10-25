@@ -19,7 +19,8 @@ MANNING_K_US = 1.486
 
 METRIC_COLUMNS = (
     "feature_id", "scenario_id", "wetted_area", "mean_width", "depth_mean", "depth_max",
-    "velocity_mean", "velocity_max", "area_outside_reference", "void_fraction", "converged",
+    "velocity_mean", "velocity_max", "area_outside_reference", "excluded_area",
+    "void_fraction", "converged",
 )
 
 
@@ -56,20 +57,28 @@ def feature_metrics(feature_id: str, scenario_id: str, depth: ArrayLike, velocit
                     mask: ArrayLike, cell_area: float, length: float, *,
                     min_depth: float = 0.0, roughness: ArrayLike | None = None,
                     reference_extent: ArrayLike | None = None,
+                    exclude_mask: ArrayLike | None = None,
                     void_mask: ArrayLike | None = None, converged: bool | None = None,
                     percentiles: Sequence[float] = (10, 50, 90)) -> dict[str, Any]:
     """Statistics over the wet cells (finite depth > `min_depth`) of one feature.
 
     - `wetted_area` = wet cells x `cell_area`; `mean_width` = wetted_area / `length`
     - depth and velocity mean, max and percentiles; shear percentiles when `roughness` is given
+      (cells flagged in `exclude_mask` are omitted from these statistics)
     - `area_outside_reference`: wet area outside `reference_extent` (e.g. a mapped channel)
+    - `excluded_area`: wet area flagged in `exclude_mask` (NaN when `exclude_mask` is None)
     - `void_fraction`: wet cells flagged in `void_mask` / wet cells (0 when nothing is wet)
     """
     d = np.asarray(depth, dtype=np.float64)
     v = np.asarray(velocity, dtype=np.float64)
     m = np.asarray(mask, dtype=bool)
     arrays = [v, m]
-    extra = {"roughness": roughness, "reference_extent": reference_extent, "void_mask": void_mask}
+    extra = {
+        "roughness": roughness,
+        "reference_extent": reference_extent,
+        "exclude_mask": exclude_mask,
+        "void_mask": void_mask,
+    }
     arrays += [np.asarray(a) for a in extra.values() if a is not None]
     if any(a.shape != d.shape for a in arrays):
         raise ValueError("all grids must share the depth grid's shape")
@@ -84,18 +93,27 @@ def feature_metrics(feature_id: str, scenario_id: str, depth: ArrayLike, velocit
         "feature_id": feature_id, "scenario_id": scenario_id,
         "wetted_area": area, "mean_width": area / float(length),
     }
-    out.update(_stats(d[wet], "depth", percentiles))
-    out.update(_stats(v[wet], "velocity", percentiles))
-    if roughness is not None:
-        tau = np.asarray(shear_stress(np.asarray(roughness)[wet], v[wet], d[wet]))
+    if exclude_mask is not None:
+        stat_mask = wet & ~np.asarray(exclude_mask, dtype=bool)
     else:
-        tau = np.full(n_wet, np.nan)
+        stat_mask = wet
+    out.update(_stats(d[stat_mask], "depth", percentiles))
+    out.update(_stats(v[stat_mask], "velocity", percentiles))
+    if roughness is not None:
+        tau = np.asarray(shear_stress(np.asarray(roughness)[stat_mask], v[stat_mask], d[stat_mask]))
+    else:
+        tau = np.full(int(stat_mask.sum()), np.nan)
     out.update(_stats(tau, "shear", percentiles))
     if reference_extent is not None:
         outside = wet & ~np.asarray(reference_extent, dtype=bool)
         out["area_outside_reference"] = int(outside.sum()) * float(cell_area)
     else:
         out["area_outside_reference"] = float("nan")
+    if exclude_mask is not None:
+        excluded = wet & np.asarray(exclude_mask, dtype=bool)
+        out["excluded_area"] = int(excluded.sum()) * float(cell_area)
+    else:
+        out["excluded_area"] = float("nan")
     if n_wet == 0:
         out["void_fraction"] = 0.0
     elif void_mask is None:
