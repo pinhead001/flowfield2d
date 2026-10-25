@@ -6,8 +6,9 @@ import dataclasses
 
 import numpy as np
 import pytest
-from flowfield2d.post.profile import BandPoint, band_profile, profile_along, trace_centerline
 from shapely.geometry import LineString
+
+from flowfield2d.post.profile import BandPoint, band_profile, profile_along, trace_centerline
 
 # (x, y, depth); band = 10 along y, min y = 0 so bands are [0,10), [10,20), [20,30).
 CELLS = [
