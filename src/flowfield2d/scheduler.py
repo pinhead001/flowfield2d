@@ -20,7 +20,7 @@ from pathlib import Path
 
 import psutil
 
-from flowfield2d.engines.ras2025.engine import RasEngine
+from flowfield2d.engines import Engine
 from flowfield2d.runs import Registry, RunRecord, RunState
 
 START_WAIT_S = 30.0
@@ -65,7 +65,7 @@ def launch_worker(registry: Registry, rec: RunRecord, ras_cmd: Sequence[str],
     return proc.pid
 
 
-def run_worker(registry: Registry, run_id: str, engine: RasEngine) -> None:
+def run_worker(registry: Registry, run_id: str, engine: Engine) -> None:
     """Run one registered plan and record DONE/FAILED with a JSON detail."""
     deadline = time.monotonic() + START_WAIT_S
     while registry.get(run_id).state is not RunState.RUNNING:   # tick records start after spawn

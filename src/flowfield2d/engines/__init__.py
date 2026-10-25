@@ -6,9 +6,47 @@ The core never imports an engine module directly. It talks to an `Engine` and ch
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
+
+import numpy as np
+from numpy.typing import NDArray
+from shapely.geometry import LineString, Polygon
+
+F = NDArray[np.float64]
+
+
+@dataclass(frozen=True)
+class ModelSpec:
+    """Specification for building or deriving a model from a template."""
+
+    template: Path
+    dest: Path
+    keep: Polygon | None
+    cuts: dict[str, LineString]
+    cell_size: float
+
+
+@dataclass(frozen=True)
+class BcSpec:
+    """Specification for boundary condition hydrographs and slopes."""
+
+    start: datetime
+    offsets_s: list[float]
+    flows: dict[str, list[float]]
+    slopes: dict[str, float]
+
+
+@dataclass(frozen=True)
+class PlanSpec:
+    """Specification for plan execution and time stepping."""
+
+    compute_timestep: str
+    output_interval: str
+    time_stepping: str
 
 
 @dataclass(frozen=True)
@@ -33,6 +71,8 @@ class Capabilities:
 
 @dataclass(frozen=True)
 class RunOutcome:
+    """Outcome of an engine run invocation."""
+
     ok: bool
     exit_code: int | None
     engine_success: bool | None
@@ -42,7 +82,44 @@ class RunOutcome:
 
 
 @runtime_checkable
+class Results(Protocol):
+    """Engine-neutral query interface for simulation results."""
+
+    def areas(self) -> list[str]:
+        """Names of 2D flow areas in the results."""
+        ...
+
+    def time_days(self) -> F:
+        """Simulation output times in days."""
+        ...
+
+    def cell_coordinates(self, area: str) -> F:
+        """Cell center coordinates (n, 2) as float64."""
+        ...
+
+    def cell_depth(self, area: str, t: int) -> F:
+        """Cell water depths at output time index t."""
+        ...
+
+    def cell_wse(self, area: str, t: int, min_depth: float = 0.0) -> F:
+        """Cell water surface elevations at output time index t."""
+        ...
+
+    def cell_wse_series(
+        self, area: str, cells: Sequence[int], min_depth: float = 0.0
+    ) -> F:
+        """Cell WSE time series for selected cells over all output times."""
+        ...
+
+    def boundary_flow(self, area: str, line: str, tol: float) -> F:
+        """Boundary flow series through faces matching the named boundary line."""
+        ...
+
+
+@runtime_checkable
 class Engine(Protocol):
+    """Neutral engine interface."""
+
     capabilities: Capabilities
 
     def build_or_verify_model(self, domain: Any) -> Any: ...
