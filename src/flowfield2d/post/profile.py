@@ -32,17 +32,16 @@ def band_profile(
     depth_arr = np.asarray(depth, dtype=np.float64).ravel()
     wse_arr = np.asarray(wse, dtype=np.float64).ravel()
 
-    if len(xy_arr) == 0:
-        return []
-
-    if xy_arr.ndim != 2 or xy_arr.shape[1] < 2:
-        raise ValueError("xy must be a 2D array with at least 2 columns")
-    if len(xy_arr) != len(depth_arr) or len(xy_arr) != len(wse_arr):
-        raise ValueError("xy, depth, and wse must have the same length")
     if band <= 0:
         raise ValueError("band must be positive")
     if axis not in (0, 1):
         raise ValueError("axis must be 0 or 1")
+    if len(xy_arr) == 0:
+        return []
+    if xy_arr.ndim != 2 or xy_arr.shape[1] < 2:
+        raise ValueError("xy must be a 2D array with at least 2 columns")
+    if len(xy_arr) != len(depth_arr) or len(xy_arr) != len(wse_arr):
+        raise ValueError("xy, depth, and wse must have the same length")
 
     coords = xy_arr[:, axis]
     coord_min = float(np.min(coords))
@@ -55,7 +54,7 @@ def band_profile(
         valid_mask = mask & (depth_arr > min_depth)
         if np.count_nonzero(valid_mask) < 2:
             continue
-        in_band = np.where(mask)[0]
+        in_band = np.where(valid_mask)[0]       # NaN (dry) depths never win the argmax
         deepest_local_idx = int(np.argmax(depth_arr[in_band]))
         idx = in_band[deepest_local_idx]
         results.append(

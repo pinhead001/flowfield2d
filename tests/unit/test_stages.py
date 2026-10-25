@@ -79,3 +79,13 @@ def test_mark_done_rejects_output_outside_stage_dir(tmp_path: Path) -> None:
     outside.write_bytes(b"x")
     with pytest.raises(ValueError):
         mark_done(stage, stage_key({"x": 1}), [outside])
+
+
+def test_relative_stage_dir_and_outputs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    stage = Path("run") / "s1"
+    stage.mkdir(parents=True)
+    (stage / "..out").write_bytes(b"x")              # a name starting with '..' is still inside
+    key = stage_key({"x": 1})
+    mark_done(stage, key, [stage / "..out"])
+    assert is_fresh(stage, key)

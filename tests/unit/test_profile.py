@@ -72,3 +72,12 @@ def test_profile_along_sorted_by_chainage() -> None:
     ch, wse = profile_along(cl, pts)
     np.testing.assert_allclose(ch, [0.0, 20.0, 40.0])
     np.testing.assert_allclose(wse, [102.0, 101.0, 100.0])
+
+
+def test_band_profile_ignores_nan_depth_and_validates_empty() -> None:
+    xy = np.array([[0.0, 1.0], [1.0, 2.0], [2.0, 3.0]])
+    depth = np.array([np.nan, 1.0, 2.0])               # dry cell reported as NaN
+    pts = band_profile(xy, depth, depth + 100.0, band=10.0)
+    assert [(p.x, p.depth) for p in pts] == [(2.0, 2.0)]
+    with pytest.raises(ValueError):
+        band_profile(np.empty((0, 2)), [], [], band=0.0)

@@ -149,15 +149,10 @@ def keep_polygon(
                             next_pieces.append(sub_p)
         current_pieces = next_pieces
 
-    if not current_pieces:
-        return area
-
+    # Assumes each extended cut crosses the area only near its own chainage (straight-ish reach at
+    # the cut); on a tight meander a stray crossing can trim the kept piece.
     mid_pt = centerline.interpolate((start_m + end_m) / 2.0)
-    for poly in current_pieces:
-        if poly.contains(mid_pt):
-            return poly
     for poly in current_pieces:
         if poly.covers(mid_pt):
             return poly
-    return min(current_pieces, key=lambda p: p.distance(mid_pt))
-
+    raise ValueError(f"no piece of the area contains the centerline between {start_m} and {end_m}")

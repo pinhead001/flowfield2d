@@ -21,17 +21,15 @@ def _hash_file(path: Path) -> str:
 
 
 def _relative_to_stage(stage_dir: Path, path: Path) -> Path:
-    """Return path relative to stage_dir, ensuring path is inside stage_dir."""
-    stage_dir_resolved = Path(stage_dir).resolve()
-    p = Path(path)
-    if not p.is_absolute():
-        p = stage_dir_resolved / p
-    p_resolved = p.resolve()
+    """Return path relative to stage_dir, ensuring path is inside stage_dir.
+
+    Relative paths resolve against the working directory, like any other path argument.
+    """
     try:
-        rel = p_resolved.relative_to(stage_dir_resolved)
+        rel = Path(path).resolve().relative_to(Path(stage_dir).resolve())
     except ValueError as err:
         raise ValueError(f"Output {path} is not inside stage_dir {stage_dir}") from err
-    if rel == Path(".") or str(rel).startswith(".."):
+    if rel == Path("."):
         raise ValueError(f"Output {path} is not inside stage_dir {stage_dir}")
     return rel
 
