@@ -38,10 +38,12 @@ function Job-Fits($file) {
 }
 
 # A solve counts as ok only with a result file and RAS's completion line (exit codes are not
-# available for solves adopted after a worker restart).
+# available for solves adopted after a worker restart). The CPU solver ends with "Computations
+# completed", the GPU solver with "Status OK".
 function Solve-Ok([string]$dir, $exitCode) {
     $log = Join-Path $dir "solve.log"
-    $completed = (Test-Path $log) -and (Select-String -Path $log -Pattern "Computations completed" -Quiet)
+    $completed = (Test-Path $log) -and
+                 (Select-String -Path $log -Pattern "^Computations completed", "^Status OK" -Quiet)
     $exitOk = ($null -eq $exitCode) -or ($exitCode -eq 0)
     return $exitOk -and $completed -and (Test-Path (Join-Path $dir "result.h5"))
 }
