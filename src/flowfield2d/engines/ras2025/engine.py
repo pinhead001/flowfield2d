@@ -59,9 +59,13 @@ FOLDERS: dict[str, str] = {
 class RasEngine:
     capabilities: Capabilities = CAPABILITIES
 
-    def __init__(self, cli: RasCli, core_count: int | None = None) -> None:
+    def __init__(self, cli: RasCli, core_count: int | None = None,
+                 processor: str = "CPU") -> None:
+        if processor not in ("CPU", "GPU"):
+            raise ValueError(f"processor must be 'CPU' or 'GPU', not {processor!r}")
         self.cli = cli
         self.core_count = core_count
+        self.processor = processor     # GPU: SWE + explicit only; results differ from CPU
 
     def run(self, plan: Path) -> RunOutcome:
         plan = Path(plan)
@@ -77,7 +81,7 @@ class RasEngine:
         before = {p: p.stat().st_mtime for p in results_dir.glob("*.h5")} \
             if results_dir.exists() else {}
         res = self.cli.run(["plan", "solve", str(plan), "--if-exists", "force",
-                            "--processor", "CPU",
+                            "--processor", self.processor,
                             *(["--core-count", str(self.core_count)] if self.core_count else [])],
                            check=False)
         duration = round(time.monotonic() - t0, 3)

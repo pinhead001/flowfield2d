@@ -100,3 +100,21 @@ def test_nonzero_exit_is_a_failed_run(tmp_path: Path, engine: RasEngine,
     run = clone_project(_project(tmp_path), tmp_path / "run1")
     out = engine.run(run / "Plans" / "p01.h5")
     assert not out.ok and out.exit_code == 3 and "boundary condition" in out.log_tail
+
+
+def test_processor_reaches_the_solver(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import json
+
+    log = tmp_path / "argv.jsonl"
+    monkeypatch.setenv("FAKE_RAS_LOG", str(log))
+    monkeypatch.delenv("FAKE_RAS_FAIL", raising=False)
+    monkeypatch.delenv("FAKE_RAS_SUCCESS", raising=False)
+    cli = RasCli([sys.executable, str(FAKE)], timeout_s=60)
+    run = clone_project(_project(tmp_path), tmp_path / "run1")
+    assert RasEngine(cli, processor="GPU").run(run / "Plans" / "p01.h5").ok
+    assert RasEngine(cli).run(run / "Plans" / "p01.h5").ok
+    calls = [json.loads(line) for line in log.read_text().splitlines()]
+    solves = [a for a in calls if a[:2] == ["plan", "solve"]]
+    assert [a[a.index("--processor") + 1] for a in solves] == ["GPU", "CPU"]
+    with pytest.raises(ValueError, match="processor"):
+        RasEngine(cli, processor="TPU")

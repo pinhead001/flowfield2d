@@ -46,7 +46,7 @@ def tick(registry: Registry, max_parallel: int, launch: Callable[[RunRecord], in
 
 
 def launch_worker(registry: Registry, rec: RunRecord, ras_cmd: Sequence[str],
-                  core_count: int | None = None) -> int:
+                  core_count: int | None = None, processor: str = "CPU") -> int:
     """Start a detached worker process for one run; returns its pid."""
     logs = registry.path.parent / "logs"
     logs.mkdir(parents=True, exist_ok=True)
@@ -56,6 +56,7 @@ def launch_worker(registry: Registry, rec: RunRecord, ras_cmd: Sequence[str],
         argv += ["--ras", str(c)]
     if core_count:
         argv += ["--core-count", str(core_count)]
+    argv += ["--processor", processor]
     flags = 0
     if os.name == "nt":
         flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP

@@ -29,6 +29,7 @@ def runs_tick(
     ras: list[str] = typer.Option(..., help="RAS command (repeat for multi-token commands)."),
     max_parallel: int = typer.Option(2, help="Concurrent runs (ADR-0001: start at 2)."),
     core_count: int = typer.Option(0, help="Cores per run (0 = plan value)."),
+    processor: str = typer.Option("CPU", help="CPU or GPU (GPU: SWE explicit only)."),
 ) -> None:
     """Mark dead runs interrupted, then start runnable runs in detached workers."""
     from flowfield2d.runs import Registry
@@ -36,7 +37,7 @@ def runs_tick(
 
     reg = Registry(registry)
     started = tick(reg, max_parallel,
-                   lambda rec: launch_worker(reg, rec, ras, core_count or None))
+                   lambda rec: launch_worker(reg, rec, ras, core_count or None, processor))
     typer.echo("started: " + (", ".join(started) if started else "none"))
 
 
@@ -64,6 +65,7 @@ def runs_worker(
     run_id: str = typer.Option(...),
     ras: list[str] = typer.Option(...),
     core_count: int = typer.Option(0),
+    processor: str = typer.Option("CPU"),
 ) -> None:
     """Internal: run one registered plan (started by `tick`)."""
     from flowfield2d.engines.ras2025.cli import RasCli
@@ -73,7 +75,7 @@ def runs_worker(
 
     # A production solve can take many hours; the timeout only guards against a hung solver.
     cli = RasCli(ras, timeout_s=WORKER_TIMEOUT_S)
-    run_worker(Registry(registry), run_id, RasEngine(cli, core_count or None))
+    run_worker(Registry(registry), run_id, RasEngine(cli, core_count or None, processor))
 
 
 @app.command()

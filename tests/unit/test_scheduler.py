@@ -61,15 +61,23 @@ def test_run_worker_records_engine_outcome(tmp_path: Path, monkeypatch: pytest.M
 
 
 def test_detached_worker_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    log = tmp_path / "argv.jsonl"
+    monkeypatch.setenv("FAKE_RAS_LOG", str(log))                    # inherited by the worker
     monkeypatch.delenv("FAKE_RAS_FAIL", raising=False)
     monkeypatch.delenv("FAKE_RAS_SUCCESS", raising=False)
     run = clone_project(_project(tmp_path), tmp_path / "run1")
     reg = Registry(tmp_path / "registry.json")
     reg.add("e2e", "d1", "s1", str(run / "Plans" / "p01.h5"))
     ras_cmd = [sys.executable, str(FAKE)]
-    started = tick(reg, max_parallel=1, launch=lambda rec: launch_worker(reg, rec, ras_cmd))
+    started = tick(reg, max_parallel=1,
+                   launch=lambda rec: launch_worker(reg, rec, ras_cmd, processor="GPU"))
     assert started == ["e2e"]
     deadline = time.monotonic() + 90
     while reg.get("e2e").state is RunState.RUNNING and time.monotonic() < deadline:
         time.sleep(0.5)
     assert reg.get("e2e").state is RunState.DONE, (reg.path.parent / "logs" / "e2e.log").read_text()
+    import json
+
+    calls = [json.loads(line) for line in log.read_text().splitlines()]
+    solves = [a for a in calls if a[:2] == ["plan", "solve"]]
+    assert solves and solves[0][solves[0].index("--processor") + 1] == "GPU"
