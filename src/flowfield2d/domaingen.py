@@ -13,15 +13,24 @@ import numpy as np
 import rasterio
 import rasterio.features
 import rasterio.fill
+import scipy.ndimage
 import shapely
 from numpy.typing import ArrayLike, NDArray
 from rasterio.enums import Resampling
 from rasterio.transform import Affine, rowcol
 from shapely import make_valid, unary_union
-from shapely.geometry import MultiPoint, Polygon, shape
+from shapely.geometry import LineString, MultiPoint, MultiPolygon, Point, Polygon, shape
+from shapely.ops import split
 from shapely.prepared import prep
 
-__all__ = ["data_footprint", "flood_envelope", "simplify_to"]
+__all__ = [
+    "cut_between",
+    "data_footprint",
+    "fit_inside",
+    "flood_envelope",
+    "simplify_to",
+    "valid_area",
+]
 
 
 def _vertex_count(poly: Polygon) -> int:
@@ -50,6 +59,42 @@ def _largest_polygon(geom: Any) -> Polygon:
     if polys:
         return max(polys, key=lambda p: float(p.area))
     raise ValueError(f"Geometry contains no valid polygons: {geom}")
+
+
+def _extract_linestrings(geom: Any) -> list[LineString]:
+    """Recursively collect non-empty LineStrings from a geometry using get_parts."""
+    lines: list[LineString] = []
+    parts: NDArray[Any] = shapely.get_parts(geom)
+    for part in parts:
+        if isinstance(part, LineString):
+            if not part.is_empty:
+                lines.append(part)
+        elif hasattr(part, "geoms"):
+            lines.extend(_extract_linestrings(part))
+    return lines
+
+
+def _extend_line(line: LineString, total_length: float) -> LineString:
+    """Extend line through its midpoint along its direction to total_length."""
+    coords: list[tuple[float, ...]] = list(line.coords)
+    if len(coords) < 2:
+        raise ValueError("LineString must have at least 2 points")
+    x0, y0 = coords[0][0], coords[0][1]
+    x1, y1 = coords[-1][0], coords[-1][1]
+    dx = x1 - x0
+    dy = y1 - y0
+    orig_len = math.hypot(dx, dy)
+    if orig_len <= 0.0:
+        raise ValueError("LineString endpoints must not be identical")
+    ux = dx / orig_len
+    uy = dy / orig_len
+    mid = line.interpolate(0.5, normalized=True)
+    mx = float(mid.x)
+    my = float(mid.y)
+    half = total_length / 2.0
+    p0 = (mx - ux * half, my - uy * half)
+    p1 = (mx + ux * half, my + uy * half)
+    return LineString([p0, p1])
 
 
 def _drop_holes(poly: Polygon) -> Polygon:
@@ -474,3 +519,273 @@ def flood_envelope(
                 )
 
         return simplified
+
+
+def valid_area(
+    dem: Path,
+    *,
+    bounds: tuple[float, float, float, float] | None = None,
+    erode: float = 0.0,
+    resolution: float | None = None,
+) -> Polygon | MultiPolygon:
+    """Compute the valid-data footprint polygon(s) of a DEM raster.
+
+    Parameters
+    ----------
+    dem:
+        Path to the DEM raster file.
+    bounds:
+        Optional (minx, miny, maxx, maxy) bounding box to read. If None, reads whole raster.
+        Rounded outward to whole pixels and clipped to raster bounds.
+    erode:
+        Distance in map units to erode the valid area mask.
+    resolution:
+        Optional working resolution in map units. If None, native resolution is used.
+
+    Returns
+    -------
+    Polygon | MultiPolygon
+        Valid data area geometry with interior holes preserved.
+    """
+    with rasterio.open(dem) as ds:
+        if bounds is not None:
+            minx, miny, maxx, maxy = bounds
+            clamped_left = max(minx, ds.bounds.left)
+            clamped_bottom = max(miny, ds.bounds.bottom)
+            clamped_right = min(maxx, ds.bounds.right)
+            clamped_top = min(maxy, ds.bounds.top)
+
+            if clamped_left >= clamped_right or clamped_bottom >= clamped_top:
+                raise ValueError("Bounds do not intersect raster")
+
+            raw_window = rasterio.windows.from_bounds(
+                clamped_left,
+                clamped_bottom,
+                clamped_right,
+                clamped_top,
+                transform=ds.transform,
+            )
+            col_off = max(0, math.floor(raw_window.col_off))
+            row_off = max(0, math.floor(raw_window.row_off))
+            end_col = min(ds.width, math.ceil(raw_window.col_off + raw_window.width))
+            end_row = min(ds.height, math.ceil(raw_window.row_off + raw_window.height))
+            win_w = end_col - col_off
+            win_h = end_row - row_off
+            if win_w <= 0 or win_h <= 0:
+                raise ValueError("Window has zero area")
+
+            window: rasterio.windows.Window | None = rasterio.windows.Window(
+                col_off, row_off, win_w, win_h
+            )
+            win_transform = rasterio.windows.transform(window, ds.transform)
+        else:
+            window = None
+            win_transform = ds.transform
+            win_w = ds.width
+            win_h = ds.height
+
+        if resolution is not None:
+            out_h = max(1, int(round(win_h * ds.res[1] / resolution)))
+            out_w = max(1, int(round(win_w * ds.res[0] / resolution)))
+            out_shape: tuple[int, int] | None = (out_h, out_w)
+            scale_x = win_w / out_w
+            scale_y = win_h / out_h
+            transform = win_transform @ Affine.scale(scale_x, scale_y)
+            data = ds.read(
+                1,
+                window=window,
+                out_shape=out_shape,
+                masked=True,
+                resampling=Resampling.nearest,
+            )
+        else:
+            transform = win_transform
+            data = ds.read(1, window=window, masked=True)
+
+        valid: NDArray[np.bool_] = (
+            ~np.ma.getmaskarray(data)
+        ) & np.isfinite(np.ma.getdata(data))
+        del data
+
+        if not valid.any():
+            raise ValueError(f"No valid data cells found in {dem}")
+
+        if erode > 0.0:
+            pixel = max(abs(transform.a), abs(transform.e))
+            iterations = math.ceil(erode / pixel)
+            if iterations > 0:
+                structure = scipy.ndimage.generate_binary_structure(2, 2)
+                eroded = scipy.ndimage.binary_erosion(
+                    valid,
+                    structure=structure,
+                    iterations=iterations,
+                    border_value=0,
+                )
+                valid = np.asarray(eroded, dtype=np.bool_)
+                if not valid.any():
+                    raise ValueError(
+                        f"No valid data cells remaining after erosion in {dem}"
+                    )
+
+        polys = _mask_polygons(valid, transform)
+        del valid
+
+        if not polys:
+            raise ValueError(f"No valid polygons generated from {dem}")
+
+        if len(polys) == 1:
+            union_poly = polys[0]
+        else:
+            union_poly = unary_union(polys)
+
+        if not union_poly.is_valid:
+            union_poly = make_valid(union_poly)
+
+        if isinstance(union_poly, (Polygon, MultiPolygon)):
+            return union_poly
+
+        extracted = _extract_polygons(union_poly)
+        if not extracted:
+            raise ValueError(f"No valid polygons found in {dem}")
+        if len(extracted) == 1:
+            return extracted[0]
+        return MultiPolygon(extracted)
+
+
+def fit_inside(
+    poly: Polygon,
+    valid: Polygon | MultiPolygon,
+    *,
+    inset: float,
+    smooth: float,
+) -> Polygon:
+    """Fit domain outline inside valid terrain area with smoothing.
+
+    Parameters
+    ----------
+    poly:
+        Input outline polygon.
+    valid:
+        Valid data area polygon or multipolygon.
+    inset:
+        Buffer inset distance in map units.
+    smooth:
+        Simplification tolerance in map units (must satisfy 0 <= smooth < inset).
+
+    Returns
+    -------
+    Polygon
+        Smoothed polygon fitting inside the valid area.
+    """
+    if smooth < 0.0 or smooth >= inset:
+        raise ValueError(
+            f"smooth must satisfy 0 <= smooth < inset, got smooth={smooth}, inset={inset}"
+        )
+
+    valid_buffered = valid.buffer(-inset)
+    if valid_buffered.is_empty:
+        raise ValueError("No valid area remaining after applying inset")
+
+    inter = poly.intersection(valid_buffered)
+    if inter.is_empty:
+        raise ValueError("Intersection of poly with inset valid area is empty")
+
+    largest = _largest_polygon(inter)
+    simplified = largest.simplify(smooth, preserve_topology=True)
+    buffered = simplified.buffer(0)
+    largest_simp = _largest_polygon(buffered)
+
+    # Drop holes only if they are fully inside valid (keep the exterior)
+    kept_holes: list[Any] = []
+    for ring in largest_simp.interiors:
+        hole_poly = Polygon(ring)
+        if not (valid.contains(hole_poly) or valid.covers(hole_poly)):
+            kept_holes.append(ring)
+
+    if len(kept_holes) == len(largest_simp.interiors):
+        res: Polygon = largest_simp
+    elif len(kept_holes) == 0:
+        res = Polygon(largest_simp.exterior.coords)
+    else:
+        holes_coords = [list(ring.coords) for ring in kept_holes]
+        res = Polygon(largest_simp.exterior.coords, holes_coords)
+
+    if not res.is_valid:
+        res = _largest_polygon(make_valid(res))
+    return res
+
+
+def cut_between(
+    poly: Polygon,
+    line_a: LineString,
+    line_b: LineString,
+    inside: Point,
+    *,
+    extend: float | None = None,
+) -> tuple[Polygon, LineString, LineString]:
+    """Cut polygon between two boundary lines, returning the piece containing inside point.
+
+    Parameters
+    ----------
+    poly:
+        Input polygon to be cut.
+    line_a:
+        First boundary line string.
+    line_b:
+        Second boundary line string.
+    inside:
+        Point that must lie inside the returned polygon piece.
+    extend:
+        Total length to extend each line through its midpoint along its direction.
+        Defaults to 2 x the polygon's bounding-box diagonal.
+
+    Returns
+    -------
+    tuple[Polygon, LineString, LineString]
+        The cut polygon piece, and the exact boundary segments corresponding to line_a and line_b.
+    """
+    minx, miny, maxx, maxy = poly.bounds
+    diag = math.hypot(maxx - minx, maxy - miny)
+    total_len = 2.0 * diag if extend is None else float(extend)
+    if total_len <= 0.0:
+        raise ValueError(f"extend length must be positive, got {total_len}")
+
+    ext_a = _extend_line(line_a, total_len)
+    ext_b = _extend_line(line_b, total_len)
+
+    pieces_after_a = _extract_polygons(split(poly, ext_a))
+    if not pieces_after_a:
+        pieces_after_a = [poly]
+
+    all_pieces: list[Polygon] = []
+    for p in pieces_after_a:
+        sub = _extract_polygons(split(p, ext_b))
+        if sub:
+            all_pieces.extend(sub)
+        else:
+            all_pieces.append(p)
+
+    matching = [p for p in all_pieces if p.contains(inside)]
+    if not matching:
+        raise ValueError(f"No cut piece contains inside point {inside}")
+
+    chosen_piece = max(matching, key=lambda p: float(p.area))
+
+    tol = 1e-7
+    boundary_buf = chosen_piece.boundary.buffer(tol)
+
+    la_geom = ext_a.intersection(boundary_buf)
+    lb_geom = ext_b.intersection(boundary_buf)
+
+    lines_a = [ls for ls in _extract_linestrings(la_geom) if ls.length > tol]
+    lines_b = [ls for ls in _extract_linestrings(lb_geom) if ls.length > tol]
+
+    if not lines_a or not lines_b:
+        raise ValueError(
+            f"Piece containing {inside} does not touch both cut lines"
+        )
+
+    la = max(lines_a, key=lambda ls: float(ls.length))
+    lb = max(lines_b, key=lambda ls: float(ls.length))
+
+    return chosen_piece, la, lb
