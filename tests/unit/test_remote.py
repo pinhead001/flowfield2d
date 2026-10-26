@@ -42,8 +42,9 @@ def test_launch_prepares_a_job_and_collect_finishes_the_run(tmp_path: Path) -> N
     reg, backend, q = _setup(tmp_path)
     started = tick(reg, 2, lambda rec: backend.launch(reg, rec), backend.is_alive)
     assert started == ["r1"]
-    assert (q / "pending" / "r1.r2r.h5").exists()
-    assert (q / "pending" / "r1.r2r.h5.ready").read_text(encoding="utf-8") == "CPU"   # default
+    job = backend.job_name(reg, "r1")
+    assert (q / "pending" / f"{job}.r2r.h5").exists()
+    assert (q / "pending" / f"{job}.r2r.h5.ready").read_text(encoding="utf-8") == "CPU"  # default
     assert backend.is_alive(reg.get("r1").pid) is True               # pending counts as alive
     backend.collect(reg)
     assert reg.get("r1").state is RunState.RUNNING                    # nothing finished yet
@@ -85,7 +86,8 @@ def test_ready_marker_names_the_processor(tmp_path: Path) -> None:
     q = tmp_path / "queue"
     gpu = QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), processor="GPU")
     tick(reg, 2, lambda rec: gpu.launch(reg, rec), gpu.is_alive)
-    assert (q / "pending" / "r1.r2r.h5.ready").read_text(encoding="utf-8") == "GPU"
+    job = gpu.job_name(reg, "r1")
+    assert (q / "pending" / f"{job}.r2r.h5.ready").read_text(encoding="utf-8") == "GPU"
     with pytest.raises(ValueError, match="processor"):
         QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), processor="TPU")
 
@@ -105,5 +107,24 @@ def test_prepare_hook_edits_the_job_before_it_is_ready(tmp_path: Path) -> None:
     b = QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), prepare_hook=hook)
     tick(reg, 2, lambda rec: b.launch(reg, rec), b.is_alive)
     assert seen == [("r1", False)]                      # called before the ready marker exists
-    assert (q / "pending" / "r1.r2r.h5").read_bytes().endswith(b" warm")
-    assert (q / "pending" / "r1.r2r.h5.ready").exists()
+    job = b.job_name(reg, "r1")
+    assert (q / "pending" / f"{job}.r2r.h5").read_bytes().endswith(b" warm")
+    assert (q / "pending" / f"{job}.r2r.h5.ready").exists()
+
+
+def test_same_run_id_from_two_registries_gets_two_jobs(tmp_path: Path) -> None:
+    proj_a, proj_b = _project(tmp_path / "a"), _project(tmp_path / "b")
+    reg_a = Registry(tmp_path / "a" / "runs" / "registry.json")
+    reg_b = Registry(tmp_path / "b" / "runs" / "registry.json")
+    reg_a.add("r1", "d1", "s1", str(proj_a / "Plans" / "p01.h5"))
+    reg_b.add("r1", "d1", "s1", str(proj_b / "Plans" / "p01.h5"))
+    q = tmp_path / "queue"
+    b = QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60))
+    tick(reg_a, 2, lambda rec: b.launch(reg_a, rec), b.is_alive)
+    tick(reg_b, 2, lambda rec: b.launch(reg_b, rec), b.is_alive)
+    jobs = sorted(p.name for p in (q / "pending").glob("*.r2r.h5"))
+    assert len(jobs) == 2 and all(j.startswith("r1") for j in jobs)
+    assert reg_a.get("r1").pid != reg_b.get("r1").pid
+    _fake_worker(q)
+    assert b.collect(reg_a) == ["r1"] and b.collect(reg_b) == ["r1"]
+    assert reg_a.get("r1").state is RunState.DONE and reg_b.get("r1").state is RunState.DONE
