@@ -71,6 +71,18 @@ def test_failed_job_and_restart_safety(tmp_path: Path) -> None:
     assert rec.state is RunState.FAILED and "LAPTOP1" in rec.detail
 
 
+def test_collect_leaves_jobs_of_an_earlier_registry_at_the_same_path(tmp_path: Path) -> None:
+    reg, backend, q = _setup(tmp_path)
+    tick(reg, 2, lambda rec: backend.launch(reg, rec), backend.is_alive)
+    _fake_worker(q)
+    reg.path.unlink()                                  # run root archived and rebuilt in place
+    fresh = Registry(reg.path)
+    assert backend.collect(fresh) == []                # unknown run id: not ours, no KeyError
+    job = backend.job_name(reg, "r1")
+    assert (q / "done" / job / "result.h5").exists()   # result not moved into the new root
+    assert (q / "jobs" / f"{job}.json").exists()
+
+
 def test_prepare_failure_is_raised(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     reg, backend, q = _setup(tmp_path)
     monkeypatch.setenv("FAKE_RAS_FAIL_PREPARE", "1")

@@ -89,15 +89,18 @@ class QueueBackend:
         return name is not None and self._job(name).exists()
 
     def collect(self, registry: Registry) -> list[str]:
-        """Record finished jobs of this registry; returns the run ids collected."""
+        """Record finished jobs of this registry; returns the run ids collected. A job whose run id
+        the registry does not hold came from an earlier registry at the same path (a run root
+        archived and rebuilt in place) and is left alone."""
         collected: list[str] = []
+        known = {r.run_id for r in registry.all()}
         for state in ("done", "failed"):
             for d in sorted((self.queue / state).iterdir()):
                 job = self._job(d.name)
                 if not job.exists():
                     continue
                 data = json.loads(job.read_text(encoding="utf-8"))
-                if Path(data["registry"]) != registry.path:
+                if Path(data["registry"]) != registry.path or data["run_id"] not in known:
                     continue
                 status: dict[str, Any] = {}
                 if (d / "status.json").exists():
