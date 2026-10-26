@@ -88,3 +88,18 @@ def test_write_initial_state_rejects_other_meshes_and_bad_values(tmp_path: Path)
         assert f[f"{IC}/Cell Depth"][()].tolist() == [0.0] * 4
     with pytest.raises(KeyError):
         write_initial_state(ok, "B", state)
+
+
+def test_map_state_from_a_coarse_water_surface() -> None:
+    from flowfield2d.engines.ras2025.warmstart import map_state
+
+    src_xy = np.array([[0.0, 0.0], [10.0, 0.0], [20.0, 0.0]])
+    src_wse = np.array([5.0, 4.0, np.nan])               # last coarse cell dry
+    dst_xy = np.array([[1.0, 0.0], [9.0, 1.0], [11.0, 0.0], [19.0, 0.0], [2.0, 3.0]])
+    dst_zmin = np.array([3.0, 4.5, 3.5, 1.0, 6.0])
+    s = map_state(src_xy, src_wse, dst_xy, dst_zmin, n_faces=4)
+    # nearest coarse cell: 0, 1, 1, 2 (dry), 0; depth = max(wse - zmin, 0); dry -> 0
+    assert s.cell_depth.tolist() == [2.0, 0.0, 0.5, 0.0, 0.0]
+    assert s.face_velocity is not None and s.face_velocity.tolist() == [0.0] * 4
+    with pytest.raises(ValueError):
+        map_state(src_xy, src_wse, dst_xy, dst_zmin[:3], n_faces=4)

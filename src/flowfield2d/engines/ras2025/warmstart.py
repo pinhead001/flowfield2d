@@ -89,3 +89,20 @@ def write_initial_state(r2r: Path, area: str, state: MeshState) -> None:
             recreate_dataset(
                 grp, "Face Velocity", np.zeros(n_faces, dtype=existing_velocity.dtype)
             )
+
+
+def map_state(src_xy: NDArray[np.float64], src_wse: NDArray[np.float64],
+              dst_xy: NDArray[np.float64], dst_zmin: NDArray[np.float64],
+              n_faces: int) -> MeshState:
+    """A warm state for another mesh from a water surface (e.g. a coarse run at the end of its
+    first hold): each destination cell takes its nearest source cell's WSE, depth = WSE - cell
+    minimum elevation (floored at 0; dry where the source cell is dry, NaN), faces at rest
+    (probe 2026-10-25: a 6 h fine hold after a coarse fill matched the 24 h cold fill)."""
+    from scipy.spatial import cKDTree
+
+    if len(dst_xy) != len(dst_zmin) or len(src_xy) != len(src_wse):
+        raise ValueError("coordinates and values must have the same length")
+    _, idx = cKDTree(np.asarray(src_xy, dtype=np.float64)).query(np.asarray(dst_xy))
+    wse = np.asarray(src_wse, dtype=np.float64)[idx]
+    depth = np.nan_to_num(np.maximum(wse - np.asarray(dst_zmin, dtype=np.float64), 0.0), nan=0.0)
+    return MeshState(cell_depth=depth, face_velocity=np.zeros(int(n_faces)))

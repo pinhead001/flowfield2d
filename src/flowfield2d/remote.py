@@ -22,6 +22,7 @@ import json
 import os
 import shutil
 import zlib
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -32,12 +33,14 @@ _PID_BASE = 2_000_000_000          # synthetic pids, above real Windows pids
 
 
 class QueueBackend:
-    def __init__(self, queue: Path, cli: RasCli, processor: str = "CPU") -> None:
+    def __init__(self, queue: Path, cli: RasCli, processor: str = "CPU",
+                 prepare_hook: Callable[[str, Path], None] | None = None) -> None:
         if processor not in ("CPU", "GPU"):
             raise ValueError(f"processor must be 'CPU' or 'GPU', not {processor!r}")
         self.queue = Path(queue)
         self.cli = cli
         self.processor = processor
+        self.prepare_hook = prepare_hook    # edits a job (e.g. initial state) before ready
         for d in ("pending", "running", "done", "failed", "jobs"):
             (self.queue / d).mkdir(parents=True, exist_ok=True)
 
@@ -56,6 +59,8 @@ class QueueBackend:
         if res.exit_code != 0 or not out.exists():
             out.unlink(missing_ok=True)
             raise RuntimeError(f"plan prepare failed for {rec.run_id}: {res.stderr[-400:]}")
+        if self.prepare_hook is not None:
+            self.prepare_hook(rec.run_id, out)
         pid = self.pid_for(rec.run_id)
         self._job(rec.run_id).write_text(json.dumps(
             {"run_id": rec.run_id, "registry": str(registry.path), "plan": rec.plan, "pid": pid}))

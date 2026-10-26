@@ -88,3 +88,21 @@ def test_ready_marker_names_the_processor(tmp_path: Path) -> None:
     assert (q / "pending" / "r1.r2r.h5.ready").read_text(encoding="utf-8") == "GPU"
     with pytest.raises(ValueError, match="processor"):
         QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), processor="TPU")
+
+
+def test_prepare_hook_edits_the_job_before_it_is_ready(tmp_path: Path) -> None:
+    proj = _project(tmp_path)
+    reg = Registry(tmp_path / "runs" / "registry.json")
+    reg.add("r1", "d1", "s1", str(proj / "Plans" / "p01.h5"))
+    q = tmp_path / "queue"
+    seen: list[tuple[str, bool]] = []
+
+    def hook(run_id: str, r2r: Path) -> None:
+        seen.append((run_id, (q / "pending" / f"{r2r.name}.ready").exists()))
+        r2r.write_bytes(r2r.read_bytes() + b" warm")
+
+    b = QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), prepare_hook=hook)
+    tick(reg, 2, lambda rec: b.launch(reg, rec), b.is_alive)
+    assert seen == [("r1", False)]                      # called before the ready marker exists
+    assert (q / "pending" / "r1.r2r.h5").read_bytes().endswith(b" warm")
+    assert (q / "pending" / "r1.r2r.h5.ready").exists()
