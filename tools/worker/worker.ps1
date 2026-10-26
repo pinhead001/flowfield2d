@@ -62,25 +62,29 @@ function Finish-Job([string]$name, $job) {
     Write-Host "$(Get-Date -Format s) $name -> $(if ($ok) {'done'} else {'FAILED'})"
 }
 
-# A claimed job whose solve never started goes back to pending with its original marker.
-function Requeue-Job([string]$name) {
+# A claimed job goes back to pending with its original marker; `<job>.r2r.h5.requeued` counts how
+# often (an interrupted solve is retried once, then recorded as failed).
+function Requeue-Job([string]$name, [string]$why) {
     $dir = Join-Path $Queue "running\$hostName\$name"
     $need = ""
     if (Test-Path (Join-Path $dir "need.txt")) { $need = (Get-Content (Join-Path $dir "need.txt") -Raw).Trim() }
     $dst = Join-Path $Queue "pending\$name.r2r.h5"
+    $count = 1
+    if (Test-Path (Join-Path $dir "requeued.txt")) { $count = [int](Get-Content (Join-Path $dir "requeued.txt")) + 1 }
     Move-Item (Join-Path $dir "job.r2r.h5") $dst -Force
+    Set-Content -Path ($dst + ".requeued") -Value $count -NoNewline
     Set-Content -Path ($dst + ".ready") -Value $need -NoNewline   # marker last, as the host writes it
     Remove-Item $dir -Recurse -Force
-    Write-Host "$(Get-Date -Format s) $name requeued (solve never started)"
+    Write-Host "$(Get-Date -Format s) $name requeued ($why)"
 }
 
-# Restart: jobs this host left in running\ are adopted if their ras.exe still runs, finished if
-# their solve started, and requeued if it never started.
+# Restart: jobs this host left in running\ are adopted if their ras.exe still runs, finished if their
+# solve completed, requeued if it never started or was interrupted (once), else recorded as failed.
 foreach ($d in Get-ChildItem (Join-Path $Queue "running\$hostName") -Directory) {
     $proc = $null
     $pidFile = Join-Path $d.FullName "pid.txt"
     if (-not (Test-Path $pidFile) -and (Test-Path (Join-Path $d.FullName "job.r2r.h5"))) {
-        Requeue-Job $d.Name
+        Requeue-Job $d.Name "solve never started"
         continue
     }
     if (Test-Path $pidFile) {
@@ -88,7 +92,11 @@ foreach ($d in Get-ChildItem (Join-Path $Queue "running\$hostName") -Directory) 
                 Where-Object { $_.ProcessName -eq "ras" }
     }
     $job = @{ proc = $proc; started = $d.CreationTimeUtc; own = $false }
+    $retried = Test-Path (Join-Path $d.FullName "requeued.txt")
     if ($proc) { $jobs[$d.Name] = $job; Write-Host "$(Get-Date -Format s) $($d.Name) adopted (pid $($proc.Id))" }
+    elseif (-not (Solve-Ok $d.FullName $null) -and -not $retried -and (Test-Path (Join-Path $d.FullName "job.r2r.h5"))) {
+        Requeue-Job $d.Name "solve interrupted"
+    }
     else { Finish-Job $d.Name $job }
 }
 
@@ -109,6 +117,8 @@ while ($true) {
         $marker = $next.FullName + ".ready"
         $need = (Get-Content $marker -Raw -ErrorAction SilentlyContinue)
         Set-Content -Path (Join-Path $dir "need.txt") -Value ("$need".Trim()) -NoNewline
+        $requeued = $next.FullName + ".requeued"
+        if (Test-Path $requeued) { Move-Item $requeued (Join-Path $dir "requeued.txt") -Force }
         Remove-Item $marker -ErrorAction SilentlyContinue
         $solveArgs = @("plan", "solve", (Join-Path $dir "job.r2r.h5"), (Join-Path $dir "result.h5"),
                   "--processor", $Processor, "--if-exists", "force")
