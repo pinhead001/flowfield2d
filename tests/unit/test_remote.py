@@ -10,7 +10,7 @@ import pytest
 
 from flowfield2d.engines.ras2025.cli import RasCli
 from flowfield2d.remote import QueueBackend
-from flowfield2d.runs import Registry, RunState
+from flowfield2d.runs import Registry, RunRecord, RunState
 from flowfield2d.scheduler import tick
 
 from .test_ras_engine import FAKE, _project
@@ -97,8 +97,9 @@ def test_prepare_hook_edits_the_job_before_it_is_ready(tmp_path: Path) -> None:
     q = tmp_path / "queue"
     seen: list[tuple[str, bool]] = []
 
-    def hook(run_id: str, r2r: Path) -> None:
-        seen.append((run_id, (q / "pending" / f"{r2r.name}.ready").exists()))
+    def hook(rec: RunRecord, r2r: Path) -> None:
+        seen.append((rec.run_id, (q / "pending" / f"{r2r.name}.ready").exists()))
+        assert rec.plan.endswith("p01.h5")
         r2r.write_bytes(r2r.read_bytes() + b" warm")
 
     b = QueueBackend(q, RasCli([sys.executable, str(FAKE)], timeout_s=60), prepare_hook=hook)

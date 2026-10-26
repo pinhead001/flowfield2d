@@ -34,7 +34,7 @@ _PID_BASE = 2_000_000_000          # synthetic pids, above real Windows pids
 
 class QueueBackend:
     def __init__(self, queue: Path, cli: RasCli, processor: str = "CPU",
-                 prepare_hook: Callable[[str, Path], None] | None = None) -> None:
+                 prepare_hook: Callable[[RunRecord, Path], None] | None = None) -> None:
         if processor not in ("CPU", "GPU"):
             raise ValueError(f"processor must be 'CPU' or 'GPU', not {processor!r}")
         self.queue = Path(queue)
@@ -60,7 +60,7 @@ class QueueBackend:
             out.unlink(missing_ok=True)
             raise RuntimeError(f"plan prepare failed for {rec.run_id}: {res.stderr[-400:]}")
         if self.prepare_hook is not None:
-            self.prepare_hook(rec.run_id, out)
+            self.prepare_hook(rec, out)
         pid = self.pid_for(rec.run_id)
         self._job(rec.run_id).write_text(json.dumps(
             {"run_id": rec.run_id, "registry": str(registry.path), "plan": rec.plan, "pid": pid}))
