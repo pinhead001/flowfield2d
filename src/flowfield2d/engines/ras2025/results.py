@@ -67,6 +67,19 @@ def face_flows(face_data: NDArray[Any], zmin: NDArray[Any], depth: NDArray[Any],
     return out
 
 
+def cell_max_face_speed(face_data: NDArray[Any], velocity: NDArray[Any],
+                        n_cells: int) -> NDArray[np.float64]:
+    """Largest |face velocity| over each cell's faces (0 for a cell whose faces carry nothing:
+    a stagnant, disconnected cell)."""
+    out = np.zeros(int(n_cells), dtype=np.float64)
+    speed = np.abs(np.asarray(velocity, dtype=np.float64))
+    for side in (0, 1):
+        c = np.asarray(face_data[:, side], dtype=np.int64)
+        ok = (c >= 0) & (c < n_cells)
+        np.maximum.at(out, c[ok], speed[ok])
+    return out
+
+
 class ResultsReader:
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -155,6 +168,15 @@ class ResultsReader:
             vel = np.asarray(f[f"{b}/Face Velocity"][()])
         return np.array([face_flows(face_data, zmin, depth[k], vel[k], tables, start, faces).sum()
                          for k in range(depth.shape[0])], dtype=np.float64)
+
+    def cell_max_face_speed(self, area: str, t: int) -> NDArray[np.float64]:
+        """Per real cell, the largest |face velocity| at output `t` (0 = stagnant cell)."""
+        g = f"{GEOM}/{area}"
+        with h5py.File(self.path, "r", locking=False) as f:
+            face_data = np.asarray(f[f"{g}/Face Data"][()])
+            n = int(f[f"{g}/Property Tables/Cell Minimum Elevation"].shape[0])
+            vel = np.asarray(f[f"{BASE}/2D Flow Areas/{area}/Face Velocity"][t])
+        return cell_max_face_speed(face_data, vel, n)
 
     def boundary_lines(self) -> dict[str, LineString]:
         """BC lines as run (the result file carries the BC layer)."""

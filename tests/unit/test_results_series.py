@@ -116,3 +116,11 @@ def test_face_flows_from_velocity_and_face_tables() -> None:
     assert q.tolist() == pytest.approx([30.0, -10.0])
     dry = face_flows(face_data, zmin, np.zeros(2), vel, tables, start, np.array([0, 1]))
     assert dry.tolist() == [0.0, 0.0]
+
+
+def test_cell_max_face_speed_from_face_velocities(tmp_path: Path) -> None:
+    from flowfield2d.engines.ras2025.results import cell_max_face_speed
+
+    face_data = np.array([[0, 1, 0, 0], [1, 2, 0, 0], [2, -1, 0, 0]])
+    vel = np.array([0.5, -2.0, 0.0])
+    assert cell_max_face_speed(face_data, vel, 4).tolist() == [0.5, 2.0, 2.0, 0.0]
