@@ -95,3 +95,24 @@ def test_boundary_lines(tmp_path: Path) -> None:
     lines = ResultsReader(_result(tmp_path)).boundary_lines()
     assert set(lines) == {"Inflow", "Outflow"}
     assert lines["Outflow"].coords[:] == [(2.0, -0.5), (2.0, 1.5)]
+
+
+def test_face_flows_from_velocity_and_face_tables() -> None:
+    """Flow = face velocity x face area, the area from the face's elevation-area table at the
+    higher adjacent water surface, extrapolated linearly above the table top."""
+    from flowfield2d.engines.ras2025.results import face_flows
+
+    face_data = np.array([[0, 1, 0, 0], [1, -1, 0, 0]])           # face 1 on the perimeter
+    zmin = np.array([10.0, 9.0])
+    depth = np.array([2.0, 2.5])                                   # WSE 12.0, 11.5
+    vel = np.array([2.0, -1.0])
+    # tables: face 0 rows z 10, 11, 13 (area 0, 5, 25); face 1 rows z 9, 10 (area 0, 4)
+    tables = np.array([[10.0, 0.0, 0, 0], [11.0, 5.0, 0, 0], [13.0, 25.0, 0, 0],
+                       [9.0, 0.0, 0, 0], [10.0, 4.0, 0, 0]])
+    start = np.array([0, 3])
+    q = face_flows(face_data, zmin, depth, vel, tables, start, np.array([0, 1]))
+    # face 0: WSE max(12, 11.5) = 12 -> area 15 -> 30; face 1: WSE 11.5 (one cell), above the
+    # table top 10 by 1.5 at slope 4 per unit -> area 10 -> -10
+    assert q.tolist() == pytest.approx([30.0, -10.0])
+    dry = face_flows(face_data, zmin, np.zeros(2), vel, tables, start, np.array([0, 1]))
+    assert dry.tolist() == [0.0, 0.0]

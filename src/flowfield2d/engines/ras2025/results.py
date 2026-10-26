@@ -44,6 +44,29 @@ def _text(v: Any) -> str:
     return v.decode("utf-8", "replace").rstrip("\x00") if isinstance(v, bytes) else str(v)
 
 
+def face_flows(face_data: NDArray[Any], zmin: NDArray[Any], depth: NDArray[Any],
+               velocity: NDArray[Any], tables: NDArray[Any], start: NDArray[Any],
+               faces: NDArray[Any]) -> NDArray[np.float64]:
+    """Flow through `faces` = face velocity x face area; the area from the face's elevation-area
+    table (`Face Tables` columns elevation, area; rows from `start`) at the higher water surface of
+    its wet adjacent cells, extrapolated linearly above the table top; 0 where both are dry."""
+    n = len(zmin)
+    ends = np.append(np.asarray(start)[1:], len(tables))
+    out = np.zeros(len(faces), dtype=np.float64)
+    for i, j in enumerate(np.asarray(faces, dtype=np.int64)):
+        ws = [float(zmin[c] + depth[c]) for c in face_data[j, :2] if 0 <= c < n and depth[c] > 0]
+        if not ws:
+            continue
+        tab = tables[start[j]:ends[j]]
+        z, a, w = tab[:, 0], tab[:, 1], max(ws)
+        if w <= z[-1] or len(z) < 2:
+            area = float(np.interp(w, z, a, left=0.0))
+        else:
+            area = float(a[-1] + (a[-1] - a[-2]) / (z[-1] - z[-2]) * (w - z[-1]))
+        out[i] = float(velocity[j]) * area
+    return out
+
+
 class ResultsReader:
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -115,6 +138,23 @@ class ResultsReader:
         faces = self.boundary_faces(area, line, tol)
         flows = self._read(f"{BASE}/2D Flow Areas/{area}/DEBUG/FaceFlow").astype(np.float64)
         return np.asarray(flows[:, faces].sum(axis=1), dtype=np.float64)
+
+    def boundary_flow_reconstructed(self, area: str, line: str, tol: float
+                                    ) -> NDArray[np.float64]:
+        """Boundary flow per output rebuilt from face velocity and the face property tables
+        (`face_flows`): for results without face-flow output (the RAS 2025 GPU solver writes
+        zeros). Within ~0.2-2.5% of RAS's own face flow on the pilot (probe 2026-10-25)."""
+        faces = self.boundary_faces(area, line, tol)
+        g, b = f"{GEOM}/{area}", f"{BASE}/2D Flow Areas/{area}"
+        with h5py.File(self.path, "r", locking=False) as f:
+            ft = f[f"{g}/Property Tables/Face Tables"]
+            tables, start = np.asarray(ft[()]), np.asarray(ft.attrs["Start"])
+            face_data = np.asarray(f[f"{g}/Face Data"][()])
+            zmin = np.asarray(f[f"{g}/Property Tables/Cell Minimum Elevation"][()])
+            depth = np.asarray(f[f"{b}/Cell Depth"][()])
+            vel = np.asarray(f[f"{b}/Face Velocity"][()])
+        return np.array([face_flows(face_data, zmin, depth[k], vel[k], tables, start, faces).sum()
+                         for k in range(depth.shape[0])], dtype=np.float64)
 
     def boundary_lines(self) -> dict[str, LineString]:
         """BC lines as run (the result file carries the BC layer)."""
