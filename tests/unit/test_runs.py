@@ -58,3 +58,28 @@ def test_parallel_cap_never_negative(tmp_path: Path) -> None:
     r.start("r1", pid=2)
     assert r.next_runnable(max_parallel=1) == []
     assert [x.run_id for x in r.next_runnable(max_parallel=4)] == ["r2"]
+
+
+def test_replace_retry_rides_out_a_briefly_locked_target(tmp_path: Path,
+                                                         monkeypatch: pytest.MonkeyPatch) -> None:
+    import flowfield2d.runs as runs
+
+    src, dst = tmp_path / "a.tmp", tmp_path / "a.json"
+    src.write_text("new")
+    dst.write_text("old")
+    real, calls = runs.os.replace, []
+
+    def flaky(a: object, b: object) -> None:
+        calls.append(1)
+        if len(calls) < 3:
+            raise PermissionError(13, "Access is denied")   # Windows: target open elsewhere
+        real(a, b)
+
+    monkeypatch.setattr(runs.os, "replace", flaky)
+    runs.replace_retry(src, dst, delay_s=0.0)
+    assert dst.read_text() == "new" and len(calls) == 3
+    src.write_text("again")
+    monkeypatch.setattr(runs.os, "replace",
+                        lambda a, b: (_ for _ in ()).throw(PermissionError(13, "denied")))
+    with pytest.raises(PermissionError):
+        runs.replace_retry(src, dst, tries=2, delay_s=0.0)

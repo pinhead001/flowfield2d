@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -77,6 +78,19 @@ def _load(path: Path) -> dict[str, RunRecord]:
     return records
 
 
+def replace_retry(src: str | Path, dst: str | Path, tries: int = 20, delay_s: float = 0.25) -> None:
+    """os.replace that rides out a target held open for a moment by another process (Windows
+    refuses the replace with PermissionError: a reader, an indexer or a share client)."""
+    for i in range(tries):
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            if i == tries - 1:
+                raise
+            time.sleep(delay_s)
+
+
 def _save(path: Path, records: dict[str, RunRecord]) -> None:
     rows = sorted(records.values(), key=lambda r: r.seq)
     payload = json.dumps([asdict(r) for r in rows], indent=2)
@@ -85,7 +99,7 @@ def _save(path: Path, records: dict[str, RunRecord]) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(payload)
-        os.replace(tmp, path)
+        replace_retry(tmp, path)
     except Exception:
         try:
             os.unlink(tmp)
