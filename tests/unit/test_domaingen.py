@@ -231,3 +231,23 @@ def test_cross_line_perpendicular_to_a_flow_direction() -> None:
     line = cross_line(wide, near_end, along=(0.0, -1.0))
     assert line.length == pytest.approx(2600.0, rel=0.01)
     assert abs(line.coords[0][1] - 2900) < 1e-6 and abs(line.coords[-1][1] - 2900) < 1e-6
+
+
+def test_cut_between_extend_factor_keeps_cuts_local() -> None:
+    """A U-shaped corridor (two arms joined at the bottom). Cut A crosses the left arm at y = 400,
+    cut B the right arm at y = 450. Stretched across the whole area, A also slices the right arm at
+    y = 400, between A and B along the corridor, so no piece touches both cuts; extended only 2%
+    beyond its own ends, A stays local."""
+    from shapely.geometry import LineString, Polygon
+
+    from flowfield2d.domaingen import cut_between
+
+    u = Polygon([(0, 0), (300, 0), (300, 500), (250, 500), (250, 50), (50, 50), (50, 500),
+                 (0, 500)])
+    a = LineString([(0, 400), (50, 400)])
+    b = LineString([(250, 450), (300, 450)])
+    with pytest.raises(ValueError, match="found 0"):
+        cut_between(u, a, b, None)
+    piece, la, lb = cut_between(u, a, b, None, extend_factor=1.02)
+    assert piece.area == pytest.approx(50 * 350 + 300 * 50 + 50 * 400)   # left arm, base, right arm
+    assert la.length == pytest.approx(50.0) and lb.length == pytest.approx(50.0)

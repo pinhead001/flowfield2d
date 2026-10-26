@@ -722,6 +722,7 @@ def cut_between(
     inside: Point | None,
     *,
     extend: float | None = None,
+    extend_factor: float | None = None,
 ) -> tuple[Polygon, LineString, LineString]:
     """Cut polygon between two boundary lines, returning the piece containing inside point.
 
@@ -738,6 +739,10 @@ def cut_between(
     extend:
         Total length to extend each line through its midpoint along its direction.
         Defaults to 2 x the polygon's bounding-box diagonal.
+    extend_factor:
+        Instead of `extend`: each line extended to this multiple of its own length (e.g. 1.02 for
+        chords that already span the polygon). Keeps cuts local: a line stretched across the whole
+        polygon also slices other parts of a winding or branching area.
 
     Returns
     -------
@@ -746,12 +751,20 @@ def cut_between(
     """
     minx, miny, maxx, maxy = poly.bounds
     diag = math.hypot(maxx - minx, maxy - miny)
-    total_len = 2.0 * diag if extend is None else float(extend)
-    if total_len <= 0.0:
-        raise ValueError(f"extend length must be positive, got {total_len}")
+    if extend is not None and extend_factor is not None:
+        raise ValueError("give extend or extend_factor, not both")
+    if extend_factor is not None:
+        if extend_factor < 1.0:
+            raise ValueError(f"extend_factor must be >= 1, got {extend_factor}")
+        len_a, len_b = line_a.length * extend_factor, line_b.length * extend_factor
+    else:
+        total_len = 2.0 * diag if extend is None else float(extend)
+        if total_len <= 0.0:
+            raise ValueError(f"extend length must be positive, got {total_len}")
+        len_a = len_b = total_len
 
-    ext_a = _extend_line(line_a, total_len)
-    ext_b = _extend_line(line_b, total_len)
+    ext_a = _extend_line(line_a, len_a)
+    ext_b = _extend_line(line_b, len_b)
 
     pieces_after_a = _extract_polygons(split(poly, ext_a))
     if not pieces_after_a:
