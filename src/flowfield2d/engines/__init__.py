@@ -36,6 +36,12 @@ class ModelSpec:
     rename: dict[str, str] = field(default_factory=dict)
     terrain: str | None = None
     manning_n: float | None = None   # uniform n for the geometry's n layer (sensitivity runs)
+    # Refinement regions (polygon, cell size in model units), e.g. the channel; inside the outline.
+    refine: tuple[tuple[Polygon, float], ...] = ()
+    # Land-cover class polygons with their n (e.g. the channel), over a classification n layer.
+    class_polygons: tuple[Polygon, ...] = ()
+    class_name: str = "Channel"
+    class_n: float | None = None
 
 
 @dataclass(frozen=True)

@@ -20,7 +20,8 @@ from pathlib import Path
 
 import h5py
 import numpy as np
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Point, Polygon
+from shapely.ops import unary_union
 
 from flowfield2d.engines import BcSpec, Capabilities, ModelSpec, PlanSpec, RunOutcome
 from flowfield2d.engines.ras2025 import CAPABILITIES
@@ -30,6 +31,8 @@ from flowfield2d.engines.ras2025.bc import (
     write_flow_series,
 )
 from flowfield2d.engines.ras2025.cli import RasCli
+from flowfield2d.engines.ras2025.h5edit import read_fixed_string, recreate_dataset
+from flowfield2d.engines.ras2025.landcover import add_class_polygons, set_n_value
 from flowfield2d.engines.ras2025.results import ResultsReader
 from flowfield2d.engines.ras2025.split import (
     _layer,
@@ -44,6 +47,7 @@ from flowfield2d.engines.ras2025.templates import (
     copy_layer,
     set_associations,
 )
+from flowfield2d.engines.ras2025.topology import Arc, PatchType, Region, add_topology
 from flowfield2d.engines.ras2025.validate import validate_bc
 
 TAIL = 2000
@@ -54,6 +58,55 @@ FOLDERS: dict[str, str] = {
     "boundary": "Boundary Conditions",
     "plan": "Plans",
 }
+
+
+TOPO = "/Geometry/Mesh Topology"
+
+
+def add_refinements(geom: Path, refine: Sequence[tuple[Polygon, float]]) -> None:
+    """Refinement regions (e.g. the channel) with their own cell size, added to the mesh topology:
+    each polygon's ring as two arcs (arcs cannot close) and a control point inside it, with the
+    outline region's patch type. The outline's control point is moved out of the regions so the
+    rest of the area keeps its own region. Polygons must lie inside the outline, apart."""
+    if not refine:
+        return
+    with h5py.File(geom, "r", locking=False) as f:
+        outline = Polygon(f["/Geometry/2D Flow Areas/Polygon"][()])
+        patch = PatchType(int(f[TOPO]["Control Point Attributes"][0]["PatchType"]))
+    arcs: list[Arc] = []
+    regions: list[Region] = []
+    for poly, size in refine:
+        ring = list(poly.exterior.coords)[:-1]
+        m = len(ring) // 2
+        arcs += [Arc(LineString(ring[: m + 1])), Arc(LineString(ring[m:] + ring[:1]))]
+        regions.append(Region(poly.representative_point(), patch, float(size)))
+    add_topology(geom, arcs, regions)
+    zones = unary_union([p for p, _ in refine])
+    with h5py.File(geom, "r+", locking=False) as f:
+        cps = f[TOPO]["Control Points"][()]
+        if zones.contains(Point(cps[0])):
+            free = outline.difference(zones.buffer(1e-6))
+            pt = free.representative_point()
+            cps[0] = [pt.x, pt.y]
+            recreate_dataset(f[TOPO], "Control Points", cps)
+
+
+def add_land_cover(model: Path, geometry: str, polygons: Sequence[Polygon], class_name: str,
+                   n: float) -> None:
+    """Polygons of one land-cover class (e.g. the channel) in the classification layer of the
+    geometry's n layer, plus that class's n; polygons override the land-cover raster."""
+    _, n_layer = associations(model)["geometries"].get(geometry, ("", ""))
+    n_path = Path(model) / "Surface Layers" / f"{n_layer}.h5"
+    if not n_layer or not n_path.is_file():
+        raise FileNotFoundError(f"no n-value layer associated with {geometry!r} ({n_path})")
+    with h5py.File(n_path, "r", locking=False) as f:
+        class_layer = read_fixed_string(f["/NValues"], "Classification Layer Name")
+    class_path = Path(model) / "Surface Layers" / f"{class_layer}.h5"
+    if not class_path.is_file():
+        raise FileNotFoundError(f"n layer {n_layer!r} names classification layer {class_layer!r}, "
+                                f"not found ({class_path})")
+    add_class_polygons(class_path, polygons, class_name)
+    set_n_value(n_path, class_name, n)
 
 
 class RasEngine:
@@ -155,7 +208,13 @@ class RasEngine:
             f"topology.region.cellsize = {spec.cell_size:g}",
             f"topology.arc.cellsize = {spec.cell_size:g}",
         ])
+        add_refinements(geom, spec.refine)          # after the uniform size, before meshing
         self.cli.generate_mesh(geom)
+        if spec.class_polygons:
+            if spec.class_n is None:
+                raise ValueError("ModelSpec.class_polygons needs class_n")
+            add_land_cover(spec.dest, geom.stem, spec.class_polygons, spec.class_name,
+                           spec.class_n)
         return spec.dest
 
     def template_outline(self, template: Path, layers: Mapping[str, str],
