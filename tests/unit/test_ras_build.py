@@ -185,6 +185,9 @@ def test_create_plan_sets_solver_settings(tmp_path: Path, engine: RasEngine) -> 
     assert call[:3] == ["plan", "modify", str(plan)]
     assert {"ComputeTimestep = 3s", "BaseOutputInterval = 15min",
             "TimeStepping = Explicit"} <= set(call)
+    assert not any(a.startswith("MaxCourant") for a in call)        # unset: template value
+    engine.create_plan(model, PlanSpec("3s", "15min", "Explicit", max_courant=1.0))
+    assert "MaxCourant = 1" in _calls(tmp_path)[-1]
 
 
 def test_model_unit_m_from_project_units(tmp_path: Path, engine: RasEngine) -> None:

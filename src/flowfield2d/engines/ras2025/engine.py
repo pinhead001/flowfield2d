@@ -286,11 +286,14 @@ class RasEngine:
 
     def create_plan(self, model: Path, spec: PlanSpec) -> Path:
         plan = self._file(model, "plan")
-        self.cli.plan_modify(plan, {
+        settings = {
             "ComputeTimestep": spec.compute_timestep,
             "BaseOutputInterval": spec.output_interval,
             "TimeStepping": spec.time_stepping,
-        })
+        }
+        if spec.max_courant is not None:
+            settings["MaxCourant"] = f"{spec.max_courant:g}"
+        self.cli.plan_modify(plan, settings)
         return plan
 
     def export(self, run: RunOutcome | Path, plateau: int, fields: Sequence[str],

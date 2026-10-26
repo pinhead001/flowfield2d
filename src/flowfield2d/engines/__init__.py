@@ -61,6 +61,7 @@ class PlanSpec:
     compute_timestep: str
     output_interval: str
     time_stepping: str
+    max_courant: float | None = None   # None keeps the template's value
 
 
 @dataclass(frozen=True)
