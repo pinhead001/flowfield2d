@@ -31,6 +31,7 @@ class ConvergenceResult(CheckResult):
     n_points: int = 0
     n_failing: int = 0
     oscillating: tuple[int, ...] = ()
+    span_max: float = 0.0            # largest WSE range over the window (oscillation amplitude)
 
 
 def _f(x: ArrayLike) -> F:
@@ -60,7 +61,7 @@ def volume_balance(q_in: ArrayLike, q_out: ArrayLike, tol: float = 0.01) -> Chec
 
 def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None, wse: ArrayLike,
                 hold_end_s: float, window_s: float = 1800.0, q_tol: float = 0.01,
-                wse_tol: float = 0.005) -> ConvergenceResult:
+                wse_tol: float = 0.005, mode: str = "span") -> ConvergenceResult:
     """Converged at the end of a hold: flow imbalance at `hold_end_s` within `q_tol` (relative) and
     WSE change over the last `window_s` within `wse_tol` at every monitored point.
 
@@ -68,8 +69,14 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None,
     `q_in`/`q_out` None (both): the results carry no boundary flows (e.g. the RAS 2025 GPU solver
     writes zero face flows); the flow criterion is skipped and the detail says so. Given flows need
     a positive inflow at the hold end (ValueError otherwise, never a silent NaN).
+    `mode`: "span" (default) - the WSE range over the window must be within `wse_tol`; "mean" -
+    the mean WSE over the window must differ from the mean over the window before it by at most
+    `wse_tol` (steady in the mean; a persistent local oscillation is reported as `span_max`, not
+    failed).
     Returns a `ConvergenceResult` with monitored points, failing count, and any oscillating points.
     """
+    if mode not in ("span", "mean"):
+        raise ValueError(f"mode must be 'span' or 'mean', not {mode!r}")
     if (q_in is None) != (q_out is None):
         raise ValueError("give both q_in and q_out, or neither")
     t, w = _f(t_s), _f(wse)
@@ -91,10 +98,18 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None,
         q_err = float(abs(qo[end] - qi[end]) / qi[end])
     w_win = w[sel]
     span = np.nanmax(w_win, axis=0) - np.nanmin(w_win, axis=0)
-    dw = float(np.nanmax(span))
+    span_max = float(np.nanmax(span))
+    if mode == "mean":
+        prev = (t >= hold_end_s - 2.0 * window_s - 1e-9) & (t <= hold_end_s - window_s + 1e-9)
+        if prev.sum() < 1:
+            raise ValueError("no samples in the window before the convergence window")
+        change = np.abs(np.nanmean(w_win, axis=0) - np.nanmean(w[prev], axis=0))
+    else:
+        change = span
+    dw = float(np.nanmax(change))
     ok = bool((q_err is None or q_err <= q_tol) and dw <= wse_tol)
     n_points = int(w.shape[1])
-    n_failing = int(np.sum(span > wse_tol))
+    n_failing = int(np.sum(change > wse_tol))
     if w_win.shape[0] >= 3:
         a = w_win[:-2]
         b = w_win[1:-1]
@@ -117,11 +132,13 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None,
     flow_text = ("flow balance not available" if q_err is None
                  else f"flow imbalance {q_err:.4f} (tol {q_tol})")
     detail = f"{flow_text}; WSE change {dw:.4f} m; failing points {n_failing}/{n_points}"
+    if mode == "mean":
+        detail += f"; mean mode, oscillation up to {span_max:.3f}"
     if oscillating:
         detail += f"; oscillating (A/B/A) at points {list(oscillating)}"
     return ConvergenceResult(
         "convergence", ok, dw, wse_tol, detail,
-        n_points=n_points, n_failing=n_failing, oscillating=oscillating,
+        n_points=n_points, n_failing=n_failing, oscillating=oscillating, span_max=span_max,
     )
 
 

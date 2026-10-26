@@ -61,3 +61,23 @@ def test_convergence_rejects_zero_inflow_data() -> None:
         convergence(t, zeros, zeros, np.full(t.size, 10.0), hold_end_s=3600.0)
     with pytest.raises(ValueError, match="both"):
         convergence(t, np.ones(t.size), None, np.full(t.size, 10.0), hold_end_s=3600.0)
+
+
+def test_mean_mode_accepts_steady_oscillation_and_reports_its_amplitude() -> None:
+    t = np.arange(0.0, 7200.0 + 1, 300.0)                  # 5-min outputs over 2 h
+    steady = np.full(t.size, 10.0)
+    wobble = 10.0 + 0.2 * np.where(np.arange(t.size) % 2 == 0, 1.0, -1.0)   # +-0.2 around 10
+    rising = 10.0 + 0.0001 * t                               # 0.18 per 30 min
+    w = np.column_stack([steady, wobble])
+    span = convergence(t, None, None, w, hold_end_s=7200.0, window_s=1800.0, wse_tol=0.01)
+    assert not span.ok                                       # default: range over the window
+    mean = convergence(t, None, None, w, hold_end_s=7200.0, window_s=1800.0, wse_tol=0.01,
+                       mode="mean")
+    assert mean.ok and mean.value <= 0.01
+    assert mean.span_max == pytest.approx(0.4)               # the oscillation, reported
+    assert "oscillation up to 0.400" in mean.detail
+    r = convergence(t, None, None, np.column_stack([steady, rising]), hold_end_s=7200.0,
+                    window_s=1800.0, wse_tol=0.01, mode="mean")
+    assert not r.ok and r.n_failing == 1                     # still rising: not converged
+    with pytest.raises(ValueError, match="mode"):
+        convergence(t, None, None, w, hold_end_s=7200.0, mode="median")
