@@ -67,6 +67,49 @@ def face_flows(face_data: NDArray[Any], zmin: NDArray[Any], depth: NDArray[Any],
     return out
 
 
+class _CellTables:
+    """Cell elevation-volume tables (`Cell Tables` columns elevation, volume; rows from `start`)
+    padded to a dense array for vectorised lookups."""
+
+    def __init__(self, tables: NDArray[Any], start: NDArray[Any]) -> None:
+        start = np.asarray(start, dtype=np.int64)
+        n = len(start)
+        ends = np.append(start[1:], len(tables))
+        counts = ends - start
+        m = int(counts.max())
+        rows = start[:, None] + np.minimum(np.arange(m)[None, :], counts[:, None] - 1)
+        self.z = np.asarray(tables, dtype=np.float64)[rows, 0]
+        self.v = np.asarray(tables, dtype=np.float64)[rows, 1]
+        self.z[np.arange(m)[None, :] >= counts[:, None]] = np.inf    # padding never brackets
+        r, last = np.arange(n), counts - 1
+        prev = np.maximum(last - 1, 0)
+        self.ztop, self.vtop = self.z[r, last], self.v[r, last]
+        dz = self.ztop - self.z[r, prev]
+        self.slope = np.where(dz > 0, (self.vtop - self.v[r, prev]) / np.where(dz > 0, dz, 1.0),
+                              0.0)
+
+    def volume(self, wse: NDArray[np.float64], wet: NDArray[np.bool_]) -> float:
+        n, m = self.z.shape
+        r = np.arange(n)
+        i = np.clip((self.z < wse[:, None]).sum(axis=1), 1, m - 1)
+        z0, z1, v0, v1 = self.z[r, i - 1], self.z[r, i], self.v[r, i - 1], self.v[r, i]
+        inside = np.isfinite(z1) & (wse <= self.ztop)
+        frac = np.where(inside, (wse - z0) / np.where(inside & (z1 > z0), z1 - z0, 1.0), 0.0)
+        vol = np.where(inside, v0 + (v1 - v0) * frac, self.vtop + self.slope * (wse - self.ztop))
+        return float(np.where(wet, np.maximum(vol, 0.0), 0.0).sum())
+
+
+def storage_volume(zmin: NDArray[Any], depth: NDArray[Any], tables: NDArray[Any],
+                   start: NDArray[Any]) -> NDArray[np.float64]:
+    """Water stored in the area per output (`depth` outputs x cells): each wet cell's
+    elevation-volume table at its water surface, extrapolated linearly above the table top. For
+    results without boundary flows or cell volumes (RAS 2025 GPU): outflow = inflow - dV/dt."""
+    ct = _CellTables(tables, start)
+    z = np.asarray(zmin, dtype=np.float64)
+    d = np.asarray(depth, dtype=np.float64)
+    return np.array([ct.volume(z + row, row > 0) for row in d], dtype=np.float64)
+
+
 def cell_max_face_speed(face_data: NDArray[Any], velocity: NDArray[Any],
                         n_cells: int) -> NDArray[np.float64]:
     """Largest |face velocity| over each cell's faces (0 for a cell whose faces carry nothing:
@@ -168,6 +211,22 @@ class ResultsReader:
             vel = np.asarray(f[f"{b}/Face Velocity"][()])
         return np.array([face_flows(face_data, zmin, depth[k], vel[k], tables, start, faces).sum()
                          for k in range(depth.shape[0])], dtype=np.float64)
+
+    def storage_volume(self, area: str) -> NDArray[np.float64]:
+        """Water stored in `area` per output, from the cell elevation-volume tables (see
+        `storage_volume`); read one output at a time."""
+        g, b = f"{GEOM}/{area}/Property Tables", f"{BASE}/2D Flow Areas/{area}"
+        with h5py.File(self.path, "r", locking=False) as f:
+            zmin = np.asarray(f[f"{g}/Cell Minimum Elevation"][()], dtype=np.float64)
+            ct = f[f"{g}/Cell Tables"]
+            tables = _CellTables(np.asarray(ct[()]), np.asarray(ct.attrs["Start"]))
+            depth = f[f"{b}/Cell Depth"]
+            n = len(zmin)
+            out = []
+            for k in range(depth.shape[0]):
+                row = np.asarray(depth[k], dtype=np.float64)[:n]
+                out.append(tables.volume(zmin + row, row > 0))
+        return np.array(out, dtype=np.float64)
 
     def cell_max_face_speed(self, area: str, t: int) -> NDArray[np.float64]:
         """Per real cell, the largest |face velocity| at output `t` (0 = stagnant cell)."""

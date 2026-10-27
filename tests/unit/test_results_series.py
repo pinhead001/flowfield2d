@@ -118,6 +118,22 @@ def test_face_flows_from_velocity_and_face_tables() -> None:
     assert dry.tolist() == [0.0, 0.0]
 
 
+def test_storage_volume_from_cell_tables() -> None:
+    """Stored volume = sum over wet cells of the cell's elevation-volume table at its water surface,
+    extrapolated linearly above the table top; dry cells hold nothing."""
+    from flowfield2d.engines.ras2025.results import storage_volume
+
+    zmin = np.array([10.0, 9.0, 8.0])
+    # rows: cell 0 z 10, 11, 13 (volume 0, 5, 25); cell 1 z 9, 10 (0, 4); cell 2 z 8, 9 (0, 1)
+    tables = np.array([[10.0, 0.0], [11.0, 5.0], [13.0, 25.0], [9.0, 0.0], [10.0, 4.0],
+                       [8.0, 0.0], [9.0, 1.0]])
+    start = np.array([0, 3, 5])
+    depth = np.array([[2.0, 2.5, 0.0], [0.0, 0.5, 0.0]])        # outputs x cells
+    # output 0: cell 0 at 12 -> 15; cell 1 at 11.5, 1.5 above its top at 4/unit -> 10; cell 2 dry
+    # output 1: cell 1 at 9.5 -> 2
+    assert storage_volume(zmin, depth, tables, start).tolist() == pytest.approx([25.0, 2.0])
+
+
 def test_cell_max_face_speed_from_face_velocities(tmp_path: Path) -> None:
     from flowfield2d.engines.ras2025.results import cell_max_face_speed
 
