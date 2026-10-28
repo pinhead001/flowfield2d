@@ -30,6 +30,16 @@ def _nv(p: Polygon) -> int:
     return len(p.exterior.coords) - 1 + sum(len(r.coords) - 1 for r in p.interiors)
 
 
+def _max_turn_deg(p: Polygon) -> float:
+    """Largest direction change between consecutive exterior segments (90 on a pixel edge)."""
+    xy = np.asarray(p.exterior.coords)[:-1]
+    seg = np.roll(xy, -1, axis=0) - xy
+    seg = seg[np.hypot(*seg.T) > 1e-9]
+    ang = np.arctan2(seg[:, 1], seg[:, 0])
+    turn = np.abs((np.diff(np.append(ang, ang[0])) + np.pi) % (2 * np.pi) - np.pi)
+    return float(np.degrees(turn.max()))
+
+
 def test_smooth_outer_follows_outer_corners_and_covers_every_pixel() -> None:
     raw = _polys(_band())
     assert len(raw) == 1 and _nv(raw[0]) > 100
@@ -37,7 +47,9 @@ def test_smooth_outer_follows_outer_corners_and_covers_every_pixel() -> None:
     assert isinstance(rep, SmoothReport)
     assert len(out) == 1 and out[0].is_valid
     assert unary_union(out).buffer(1e-9).covers(raw[0])          # no wet pixel outside
-    assert _nv(out[0]) < _nv(raw[0]) / 2                         # the stair steps are gone
+    assert _max_turn_deg(raw[0]) == pytest.approx(90.0)
+    assert _max_turn_deg(out[0]) <= 50.0                          # the stair steps are gone
+    assert _nv(out[0]) < 4 * _nv(raw[0])                         # smoothing, not densifying
     assert rep.n_in == 1 and rep.n_out == 1
     assert rep.area_in == pytest.approx(raw[0].area)
     assert rep.area_out == pytest.approx(out[0].area)
