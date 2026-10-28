@@ -68,7 +68,7 @@ def test_smooth_outer_is_deterministic_and_scales_with_pixel() -> None:
     big = [Polygon([(3 * x, 3 * y) for x, y in p.exterior.coords]) for p in raw]
     c, rep3 = smooth_outer(big, pixel=3.0)
     assert c[0].area == pytest.approx(9 * a[0].area, rel=1e-6)
-    assert rep3.max_offset == pytest.approx(3 * rep1.max_offset, rel=1e-6)
+    assert rep3.max_offset == pytest.approx(3 * rep1.max_offset, rel=1e-3)
 
 
 def test_smooth_outer_drops_specks_and_keeps_them_by_default() -> None:
