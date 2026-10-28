@@ -32,6 +32,8 @@ class ConvergenceResult(CheckResult):
     n_failing: int = 0
     oscillating: tuple[int, ...] = ()
     span_max: float = 0.0            # largest WSE range over the window (oscillation amplitude)
+    failing: tuple[int, ...] = ()    # indices of the failing points (e.g. to report per reach)
+    n_wet: int = 0                   # points with a WSE in both windows; 0 = nothing to judge
 
 
 def _f(x: ArrayLike) -> F:
@@ -110,6 +112,8 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None,
     ok = bool((q_err is None or q_err <= q_tol) and dw <= wse_tol)
     n_points = int(w.shape[1])
     n_failing = int(np.sum(change > wse_tol))
+    failing = tuple(int(i) for i in np.flatnonzero(change > wse_tol))
+    n_wet = int(np.isfinite(change).sum())
     if w_win.shape[0] >= 3:
         a = w_win[:-2]
         b = w_win[1:-1]
@@ -139,6 +143,7 @@ def convergence(t_s: ArrayLike, q_in: ArrayLike | None, q_out: ArrayLike | None,
     return ConvergenceResult(
         "convergence", ok, dw, wse_tol, detail,
         n_points=n_points, n_failing=n_failing, oscillating=oscillating, span_max=span_max,
+        failing=failing, n_wet=n_wet,
     )
 
 

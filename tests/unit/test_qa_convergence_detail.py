@@ -18,8 +18,19 @@ def test_counts_failing_points() -> None:
     assert isinstance(r, ConvergenceResult) and isinstance(r, CheckResult)
     assert not r.ok
     assert (r.n_failing, r.n_points) == (2, 4)
+    assert r.failing == (1, 3) and r.n_wet == 4             # which points, for per-reach reporting
     assert r.oscillating == ()
     assert "2/4" in r.detail
+
+
+def test_no_wet_point_is_reported_as_unmonitored() -> None:
+    """All monitored points dry (NaN WSE) at a low flow: nothing to judge, n_wet 0."""
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        r = convergence(T, Q, Q, np.full((T.size, 3), np.nan), hold_end_s=3600, window_s=1800)
+    assert r.n_wet == 0 and r.n_failing == 0 and r.failing == ()
 
 
 def test_flags_aba_oscillation() -> None:
