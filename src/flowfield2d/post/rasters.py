@@ -9,11 +9,13 @@ from pathlib import Path
 
 import numpy as np
 import rasterio
+import rasterio.io
 from rasterio import Affine
 from rasterio.enums import Resampling
 from rasterio.features import rasterize
 from rasterio.warp import reproject
 from rasterio.windows import Window
+from rasterio.windows import transform as window_transform
 from shapely.geometry import MultiPolygon, Polygon
 
 
@@ -142,94 +144,95 @@ def mosaic(
     ) as _:
         pass
 
-    with rasterio.open(out, "r+") as dst:
-        g_left, g_bottom, g_right, g_top = grid.bounds
-        for src in sources:
-            with rasterio.open(src.path) as src_ds:
-                sb = src_ds.bounds
-                s_left = origin[0] + math.floor((sb.left - origin[0]) / pixel) * pixel
-                s_right = origin[0] + math.ceil((sb.right - origin[0]) / pixel) * pixel
-                s_bottom = origin[1] + math.floor((sb.bottom - origin[1]) / pixel) * pixel
-                s_top = origin[1] + math.ceil((sb.top - origin[1]) / pixel) * pixel
-
-                c_left = max(g_left, s_left)
-                c_right = min(g_right, s_right)
-                c_bottom = max(g_bottom, s_bottom)
-                c_top = min(g_top, s_top)
-
-                if c_left >= c_right or c_bottom >= c_top:
-                    continue
-
-                col_off = int(round((c_left - g_left) / pixel))
-                row_off = int(round((g_top - c_top) / pixel))
-                win_width = int(round((c_right - c_left) / pixel))
-                win_height = int(round((c_top - c_bottom) / pixel))
-
-                if win_width <= 0 or win_height <= 0:
-                    continue
-
-                win = Window(col_off, row_off, win_width, win_height)
-                win_transform = rasterio.windows.transform(win, grid.transform)
-
-                src_data = src_ds.read(1, masked=True)
-                src_nodata = src_ds.nodata
-                if src_nodata is not None:
-                    src_array = np.ma.filled(src_data, fill_value=src_nodata).astype(np.float32)
-                elif np.ma.is_masked(src_data):
-                    src_nodata = nodata
-                    src_array = np.ma.filled(src_data, fill_value=nodata).astype(np.float32)
-                else:
-                    src_array = np.asarray(src_data, dtype=np.float32)
-
-                window_data = np.full((win_height, win_width), nodata, dtype=np.float32)
-                reproject(
-                    source=src_array,
-                    destination=window_data,
-                    src_transform=src_ds.transform,
-                    src_crs=src_ds.crs,
-                    dst_transform=win_transform,
-                    dst_crs=dst.crs,
-                    resampling=Resampling.nearest,
-                    src_nodata=src_nodata,
-                    dst_nodata=nodata,
-                )
-
-                invalid = ~np.isfinite(window_data)
-                if not np.isnan(nodata):
-                    invalid |= np.isclose(window_data, nodata)
-                if src.max_value is not None:
-                    invalid |= window_data > src.max_value
-                window_data[invalid] = nodata
-
-                if src.area is not None:
-                    mask = rasterize(
-                        [src.area],
-                        out_shape=(win_height, win_width),
-                        transform=win_transform,
-                        all_touched=False,
-                        fill=0,
-                        default_value=1,
-                        dtype=np.uint8,
-                    )
-                    window_data[mask == 0] = nodata
-
-                curr_data = dst.read(1, window=win)
-                curr_is_nodata = ~np.isfinite(curr_data)
-                if not np.isnan(nodata):
-                    curr_is_nodata |= np.isclose(curr_data, nodata)
-
-                new_is_valid = np.isfinite(window_data)
-                if not np.isnan(nodata):
-                    new_is_valid &= ~np.isclose(window_data, nodata)
-
-                update_mask = curr_is_nodata & new_is_valid
-                if np.any(update_mask):
-                    curr_data[update_mask] = window_data[update_mask]
-                    dst.write(curr_data, 1, window=win)
-
-        factors = [f for f in overviews if f <= max(grid.width, grid.height)]
-        if factors:
-            dst.build_overviews(factors, Resampling[overview_resampling])
-            dst.update_tags(ns="rio_overview", resampling=overview_resampling)
+    try:
+        with rasterio.open(out, "r+") as dst:
+            for src in sources:
+                with rasterio.open(src.path) as src_ds:
+                    _write_source(dst, src_ds, src, grid, pixel, origin, nodata, actual_blocksize)
+            factors = [f for f in overviews if f <= max(grid.width, grid.height)]
+            if factors:
+                dst.build_overviews(factors, Resampling[overview_resampling])
+                dst.update_tags(ns="rio_overview", resampling=overview_resampling)
+    except BaseException:
+        out.unlink(missing_ok=True)
+        raise
 
     return grid
+
+
+def _is_nodata(values: np.ndarray, nodata: float) -> np.ndarray:
+    """Exact nodata test (NaN nodata compares with isnan); non-finite values count as nodata."""
+    bad = ~np.isfinite(values)
+    if not np.isnan(nodata):
+        bad |= values == nodata
+    return bad
+
+
+def _write_source(
+    dst: rasterio.io.DatasetWriter,
+    src_ds: rasterio.io.DatasetReader,
+    src: Source,
+    grid: Grid,
+    pixel: float,
+    origin: tuple[float, float],
+    nodata: float,
+    blocksize: int,
+) -> None:
+    """Resample one source onto its window of the grid, strip by strip (block-row aligned), and
+    fill only the destination pixels that are still nodata. Memory stays at one strip."""
+    g_left, g_bottom, g_right, g_top = grid.bounds
+    sb = src_ds.bounds
+    s_left = origin[0] + math.floor((sb.left - origin[0]) / pixel) * pixel
+    s_right = origin[0] + math.ceil((sb.right - origin[0]) / pixel) * pixel
+    s_bottom = origin[1] + math.floor((sb.bottom - origin[1]) / pixel) * pixel
+    s_top = origin[1] + math.ceil((sb.top - origin[1]) / pixel) * pixel
+
+    c_left, c_right = max(g_left, s_left), min(g_right, s_right)
+    c_bottom, c_top = max(g_bottom, s_bottom), min(g_top, s_top)
+    if c_left >= c_right or c_bottom >= c_top:
+        return
+    col_off = int(round((c_left - g_left) / pixel))
+    row_off = int(round((g_top - c_top) / pixel))
+    win_width = int(round((c_right - c_left) / pixel))
+    win_height = int(round((c_top - c_bottom) / pixel))
+    if win_width <= 0 or win_height <= 0:
+        return
+
+    row_end = row_off + win_height
+    row = row_off
+    while row < row_end:
+        row_next = min(row_end, (row // blocksize + 1) * blocksize)
+        strip = Window(col_off, row, win_width, row_next - row)
+        strip_transform = window_transform(strip, grid.transform)
+        data = np.full((row_next - row, win_width), nodata, dtype=np.float32)
+        reproject(
+            source=rasterio.band(src_ds, 1),
+            destination=data,
+            dst_transform=strip_transform,
+            dst_crs=dst.crs,
+            resampling=Resampling.nearest,
+            src_nodata=src_ds.nodata,
+            dst_nodata=nodata,
+        )
+        invalid = _is_nodata(data, nodata)
+        if src.max_value is not None:
+            invalid |= data > src.max_value
+        if src.area is not None:
+            mask = rasterize(
+                [src.area],
+                out_shape=data.shape,
+                transform=strip_transform,
+                all_touched=False,
+                fill=0,
+                default_value=1,
+                dtype=np.uint8,
+            )
+            invalid |= mask == 0
+        valid = ~invalid
+        if valid.any():
+            current = dst.read(1, window=strip)
+            update = valid & _is_nodata(current, nodata)
+            if update.any():
+                current[update] = data[update]
+                dst.write(current, 1, window=strip)
+        row = row_next
