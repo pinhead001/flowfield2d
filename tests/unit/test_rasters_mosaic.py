@@ -99,6 +99,22 @@ def test_mosaic_coarser_pixel_and_overviews(tmp_path: Path) -> None:
     assert m.shape == (4, 4) and np.isfinite(m).all() and (m != NODATA).all()
 
 
+def test_mosaic_source_spanning_several_block_strips(tmp_path: Path) -> None:
+    za = np.arange(40 * 40, dtype=float).reshape(40, 40)
+    za[7, :] = NODATA                                            # a nodata row across strips
+    a = _tif(tmp_path / "a.tif", za, 5, 45)                      # window not block aligned
+    b = _tif(tmp_path / "b.tif", np.full((40, 40), -1.0), 5, 45)  # fills what a left empty
+    out = tmp_path / "m.tif"
+    mosaic([Source(a), Source(b)], out, pixel=1.0, nodata=NODATA, blocksize=16)
+    with rasterio.open(out) as ds:
+        assert ds.block_shapes == [(16, 16)]
+        m = ds.read(1)
+    assert m.shape == (40, 40)
+    expect = za.copy()
+    expect[7, :] = -1.0
+    assert np.array_equal(m, expect.astype("float32"))
+
+
 def test_mosaic_refuses_mixed_crs_or_no_sources(tmp_path: Path) -> None:
     a = _tif(tmp_path / "a.tif", np.ones((2, 2)), 0, 2)
     b = _tif(tmp_path / "b.tif", np.ones((2, 2)), 0, 2, crs="EPSG:4326")
