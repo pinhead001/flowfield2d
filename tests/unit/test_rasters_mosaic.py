@@ -50,7 +50,7 @@ def test_mosaic_first_source_wins_inside_its_area(tmp_path: Path) -> None:
     assert grid.bounds == (0.0, 0.0, 7.0, 5.0) and (grid.width, grid.height) == (7, 5)
     with rasterio.open(out) as ds:
         assert ds.crs.to_string() == CRS and ds.nodata == NODATA and ds.dtypes[0] == "float32"
-        assert ds.res == (1.0, 1.0) and ds.is_tiled and ds.compression is not None
+        assert ds.res == (1.0, 1.0) and ds.profile["tiled"] and ds.compression is not None
         m = ds.read(1)
         v = {xy: m[ds.index(*xy)] for xy in [(1.5, 1.5), (3.5, 3.5), (4.5, 3.5), (4.5, 0.5),
                                               (6.5, 4.5), (0.5, 4.5), (6.5, 0.5)]}
