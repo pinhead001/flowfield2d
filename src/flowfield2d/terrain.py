@@ -16,8 +16,8 @@ from pathlib import Path
 import numpy as np
 import rasterio
 import rasterio.merge
-from numpy.typing import ArrayLike, NDArray
 import shapely
+from numpy.typing import ArrayLike, NDArray
 from shapely.geometry import MultiPolygon, Polygon
 
 from flowfield2d.units import M_PER_FT
