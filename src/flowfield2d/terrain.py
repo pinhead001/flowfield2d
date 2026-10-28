@@ -17,7 +17,8 @@ import numpy as np
 import rasterio
 import rasterio.merge
 from numpy.typing import ArrayLike, NDArray
-from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
+import shapely
+from shapely.geometry import MultiPolygon, Polygon
 
 from flowfield2d.units import M_PER_FT
 
@@ -194,18 +195,16 @@ def assert_vertical_scale(
 ) -> ScaleCheck:
     """Check DEM against model elevations; raise TerrainScaleError on scale or unit mismatch."""
     ref = sample_dem(dem, xy)
-    try:
-        check = vertical_scale_check(
-            ref,
-            model,
-            tolerance=tolerance,
-            factors=factors,
-            factor_tolerance=factor_tolerance,
-        )
-    except ValueError as err:
-        if "no finite" in str(err).lower():
-            raise TerrainScaleError(str(err)) from err
-        raise
+    mod = np.asarray(model, dtype=np.float64).reshape(-1)
+    if mod.shape == ref.shape and not np.any(np.isfinite(ref) & np.isfinite(mod)):
+        raise TerrainScaleError("no finite point pairs to compare")
+    check = vertical_scale_check(
+        ref,
+        model,
+        tolerance=tolerance,
+        factors=factors,
+        factor_tolerance=factor_tolerance,
+    )
 
     if not check.ok:
         if check.unit_factor is not None:
@@ -227,7 +226,7 @@ def wkt_vertical_units(wkt: str) -> str | None:
     """Extract the vertical CRS unit name from a WKT1 or WKT2 string, if present."""
     if not wkt:
         return None
-    m_vert = re.search(r"(?:VERT_CS|VERTCRS)\s*\[", wkt, re.IGNORECASE)
+    m_vert = re.search(r"(?:VERT_CS|VERT(?:ICAL)?CRS)\s*\[", wkt, re.IGNORECASE)
     if not m_vert:
         return None
     m_unit = re.search(
@@ -290,29 +289,14 @@ def coverage(
         dem_valid = Polygon()
 
     diff = region.difference(dem_valid)
+    polys = [g for g in shapely.get_parts(diff) if isinstance(g, Polygon) and not g.is_empty]
     uncovered: Polygon | MultiPolygon
-    if diff.is_empty:
+    if not polys:
         uncovered = Polygon()
-    elif isinstance(diff, Polygon):
-        uncovered = diff
-    elif isinstance(diff, MultiPolygon):
-        uncovered = diff
-    elif isinstance(diff, GeometryCollection):
-        polys: list[Polygon] = []
-        for g in diff.geoms:
-            if isinstance(g, Polygon):
-                if not g.is_empty:
-                    polys.append(g)
-            elif isinstance(g, MultiPolygon):
-                polys.extend(p for p in g.geoms if not p.is_empty)
-        if not polys:
-            uncovered = Polygon()
-        elif len(polys) == 1:
-            uncovered = polys[0]
-        else:
-            uncovered = MultiPolygon(polys)
+    elif len(polys) == 1:
+        uncovered = polys[0]
     else:
-        uncovered = Polygon()
+        uncovered = MultiPolygon(polys)
 
     region_area = float(region.area)
     uncovered_area = float(uncovered.area)
