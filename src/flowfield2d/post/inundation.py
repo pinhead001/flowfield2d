@@ -83,11 +83,11 @@ def _chaikin_ring(coords: ArrayLike, iterations: int) -> NDArray[np.float64]:
     pts: NDArray[np.float64] = np.asarray(coords, dtype=np.float64)
     if len(pts) == 0:
         return pts
-    if len(pts) >= 2 and np.allclose(pts[0], pts[-1]):
+    if len(pts) >= 2 and np.array_equal(pts[0], pts[-1]):
         pts = pts[:-1]
 
     if iterations <= 0 or len(pts) < 3:
-        if len(pts) >= 1 and not np.allclose(pts[0], pts[-1]):
+        if len(pts) >= 1 and not np.array_equal(pts[0], pts[-1]):
             res: NDArray[np.float64] = np.vstack([pts, pts[0:1]])
             return res
         return pts
@@ -119,6 +119,21 @@ def _extract_largest_polygon(geom: Any) -> Polygon:
         if polys:
             return max(polys, key=lambda g: float(g.area))
     return Polygon()
+
+
+def _polygon_parts(geom: Any) -> list[Polygon]:
+    """All non-empty polygons of a geometry (a Polygon, a MultiPolygon or a collection)."""
+    return [g for g in shapely.get_parts(geom) if isinstance(g, Polygon) and not g.is_empty]
+
+
+def _outward_offset(raw: Any, smoothed: Polygon) -> float:
+    """How far outside `raw` the boundary of `smoothed` runs: the largest distance from a
+    vertex of `smoothed` to `raw` (0 for vertices inside). Linear in the vertex count; the
+    symmetric Hausdorff distance is quadratic and stalls on polygons with 100k+ vertices."""
+    rings = [smoothed.exterior, *smoothed.interiors]
+    coords = np.vstack([np.asarray(r.coords) for r in rings])
+    shapely.prepare(raw)
+    return float(np.max(shapely.distance(shapely.points(coords), raw)))
 
 
 @dataclass(frozen=True)
@@ -196,7 +211,7 @@ def smooth_outer(
                 sub = poly_step2.intersection(
                     part.buffer(closing * pixel if closing > 0 else pixel)
                 )
-                target_in = _extract_largest_polygon(sub) if not sub.is_empty else poly_step2
+                target_in = sub if not sub.is_empty else poly_step2
 
             # 4. Simplify
             if simplify > 0:
@@ -228,16 +243,19 @@ def smooth_outer(
             if part.is_empty:
                 continue
 
-            # 7. Containment guarantee
+            # 7. Containment guarantee: every piece is kept, never only the largest
+            pieces = [part]
             if not part.covers(target_in):
                 merged = shapely.unary_union([part, target_in]).buffer(
                     0.25 * pixel, join_style="round"
                 )
-                part = _extract_largest_polygon(shapely.make_valid(merged))
+                pieces = _polygon_parts(shapely.make_valid(merged))
+                if not shapely.unary_union(pieces).covers(target_in):      # last resort
+                    pieces = _polygon_parts(target_in.buffer(0.25 * pixel, join_style="round"))
 
-            if not part.is_empty:
-                out.append(part)
-                offsets.append(float(shapely.hausdorff_distance(target_in, part)))
+            for piece in pieces:
+                out.append(piece)
+                offsets.append(_outward_offset(target_in, piece))
 
     n_out = len(out)
     area_out = float(sum(p.area for p in out))
