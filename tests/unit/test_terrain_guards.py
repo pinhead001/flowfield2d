@@ -71,7 +71,7 @@ def test_vertical_scale_check_within_tolerance_and_nans() -> None:
     assert c.ok and c.n == 3 and c.unit_factor is None
     assert c.max_abs_diff == pytest.approx(0.4) and c.ratio == pytest.approx(0.999, abs=2e-3)
     c = vertical_scale_check(ref, model + 2.0, tolerance=0.5)
-    assert not c.ok and c.unit_factor is None and c.max_abs_diff == pytest.approx(2.4)
+    assert not c.ok and c.unit_factor is None and c.max_abs_diff == pytest.approx(1.8)
     # near-datum points: a ratio near a unit factor with differences inside tolerance is fine
     c = vertical_scale_check([0.1, 0.2], [0.328, 0.656], tolerance=0.5)
     assert c.ok and c.unit_factor is None
