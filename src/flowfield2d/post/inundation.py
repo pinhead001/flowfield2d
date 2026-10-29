@@ -126,14 +126,35 @@ def _polygon_parts(geom: Any) -> list[Polygon]:
     return [g for g in shapely.get_parts(geom) if isinstance(g, Polygon) and not g.is_empty]
 
 
+def _boundary_segments(geom: Any) -> NDArray[Any]:
+    """Every edge of every ring of `geom` as a LineString (polygons of any multipart)."""
+    segs = []
+    for poly in _polygon_parts(geom):
+        for ring in (poly.exterior, *poly.interiors):
+            c = np.asarray(ring.coords)
+            if len(c) > 1:
+                segs.append(shapely.linestrings(np.stack([c[:-1], c[1:]], axis=1)))
+    return np.concatenate(segs) if segs else np.empty(0, dtype=object)
+
+
 def _outward_offset(raw: Any, smoothed: Polygon) -> float:
     """How far outside `raw` the boundary of `smoothed` runs: the largest distance from a
-    vertex of `smoothed` to `raw` (0 for vertices inside). Linear in the vertex count; the
-    symmetric Hausdorff distance is quadratic and stalls on polygons with 100k+ vertices."""
+    vertex of `smoothed` to `raw` (0 for vertices inside). Vertices inside `raw` are dropped
+    with the prepared `covers`; the rest are matched to their nearest boundary edge through an
+    STRtree, so the cost is O((V + R) log R) instead of V x R (3 h on a polygon with 500k raw
+    vertices). The symmetric Hausdorff distance would be quadratic as well."""
     rings = [smoothed.exterior, *smoothed.interiors]
-    coords = np.vstack([np.asarray(r.coords) for r in rings])
+    pts = shapely.points(np.vstack([np.asarray(r.coords) for r in rings]))
     shapely.prepare(raw)
-    return float(np.max(shapely.distance(shapely.points(coords), raw)))
+    outside = pts[~shapely.covers(raw, pts)]
+    if outside.size == 0:
+        return 0.0
+    segs = _boundary_segments(raw)
+    if segs.size == 0:
+        return float(np.max(shapely.distance(outside, raw)))
+    tree = shapely.STRtree(segs)
+    idx = tree.query_nearest(outside, all_matches=False)
+    return float(np.max(shapely.distance(outside[idx[0]], segs[idx[1]])))
 
 
 @dataclass(frozen=True)
@@ -154,8 +175,15 @@ def smooth_outer(
     iterations: int = 2,
     min_area: float = 0.0,
     min_hole: float = 0.0,
+    final_simplify: float = 0.1,
 ) -> tuple[list[Polygon], SmoothReport]:
-    """Smooth pixel-edge polygons along the outer corners of stair steps."""
+    """Smooth pixel-edge polygons along the outer corners of stair steps.
+
+    `final_simplify` (pixels) thins the smoothed rings after corner cutting: the round joins and
+    Chaikin leave 6-12 vertices per raw vertex, a 0.1 px tolerance keeps about one. The
+    containment check runs after it, so no wet pixel is lost."""
+    if final_simplify < 0:
+        raise ValueError(f"final_simplify must be non-negative, got {final_simplify}")
     if pixel <= 0:
         raise ValueError(f"pixel must be positive, got {pixel}")
     if closing < 0:
@@ -242,6 +270,14 @@ def smooth_outer(
             part = _extract_largest_polygon(shapely.make_valid(rebuilt))
             if part.is_empty:
                 continue
+
+            # 6b. Thin the densified rings (checked for containment below)
+            if final_simplify > 0:
+                part = part.simplify(final_simplify * pixel, preserve_topology=True)
+                if not isinstance(part, Polygon):
+                    part = _extract_largest_polygon(part)
+                if part.is_empty:
+                    continue
 
             # 7. Containment guarantee: every piece is kept, never only the largest
             pieces = [part]

@@ -107,6 +107,41 @@ def test_smooth_outer_holes_shrink_or_fill_but_never_grow() -> None:
     assert len(out[0].interiors) == 1
 
 
+def _blob() -> np.ndarray:
+    """A jagged 200 x 200 mask with holes (deterministic noise, thresholded and smoothed)."""
+    rng = np.random.default_rng(7)
+    noise = rng.random((200, 200))
+    from scipy.ndimage import uniform_filter
+    field = uniform_filter(noise, size=15)
+    return field > np.quantile(field, 0.55)
+
+
+def test_smooth_outer_output_vertex_count_is_bounded() -> None:
+    raw = [p for p in _polys(_blob()) if p.area > 50]
+    nv_raw = sum(_nv(p) for p in raw)
+    assert nv_raw > 2000
+    out, rep = smooth_outer(raw, pixel=1.0)
+    assert sum(_nv(p) for p in out) <= 2 * nv_raw            # the final simplify keeps it lean
+    assert unary_union(out).buffer(1e-9).covers(unary_union(raw))
+    dense, _ = smooth_outer(raw, pixel=1.0, final_simplify=0.0)
+    assert sum(_nv(p) for p in dense) > 3 * nv_raw           # round joins + Chaikin densify
+    assert unary_union(dense).buffer(1e-9).covers(unary_union(raw))
+    with pytest.raises(ValueError):
+        smooth_outer(raw, pixel=1.0, final_simplify=-0.1)
+
+
+def test_outward_offset_matches_brute_force() -> None:
+    from flowfield2d.post.inundation import _outward_offset
+    raw = _polys(_blob())
+    big = max(raw, key=lambda p: p.area)
+    out, _ = smooth_outer([big], pixel=1.0)
+    for piece in out:
+        coords = np.vstack([np.asarray(r.coords) for r in (piece.exterior, *piece.interiors)])
+        brute = float(np.max([big.distance(Point(x, y)) for x, y in coords]))
+        assert _outward_offset(big, piece) == pytest.approx(brute, abs=1e-9)
+    assert _outward_offset(big, Polygon(big.exterior)) == 0.0   # nothing outside
+
+
 def test_smooth_outer_empty_and_invalid_arguments() -> None:
     out, rep = smooth_outer([], pixel=1.0)
     assert out == [] and rep == SmoothReport(0, 0, 0.0, 0.0, 0.0)
