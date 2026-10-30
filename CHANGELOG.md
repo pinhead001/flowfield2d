@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+
+## 0.1.0 — 2026-10-30
+First tagged release (G2 item 5, Chris 2026-10-30): the library as used by the Methow 3 ft pre-production run.
 - `results` (engine-neutral): depth/velocity/WSE field triples to SI, spike mask, Froude, COG rasters,
   wet extents (MultiPolygon, nesting check), cell tables (Parquet) from rasters or from any `Results`
   object; `post.gpkg`: GeoPackage writer/reader on the standard library (sqlite3). New dependency: pyarrow.

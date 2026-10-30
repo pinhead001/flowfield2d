@@ -1,6 +1,6 @@
 [project]
 name = "flowfield2d"
-version = "0.0.1"
+version = "0.1.0"
 description = "Location-agnostic driver for HEC-RAS 2025 2D models"
 readme = "README.md"
 license = "MIT"
