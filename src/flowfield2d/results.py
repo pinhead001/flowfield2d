@@ -200,7 +200,9 @@ def cell_table_from_results(results: Results, area: str, t: int, unit_m: float,
     """Cell table straight from an engine `Results` object at output `t`: cell_id = index,
     x, y from the cell centres (CRS units), depth / speed / WSE converted to SI with `unit_m`.
     Speed comes from `cell_max_face_speed` when the object provides it, else NaN. Dry cells
-    (depth <= min_depth) get NaN depth, speed and WSE."""
+    (depth <= min_depth) get NaN depth, speed and WSE. When the object provides
+    `cell_velocity` (vectors from the face velocities), the table also carries `vx_mps`,
+    `vy_mps` (CRS axis components, SI) and `direction_deg` (compass bearing of the flow)."""
     xy = np.asarray(results.cell_coordinates(area), dtype=np.float64)
     depth = np.asarray(results.cell_depth(area, t), dtype=np.float64)
     n = len(depth)
@@ -214,7 +216,7 @@ def cell_table_from_results(results: Results, area: str, t: int, unit_m: float,
     depth_m = np.where(wet, depth * k, np.nan)
     speed_m = np.where(wet, speed * k, np.nan)
     wse_m = np.where(wet, wse * k, np.nan)
-    return {
+    table = {
         "cell_id": np.arange(n, dtype=np.int64),
         "x": xy[:n, 0].astype(np.float64),
         "y": xy[:n, 1].astype(np.float64),
@@ -223,3 +225,12 @@ def cell_table_from_results(results: Results, area: str, t: int, unit_m: float,
         "wse_m": wse_m,
         "froude": froude(speed_m, depth_m),
     }
+    vectors = getattr(results, "cell_velocity", None)
+    if callable(vectors):
+        from flowfield2d.post.vectors import direction_deg
+
+        uv = np.asarray(vectors(area, t, min_depth), dtype=np.float64)[:n]
+        vx = np.where(wet, uv[:, 0] * k, np.nan)
+        vy = np.where(wet, uv[:, 1] * k, np.nan)
+        table.update({"vx_mps": vx, "vy_mps": vy, "direction_deg": direction_deg(vx, vy)})
+    return table

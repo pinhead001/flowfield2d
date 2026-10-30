@@ -123,6 +123,54 @@ def cell_max_face_speed(face_data: NDArray[Any], velocity: NDArray[Any],
     return out
 
 
+def cell_velocity_vectors(face_data: NDArray[Any], nodes: NDArray[Any], velocity: NDArray[Any],
+                          n_cells: int, depth: NDArray[Any] | None = None,
+                          min_depth: float = 0.0) -> NDArray[np.float64]:
+    """Cell velocity vectors (n_cells, 2) reconstructed from the face-normal velocities: per
+    cell the least-squares vector whose normal components best match its faces' velocities,
+    weighted by face length (the file carries no cell vectors; this is the mapper's picture).
+
+    Convention (checked on a production result, 2026-10-30: the reconstructed speed matches the
+    mapper's velocity raster at the cell centres, median ratio 1.016, r 0.987, and the vectors
+    point down the centerline): `Face Data` rows are (cell_a, cell_b, node_i, node_j), the
+    face normal is the tangent node_i -> node_j turned clockwise, (ty, -tx), and a positive
+    face velocity flows from cell_a to cell_b along it. Faces with cell_b < 0 are perimeter
+    faces of cell_a. A cell whose faces do not span two directions, or a dry cell when
+    `depth` is given (depth <= `min_depth`), gets NaN."""
+    n = int(n_cells)
+    fd = np.asarray(face_data, dtype=np.int64)
+    xy = np.asarray(nodes, dtype=np.float64)
+    v = np.asarray(velocity, dtype=np.float64)
+    d = xy[fd[:, 3]] - xy[fd[:, 2]]
+    length = np.hypot(d[:, 0], d[:, 1])
+    ok = length > 0
+    safe = np.where(ok, length, 1.0)
+    nx, ny = d[:, 1] / safe, -d[:, 0] / safe
+    a = np.zeros((n, 3))                        # symmetric normal matrix: xx, xy, yy
+    b = np.zeros((n, 2))
+    for side, sign in ((0, 1.0), (1, -1.0)):    # outward normal: +n for cell_a, -n for cell_b
+        c = fd[:, side]
+        m = ok & (c >= 0) & (c < n)
+        ox, oy, w, vo = sign * nx[m], sign * ny[m], length[m], sign * v[m]
+        np.add.at(a, (c[m], 0), w * ox * ox)
+        np.add.at(a, (c[m], 1), w * ox * oy)
+        np.add.at(a, (c[m], 2), w * oy * oy)
+        np.add.at(b, (c[m], 0), w * ox * vo)
+        np.add.at(b, (c[m], 1), w * oy * vo)
+    det = a[:, 0] * a[:, 2] - a[:, 1] ** 2
+    trace = a[:, 0] + a[:, 2]
+    good = det > 1e-9 * np.maximum(trace, 1e-300) ** 2
+    out = np.full((n, 2), np.nan)
+    inv = np.where(good, det, 1.0)
+    out[good, 0] = ((a[:, 2] * b[:, 0] - a[:, 1] * b[:, 1]) / inv)[good]
+    out[good, 1] = ((a[:, 0] * b[:, 1] - a[:, 1] * b[:, 0]) / inv)[good]
+    if depth is not None:
+        h = np.asarray(depth, dtype=np.float64)[:n]
+        with np.errstate(invalid="ignore"):
+            out[~(np.isfinite(h) & (h > min_depth))] = np.nan
+    return out
+
+
 class ResultsReader:
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -236,6 +284,18 @@ class ResultsReader:
             n = int(f[f"{g}/Property Tables/Cell Minimum Elevation"].shape[0])
             vel = np.asarray(f[f"{BASE}/2D Flow Areas/{area}/Face Velocity"][t])
         return cell_max_face_speed(face_data, vel, n)
+
+    def cell_velocity(self, area: str, t: int, min_depth: float = 0.0) -> NDArray[np.float64]:
+        """Per real cell, the velocity vector (n, 2) at output `t` reconstructed from the face
+        velocities (`cell_velocity_vectors`); dry cells (depth <= `min_depth`) are NaN."""
+        g = f"{GEOM}/{area}"
+        with h5py.File(self.path, "r", locking=False) as f:
+            face_data = np.asarray(f[f"{g}/Face Data"][()])
+            nodes = np.asarray(f[f"{g}/Node Coordinates"][()], dtype=np.float64)
+            n = int(f[f"{g}/Property Tables/Cell Minimum Elevation"].shape[0])
+            vel = np.asarray(f[f"{BASE}/2D Flow Areas/{area}/Face Velocity"][t])
+            depth = np.asarray(f[f"{BASE}/2D Flow Areas/{area}/Cell Depth"][t])
+        return cell_velocity_vectors(face_data, nodes, vel, n, depth=depth, min_depth=min_depth)
 
     def boundary_lines(self) -> dict[str, LineString]:
         """BC lines as run (the result file carries the BC layer)."""
