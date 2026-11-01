@@ -223,6 +223,32 @@ def test_cut_between_without_inside_point() -> None:
     assert mid.area == pytest.approx(300 * 2100, rel=0.01)
 
 
+
+def test_cut_between_survives_near_duplicate_vertices_at_state_plane_coordinates() -> None:
+    """A corridor about 1.7e6 ft from the origin whose ring holds vertices one float ulp apart
+    (left by earlier unions and splits). GEOS buffers such a ring badly at 1e-7, so a fixed 1e-7
+    boundary tolerance found no shared segment with the cuts ("does not touch both cut lines")."""
+    import math
+
+    from flowfield2d.domaingen import cut_between
+
+    x0, y0 = 1733838.064368773717, 582039.789577407180
+    top = [(x0 + x, y0 + 300 + 60 * math.sin(x / 400)) for x in range(0, 6001, 250)]
+    bot = [(x0 + x, y0 - 300 + 60 * math.sin(x / 350)) for x in range(6000, -1, -250)]
+    ring = top + bot
+    pts = []
+    for i, c in enumerate(ring):
+        pts.append(c)
+        if i in (3, 10, 17, 33, 40):                    # a twin one ulp further along the ring
+            pts.append((float(np.nextafter(c[0], ring[(i + 1) % len(ring)][0])), c[1]))
+    corridor = Polygon(pts)
+    a = LineString([(x0 + 300, y0 - 500), (x0 + 300, y0 + 500)])
+    b = LineString([(x0 + 3100, y0 - 500), (x0 + 3100, y0 + 500)])
+    piece, la, lb = cut_between(corridor, a, b, None)
+    assert piece.bounds[0] == pytest.approx(x0 + 300)
+    assert piece.bounds[2] == pytest.approx(x0 + 3100)
+    assert la.length == pytest.approx(600, abs=150) and lb.length == pytest.approx(600, abs=150)
+
 def test_cross_line_perpendicular_to_a_flow_direction() -> None:
     from flowfield2d.domaingen import cross_line
 

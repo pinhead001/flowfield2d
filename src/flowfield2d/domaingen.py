@@ -751,6 +751,9 @@ def cut_between(
     """
     minx, miny, maxx, maxy = poly.bounds
     diag = math.hypot(maxx - minx, maxy - miny)
+    # Vertices a float ulp apart (left by earlier unions and splits) break GEOS's tiny boundary
+    # buffer below at state-plane coordinates, so no piece would seem to share a cut segment.
+    poly = shapely.remove_repeated_points(poly, 1e-9 * max(diag, 1.0))
     if extend is not None and extend_factor is not None:
         raise ValueError("give extend or extend_factor, not both")
     if extend_factor is not None:
