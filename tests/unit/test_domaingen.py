@@ -277,3 +277,56 @@ def test_cut_between_extend_factor_keeps_cuts_local() -> None:
     piece, la, lb = cut_between(u, a, b, None, extend_factor=1.02)
     assert piece.area == pytest.approx(50 * 350 + 300 * 50 + 50 * 400)   # left arm, base, right arm
     assert la.length == pytest.approx(50.0) and lb.length == pytest.approx(50.0)
+
+
+def test_line_direction_is_the_local_tangent_of_the_nearest_line() -> None:
+    from shapely.geometry import LineString
+
+    from flowfield2d.domaingen import line_direction
+
+    ell = LineString([(0, 0), (1000, 0), (1000, 1000)])
+    dx, dy = line_direction(ell, Point(400, 5), span=100.0)
+    assert dx == pytest.approx(1.0) and dy == pytest.approx(0.0, abs=1e-9)
+    dx, dy = line_direction(ell, Point(1003, 600), span=100.0)
+    assert dx == pytest.approx(0.0, abs=1e-9) and dy == pytest.approx(1.0)
+    dx, dy = line_direction(ell, Point(1000, 0), span=100.0)    # at the bend: the mean of both legs
+    assert dx == pytest.approx(dy)
+
+
+def test_cross_line_turns_the_least_needed_to_cross_the_avoided_lines_once() -> None:
+    """A river turning back on itself across a wide valley: the normal at P (vertical) crosses the
+    river's upper leg again at (1000, 2500). The chord turns west until it passes the leg's west end
+    at x = 500: tan(turn) > 500 / 1500, about 18.4 degrees. The crossing at P itself is allowed."""
+    import math
+
+    from shapely.geometry import LineString
+
+    from flowfield2d.domaingen import cross_line
+
+    valley = Polygon([(-3000, 0), (4000, 0), (4000, 4000), (-3000, 4000)])
+    river = LineString([(0, 1000), (2500, 1000), (2500, 2500), (500, 2500)])
+    p = Point(1000, 1000)
+    plain = cross_line(valley, p, along=(1.0, 0.0))
+    assert plain.intersects(LineString([(600, 2500), (1500, 2500)]))           # the defect
+    line = cross_line(valley, p, along=(1.0, 0.0), avoid=river, max_turn_deg=45.0, avoid_tol=50.0)
+    far = [g for g in getattr(line.intersection(river), "geoms", [line.intersection(river)])
+           if not g.is_empty and g.distance(p) > 50.0]
+    assert not far
+    (x0, y0), (x1, y1) = line.coords[0], line.coords[-1]
+    turn = math.degrees(math.atan2(abs(x1 - x0), abs(y1 - y0)))
+    assert 18.4 < turn < 20.5
+    assert line.distance(p) < 1e-6
+    with pytest.raises(ValueError, match="crosses"):
+        cross_line(valley, p, along=(1.0, 0.0), avoid=river, max_turn_deg=10.0, avoid_tol=50.0)
+
+
+def test_cross_line_keeps_the_normal_when_it_crosses_the_avoided_lines_once() -> None:
+    from shapely.geometry import LineString
+
+    from flowfield2d.domaingen import cross_line
+
+    corridor = Polygon([(0, 0), (300, 0), (300, 3000), (0, 3000)])
+    river = LineString([(150, 3000), (150, 0)])
+    line = cross_line(corridor, Point(150, 1500), along=(0.0, -1.0), avoid=river,
+                      max_turn_deg=45.0, avoid_tol=20.0)
+    assert line.equals_exact(cross_line(corridor, Point(150, 1500), along=(0.0, -1.0)), 1e-6)
