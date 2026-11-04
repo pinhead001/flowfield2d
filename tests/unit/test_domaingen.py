@@ -330,3 +330,53 @@ def test_cross_line_keeps_the_normal_when_it_crosses_the_avoided_lines_once() ->
     line = cross_line(corridor, Point(150, 1500), along=(0.0, -1.0), avoid=river,
                       max_turn_deg=45.0, avoid_tol=20.0)
     assert line.equals_exact(cross_line(corridor, Point(150, 1500), along=(0.0, -1.0)), 1e-6)
+
+
+def test_line_direction_toward_a_point_uses_that_side_only() -> None:
+    """At a sharp bend the two-sided tangent points back along the incoming leg's normal; a BC
+    section inside the domain wants the tangent on the domain's side (toward the other BC point)."""
+    from shapely.geometry import LineString
+
+    from flowfield2d.domaingen import line_direction
+
+    ell = LineString([(0, 1000), (0, 0), (1000, 0)])         # down, then east
+    dx, dy = line_direction(ell, Point(0, 0), span=200.0, toward=Point(800, 0))
+    assert abs(dx) == pytest.approx(1.0) and dy == pytest.approx(0.0, abs=1e-9)
+    dx, dy = line_direction(ell, Point(0, 0), span=200.0, toward=Point(0, 900))
+    assert dx == pytest.approx(0.0, abs=1e-9) and abs(dy) == pytest.approx(1.0)
+
+
+def test_cross_line_turns_off_a_chord_that_runs_along_the_valley() -> None:
+    """A flow direction pointing across a 6000 x 1000 valley makes the normal run 6000 along it.
+    With max_length_ratio = 1.5 the chord turns the least needed to be at most 1.5 x the shortest
+    valid chord within the window (1414 at 45 degrees): 1000 / sin(t) <= 2121, t >= 28.1 degrees
+    from the valley axis."""
+    import math
+
+    from shapely.geometry import LineString
+
+    from flowfield2d.domaingen import cross_line
+
+    valley = Polygon([(0, 0), (6000, 0), (6000, 1000), (0, 1000)])
+    p = Point(3000, 500)
+    river = LineString([(3000, 0), (3000, 1000)])
+    line = cross_line(valley, p, along=(0.0, 1.0), avoid=river, max_turn_deg=45.0,
+                      avoid_tol=10.0, max_length_ratio=1.5)
+    (x0, y0), (x1, y1) = line.coords[0], line.coords[-1]
+    t = math.degrees(math.atan2(abs(y1 - y0), abs(x1 - x0)))
+    assert 28.0 < t < 29.5
+    assert line.length <= 1.5 * 1000 / math.sin(math.radians(45)) + 1e-6
+
+
+def test_line_direction_toward_bridges_gaps_between_reach_lines() -> None:
+    """The point sits 20 from the end of one reach line; the next reach starts after a 30 gap and
+    runs east. The secant to the circle of radius 300 (crossed by the next reach, toward the other
+    BC point) gives east, where the tangent of the short end piece would give north-east."""
+    from shapely.geometry import MultiLineString
+
+    from flowfield2d.domaingen import line_direction
+
+    river = MultiLineString([[(-1000, -1000), (0, 0), (20, 0)],
+                             [(50, 0), (2000, 0)]])
+    dx, dy = line_direction(river, Point(0, 0), span=300.0, toward=Point(1800, 0))
+    assert dx == pytest.approx(1.0, abs=1e-3) and abs(dy) < 1e-3

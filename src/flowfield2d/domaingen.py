@@ -835,7 +835,8 @@ def _crosses_elsewhere(chord: LineString, avoid: Any, point: Point, tol: float) 
 
 def cross_line(area: Polygon, point: Point, *, along: tuple[float, float] | None = None,
                n_angles: int = 180, avoid: Any = None, max_turn_deg: float = 0.0,
-               avoid_tol: float = 0.0, turn_step_deg: float = 0.5) -> LineString:
+               avoid_tol: float = 0.0, turn_step_deg: float = 0.5,
+               max_length_ratio: float | None = None) -> LineString:
     """The shortest chord of `area` through `point`: a cross-section for a BC line placed by a
     single point (e.g. a pour point), so a domain can be defined by two points.
 
@@ -846,7 +847,9 @@ def cross_line(area: Polygon, point: Point, *, along: tuple[float, float] | None
     within `avoid_tol` of `point`, as a cross-section crosses its river once: in a wide valley the
     normal at a bend can run along the valley and cross the river again. The chord then turns from
     the normal by the least angle (steps of `turn_step_deg`, up to `max_turn_deg` either way) that
-    clears the other crossings; ValueError if none does."""
+    clears the other crossings; ValueError if none does. With `max_length_ratio` the chord must
+    also be at most that multiple of the shortest such chord in the window: a normal running along
+    the valley beside the river crosses it once but does not cross the floodplain."""
     if not area.covers(point):
         raise ValueError(f"point {point} is outside the area")
     minx, miny, maxx, maxy = area.bounds
@@ -856,11 +859,17 @@ def cross_line(area: Polygon, point: Point, *, along: tuple[float, float] | None
             raise ValueError("avoid needs a flow direction (along)")
         normal = math.atan2(along[1], along[0]) + math.pi / 2
         n_steps = int(math.floor(max_turn_deg / turn_step_deg + 1e-9))
+        valid: list[LineString] = []          # by increasing turn
         for k in range(n_steps + 1):
             for sign in ((1,) if k == 0 else (1, -1)):
                 chord = _chord(area, point, normal + sign * math.radians(k * turn_step_deg), reach)
                 if chord is not None and not _crosses_elsewhere(chord, avoid, point, avoid_tol):
-                    return chord
+                    if max_length_ratio is None:
+                        return chord
+                    valid.append(chord)
+        if valid and max_length_ratio is not None:
+            limit = max_length_ratio * min(float(c.length) for c in valid)
+            return next(c for c in valid if c.length <= limit)
         raise ValueError(f"every chord through {point} within {max_turn_deg:g} degrees of the "
                          "normal crosses the avoided lines again")
     best: LineString | None = None
@@ -875,17 +884,40 @@ def cross_line(area: Polygon, point: Point, *, along: tuple[float, float] | None
     return best
 
 
-def line_direction(line: Any, point: Point, *, span: float) -> tuple[float, float]:
+def line_direction(line: Any, point: Point, *, span: float,
+                   toward: Point | None = None) -> tuple[float, float]:
     """Unit tangent of `line` (or of its part nearest `point`, for a multi-line) where `point`
     projects onto it, from the line's positions `span` before and after: a flow direction for a BC
-    cross-section taken from a mapped river line rather than from a corridor's centerline."""
+    cross-section taken from a mapped river line rather than from a corridor's centerline.
+
+    With `toward` (e.g. the domain's other BC point), the secant instead from `point` to where the
+    line (any part) crosses the circle of radius `span` around it, the crossing nearest `toward`:
+    the trend inside the domain, past meander wiggles and gaps between reach lines; the one-sided
+    tangent if the line does not reach the circle."""
     parts = [g for g in shapely.get_parts(line) if isinstance(g, LineString) and g.length > 0]
     if not parts:
         raise ValueError("line_direction needs a line with length")
+    if toward is not None:
+        ring = point.buffer(span, quad_segs=64).exterior
+        hits = [g for p in parts for g in shapely.get_parts(p.intersection(ring))
+                if isinstance(g, Point)]
+        if hits:
+            b = min(hits, key=lambda g: float(g.distance(toward)))
+            vx, vy = b.x - point.x, b.y - point.y
+            n = math.hypot(vx, vy)
+            if n > 0.0:
+                return vx / n, vy / n
     part = min(parts, key=lambda g: float(g.distance(point)))
     s = float(part.project(point))
-    a = part.interpolate(max(0.0, s - span))
-    b = part.interpolate(min(float(part.length), s + span))
+    lo, hi = max(0.0, s - span), min(float(part.length), s + span)
+    if toward is not None:
+        s_t = float(part.project(toward))
+        if s_t > s and hi > s:
+            lo = s
+        elif s_t < s and lo < s:
+            hi = s
+    a = part.interpolate(lo)
+    b = part.interpolate(hi)
     vx, vy = b.x - a.x, b.y - a.y
     n = math.hypot(vx, vy)
     if n == 0.0:
