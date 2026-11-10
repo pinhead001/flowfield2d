@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- iRIC export (ADR-0005, proposed): `curvigrid` (structured grid along a line, raster sampling), `export.iric`
+- iRIC export (ADR-0005): `curvigrid` (structured grid along a line, raster sampling), `export.iric`
   (grid CSV, terrain/n GeoTIFF, `.tpo`, WSE points, summary; SI at the boundary), `export.iric_project`
   (runnable `.ipro` cloned from an iRIC-saved template), `engines.ras2025.export.flow_state`, CLI
   `flowfield2d export iric`. Checked against FaSTMECH 1.1.7 (iRIC 4.2.1) from the command line.

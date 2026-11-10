@@ -1,7 +1,7 @@
 # ADR-0005 — Export to iRIC structured-grid solvers
 
-- Status: **proposed** (by the lead, 2026-11-10; requested by Chris Nelson 2026-11-09). Adds scope beyond
-  REQUIREMENTS 1 (which names HEC-RAS 2025 only); REQUIREMENTS is not edited until this is accepted.
+- Status: **accepted** (Chris Nelson, 2026-11-10; proposed by the lead 2026-11-10). Adds scope beyond
+  REQUIREMENTS 1: export of a model's inputs and flow state to iRIC structured-grid solvers.
 
 ## Context
 A second solver on the same terrain, roughness and flow is an independent check on a 2D model. iRIC hosts

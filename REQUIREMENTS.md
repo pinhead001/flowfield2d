@@ -44,6 +44,8 @@ flowfield2d/
     hydrograph.py     stepped/ramped plateaus, hold design, equilibrium timesteps
     runs.py           run registry (JSON + file lock), scheduler, resume, parallel caps
     post/             rasters.py inundation.py metrics.py (per-polygon/per-centerline stats)
+    curvigrid.py      structured (i, j) grid along a line; raster sampling (ADR-0005)
+    export/           iric.py iric_project.py: inputs and projects for iRIC solvers (ADR-0005)
     qa/               checks.py calibration.py report.py
     provenance.py     run manifests
     cli.py            `flowfield2d` command (typer)
