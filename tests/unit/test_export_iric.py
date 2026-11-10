@@ -96,7 +96,9 @@ def test_grid_attributes_per_solver(tmp_path: Path) -> None:
     node, _ = grid_attributes(pkg, "fastmech", drag_depth="local")
     assert np.allclose(node["roughness"], G_N2 / np.cbrt(2.0))
     node, cell = grid_attributes(pkg, "nays2dh")
-    assert set(node) == {"Elevation"} and np.allclose(cell["roughness_cell"], 0.04)
+    assert set(node) == {"Elevation", "Elevation_zb"}
+    assert np.array_equal(node["Elevation_zb"], node["Elevation"])
+    assert np.allclose(cell["roughness_cell"], 0.04)
     with pytest.raises(ValueError):
         grid_attributes(pkg, "other")
     with pytest.raises(ValueError):

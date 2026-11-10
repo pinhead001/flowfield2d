@@ -27,21 +27,32 @@ carried over; the inputs behind it can.
 
 ## Evidence
 - CGNS layout read from two iRIC-written projects (iRIC 4.0 and 4.2.1, solver FaSTMECH 1.0 and 1.1.7); the
-  writer reproduces node attributes, link creation order, array shapes and value order.
-- FaSTMECH 1.1.7 run from the command line on two generated projects (a straight channel in metres; a bending
+  writer reproduces node attributes, link creation order, array shapes and value order. The layout of table
+  conditions and of newly created scalar conditions was taken from files written by iRIC's own library
+  (`iriclib`), called directly.
+- FaSTMECH 1.1.7 run from the command line on generated projects (a straight channel in metres; a bending
   channel from inputs in feet with per-node drag): it read the grid, discharge, stage and roughness and wrote a
   solution each time.
+- In the iRIC 4.2.1 GUI (owner, 2026-11-10): a generated FaSTMECH project opens with grid, elevation and
+  roughness; `grid.csv` imports; `elevation.tif` imports once the project coordinate system is set.
+- A real RAS 2025 project in US survey feet (terrain stack of two rasters at different cell sizes, n from
+  classification polygons, 24,000 cells), exported through the CLI: FaSTMECH 1.1.7 and Nays2DH 1.7 both read
+  the result and ran. Nays2DH after 600 s was within 0.05-0.08 m of the RAS water surface on the grid nodes;
+  FaSTMECH at template defaults did not converge. Neither figure is a calibration: the RAS state was not
+  steady and the flow split between two outlets.
 
 ## Not yet verified
-- Opening a generated `.ipro` in the iRIC GUI (the solver accepts the CGNS file; the GUI has not been tried).
-- The grid CSV layout: the header and the `N_`/`C_` column prefixes come from the iRIC exporter plugin; 0-based
-  indices, zero K and Z, and blank cell values on the last rows are assumptions until one import is tried.
-- GeoTIFF import without a CRS.
-- Nays2DH and other solvers: grid attributes are written from the solver's `definition.xml`, but their
-  time-series (functional) conditions and boundary-condition groups are not written.
+- A Nays2DH project in the iRIC GUI. The Nays2DH run used a stand-in template built in scratch from the
+  solver definition, because no GUI-saved Nays2DH project was at hand; production use needs a template saved
+  by iRIC.
+- Solvers other than FaSTMECH and Nays2DH: grid attributes are written from the solver's `definition.xml`,
+  conditions are not.
+- Solver boundary-condition groups (`ZoneBC`) and time series other than the Nays2DH discharge and stage
+  series are not written.
 
 ## Consequences
-- New modules `curvigrid`, `export.iric`, `export.iric_project`, `engines.ras2025.export`; CLI
+- New modules `curvigrid`, `export.iric`, `export.iric_project`, `engines.ras2025.export`, and
+  `roughness.rasterize_n`; CLI
   `flowfield2d export iric`. No new dependencies.
 - An iRIC update that changes the project layout shows up as a solver or GUI failure on a generated project;
   the fix is a fresh template and, if the node layout changed, a change in `iric_project`.

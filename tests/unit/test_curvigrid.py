@@ -7,7 +7,7 @@ import rasterio
 from rasterio.transform import from_origin
 from shapely.geometry import LineString
 
-from flowfield2d.curvigrid import build_grid, sample_raster
+from flowfield2d.curvigrid import build_grid, sample_raster, smooth_line
 
 
 def test_straight_channel_grid() -> None:
@@ -100,3 +100,21 @@ def test_sample_raster_stack_later_wins(tmp_path: Path) -> None:
     assert math.isclose(sample_raster([patch, base], x, y)[0], 2 * 6.0 + 3 * 6.0, abs_tol=1e-4)
     with pytest.raises(ValueError):
         sample_raster([], x, y)
+
+
+def test_smooth_line_rounds_vertices_and_keeps_ends() -> None:
+    straight = LineString([(0, 0), (40, 0), (100, 0)])
+    out = smooth_line(straight, 20.0)
+    assert np.allclose(np.array(out.coords)[:, 1], 0.0) and math.isclose(out.length, 100.0)
+    zig = LineString([(x, 3.0 * (-1) ** k) for k, x in enumerate(range(0, 201, 10))])
+    sm = smooth_line(zig, 40.0)
+    c = np.array(sm.coords)
+    assert abs(c[0, 0]) < 1e-9 and abs(c[-1, 0] - 200.0) < 1e-9      # ends stay in place along it
+    assert np.abs(c[20:-20, 1]).max() < 0.5              # 20-unit zigzag averaged out
+    corner = LineString([(0, 0), (100, 0), (100, 100)])
+    with pytest.raises(ValueError, match="fold"):
+        build_grid(corner, width=40.0, ni=101, nj=5)
+    g = build_grid(smooth_line(corner, 160.0, step=1.0), width=40.0, ni=101, nj=5)
+    assert (g.cell_areas() > 0).all()
+    with pytest.raises(ValueError):
+        smooth_line(corner, 0.0)

@@ -157,7 +157,9 @@ def grid_attributes(pkg: Package, solver: str, *, drag_depth: float | Literal["l
 
     fastmech: node `Elevation`; node `roughness` (drag coefficient) only when `drag_depth` is
     given and the package has n. "local" uses the node depth, and nodes that are dry in the model
-    state take the median wet depth. nays2dh: node `Elevation`, cell `roughness_cell` (n)."""
+    state take the median wet depth. nays2dh: node `Elevation`, node `Elevation_zb` (fixed bed) equal
+    to it, i.e. no erodible layer, which only matters with bed deformation on; cell
+    `roughness_cell` (n)."""
     if solver not in SOLVERS:
         raise ValueError(f"unknown solver {solver!r} (known: {', '.join(SOLVERS)})")
     node: dict[str, F] = {"Elevation": pkg.elevation}
@@ -176,8 +178,10 @@ def grid_attributes(pkg: Package, solver: str, *, drag_depth: float | Literal["l
                     raise ValueError("drag_depth must be positive")
                 h = np.full(pkg.elevation.shape, float(drag_depth))
             node["roughness"] = drag_from_manning(pkg.n_node, h)
-    elif pkg.n_cell is not None:
-        cell["roughness_cell"] = pkg.n_cell
+    else:
+        node["Elevation_zb"] = pkg.elevation
+        if pkg.n_cell is not None:
+            cell["roughness_cell"] = pkg.n_cell
     return node, cell
 
 

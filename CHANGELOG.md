@@ -1,10 +1,12 @@
 # Changelog
 
 ## Unreleased
-- iRIC export (ADR-0005): `curvigrid` (structured grid along a line, raster sampling), `export.iric`
-  (grid CSV, terrain/n GeoTIFF, `.tpo`, WSE points, summary; SI at the boundary), `export.iric_project`
-  (runnable `.ipro` cloned from an iRIC-saved template), `engines.ras2025.export.flow_state`, CLI
-  `flowfield2d export iric`. Checked against FaSTMECH 1.1.7 (iRIC 4.2.1) from the command line.
+- iRIC export (ADR-0005): `curvigrid` (structured grid along a line, line smoothing, raster and raster-stack
+  sampling), `export.iric` (grid CSV, terrain/n GeoTIFF, `.tpo`, WSE points, summary; SI at the boundary),
+  `export.iric_project` (runnable `.ipro` cloned from an iRIC-saved template; scalar and table conditions;
+  FaSTMECH and Nays2DH steady-state conditions), `engines.ras2025.export` (flow state, terrain layer sources,
+  n from classification polygons), `roughness.rasterize_n`, CLI `flowfield2d export iric`. Checked against
+  FaSTMECH 1.1.7 and Nays2DH 1.7 (iRIC 4.2.1) from the command line, on synthetic reaches and one real project.
 - `units.length_unit_m`: metres per length unit from a CRS WKT or sidecar unit name (foot, US survey foot,
   metre and spellings); for the consumers' terrain vertical-unit guard (A1).
 

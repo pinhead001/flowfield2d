@@ -97,6 +97,9 @@ def export_iric(
                                           "foot, US survey foot)."),
     z_unit: str = typer.Option(..., help="Unit of the terrain values."),
     layer: str = typer.Option("", help="GeoPackage layer holding the centerline."),
+    smooth: float = typer.Option(
+        0.0, help="Round the centerline over this length before building the grid "
+                  "(CRS units)."),
     roughness: Path | None = typer.Option(None, help="Manning's n raster."),
     manning_n: float | None = typer.Option(None, help="One Manning's n for the whole grid."),
     ras_n_layer: Path | None = typer.Option(None,
@@ -180,6 +183,10 @@ def export_iric(
         depth: float | Literal["local"] | None = None
         if drag_depth:
             depth = "local" if drag_depth == "local" else float(drag_depth)
+        if smooth > 0:
+            from flowfield2d.curvigrid import smooth_line
+
+            line = smooth_line(line, smooth, step=min(smooth / 10, line.length / ni / 2))
         grid = build_grid(line, width, ni, nj)
         if ras_n:
             from flowfield2d.engines.ras2025.export import polygon_n

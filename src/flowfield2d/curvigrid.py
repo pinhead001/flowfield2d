@@ -53,13 +53,43 @@ class CurviGrid:
         return np.asarray(0.5 * (d1[..., 0] * d2[..., 1] - d1[..., 1] * d2[..., 0]))
 
 
+def smooth_line(line: LineString, window: float, step: float | None = None) -> LineString:
+    """`line` resampled every `step` (default window / 10) and averaged over a moving window of
+    length `window` along it, so bends tighter than the window are rounded. The line is extended
+    straight past each end by half a window first, so an end point stays where it is unless the
+    line bends within half a window of it. Use it when `build_grid` refuses a line because
+    sections cross at sharp vertices, with `step` no larger than the grid's section spacing:
+    the result is still a polyline, and a grid finer than its vertices sees them as corners."""
+    if not window > 0:
+        raise ValueError("window must be positive")
+    length = float(line.length)
+    if length <= 0:
+        raise ValueError("line is empty")
+    ds = float(step) if step is not None else window / 10.0
+    if not ds > 0:
+        raise ValueError("step must be positive")
+    n = max(int(np.ceil(length / ds)), 1) + 1
+    ds = length / (n - 1)
+    half = max(int(round(0.5 * window / ds)), 1)
+    inner = np.array([(q.x, q.y) for q in
+                      (line.interpolate(float(v)) for v in np.linspace(0.0, length, n))])
+    steps = np.arange(1, half + 1)[:, None]
+    head = inner[0] - steps[::-1] * (inner[1] - inner[0])
+    tail = inner[-1] + steps * (inner[-1] - inner[-2])
+    pts = np.vstack([head, inner, tail])
+    csum = np.vstack([np.zeros((1, 2)), np.cumsum(pts, axis=0)])
+    out = (csum[2 * half + 1:] - csum[:-(2 * half + 1)]) / (2 * half + 1)
+    return LineString(out)
+
+
 def build_grid(centerline: LineString, width: float | ArrayLike, ni: int, nj: int) -> CurviGrid:
     """Grid of `ni` sections by `nj` nodes along `centerline`, centred on it.
 
     `width` is the full section width, one value or one per section (ni,). The tangent at a
     section is the chord between the points half a step up and down the line, which rounds
     vertices at the scale of the section spacing. ValueError if any cell has non-positive area
-    (sections cross: narrow the grid, smooth the line or use fewer sections through the bend).
+    (sections cross: narrow the grid, smooth the line with `smooth_line` or use fewer
+    sections through the bend).
     """
     if ni < 2 or nj < 2:
         raise ValueError(f"ni and nj must be at least 2 (got {ni}, {nj})")
