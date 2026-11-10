@@ -83,3 +83,20 @@ def test_sample_raster_nan_outside_and_nodata(tmp_path: Path) -> None:
     assert np.isnan(out[[0, 1, 2]]).all()        # outside, nodata cell, outside
     assert math.isclose(out[3], 2 * 0.5 + 3 * 5.0, abs_tol=1e-4)   # outer half cell: edge value
     assert np.isnan(sample_raster(p, x, y, method="nearest")[[0, 1, 2]]).all()
+
+
+def test_sample_raster_stack_later_wins(tmp_path: Path) -> None:
+    """A stack takes the last raster with a value: a patch over a base, no resampling."""
+    base = _plane(tmp_path / "base.tif")
+    patch = tmp_path / "patch.tif"                   # 0.5-unit cells over x 4..8, y 4..8
+    with rasterio.open(patch, "w", driver="GTiff", height=8, width=8, count=1, dtype="float32",
+                       transform=from_origin(4, 8, 0.5, 0.5), nodata=-9999.0) as ds:
+        ds.write(np.full((8, 8), 500.0, dtype="float32"), 1)
+    x = np.array([6.0, 12.0, 0.5])
+    y = np.array([6.0, 5.2, 9.5])
+    out = sample_raster([base, patch], x, y)
+    assert out[0] == 500.0 and math.isclose(out[1], 2 * 12.0 + 3 * 5.2, abs_tol=1e-4)
+    assert np.isnan(out[2])                          # nodata in the base, outside the patch
+    assert math.isclose(sample_raster([patch, base], x, y)[0], 2 * 6.0 + 3 * 6.0, abs_tol=1e-4)
+    with pytest.raises(ValueError):
+        sample_raster([], x, y)

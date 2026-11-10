@@ -9,7 +9,8 @@ is not a registered CRS; the summary records the scale so results map back.
 Files written by `write_package`:
 - `grid.csv`       iRIC grid CSV (Import > Grid): `IMAX,JMAX,KMAX` / counts / `I,J,K,X,Y,Z` plus
                    `N_<name>` (node) and `C_<name>` (cell) attribute columns, j outer, i inner.
-- `elevation.tif`  terrain in metres (geographic data, raster), clipped to the grid.
+- `elevation.tif`  terrain in metres (geographic data, raster), clipped to the grid; one
+                   numbered file per raster for a terrain stack.
 - `elevation.tpo`  the same as a point cloud (count line, then `x y z`), optional.
 - `manning_n.tif`  Manning's n raster, when a roughness raster is given.
 - `wse.csv`        `X,Y,WaterSurfaceElevation,...` at wet model cells (measured data).
@@ -23,7 +24,7 @@ metres, or "local" for the model depth at each node. Without it no FaSTMECH roug
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -106,10 +107,11 @@ class Package:
         return int(self.xy.shape[1])
 
 
-def prepare(grid: CurviGrid, terrain: Path, *, xy_unit_m: float, z_unit_m: float,
+def prepare(grid: CurviGrid, terrain: Path | Sequence[Path], *, xy_unit_m: float, z_unit_m: float,
             roughness: Path | float | None = None, flow: FlowState | None = None,
             wse_max_dist: float | None = None) -> Package:
-    """Sample terrain (bilinear) and Manning's n (nearest; a raster or one value) onto `grid` and
+    """`terrain` is one raster or a stack (later rasters win where they have values).
+    Sample terrain (bilinear) and Manning's n (nearest; a raster or one value) onto `grid` and
     attach the flow state. Node WSE and depth come from the nearest wet cell within
     `wse_max_dist` (CRS units; default 2 section spacings); the stages are the mean node WSE of
     the last and first sections. ValueError if any node has no terrain value."""
@@ -321,13 +323,15 @@ def summary(pkg: Package, solver: str, node: Mapping[str, Any], cell: Mapping[st
 
 def write_package(pkg: Package, out_dir: Path, *, solver: str = "fastmech",
                   drag_depth: float | Literal["local"] | None = None,
-                  terrain: Path | None = None, z_unit_m: float = 1.0,
+                  terrain: Path | Sequence[Path] | None = None, z_unit_m: float = 1.0,
                   roughness: Path | None = None, flow: FlowState | None = None,
-                  tpo_stride: int = 0, margin: float = 0.0,
+                  tpo_spacing: float = 0.0, margin: float = 0.0,
                   extra: Mapping[str, Any] | None = None) -> dict[str, Path]:
     """Write the files listed in the module docstring to `out_dir`; returns name -> path.
     Rasters are clipped to the grid's bounding box plus `margin` (source CRS units).
-    `tpo_stride` > 0 also writes every stride-th terrain cell as `elevation.tpo`."""
+    A terrain stack is written one file per raster that overlaps the grid, `elevation_1.tif`
+    upward in stack order (import them all; the highest number has priority). `tpo_spacing` > 0
+    (source CRS units) also writes the stack sampled on a square lattice as `elevation.tpo`."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     node, cell = grid_attributes(pkg, solver, drag_depth=drag_depth)
@@ -337,17 +341,21 @@ def write_package(pkg: Package, out_dir: Path, *, solver: str = "fastmech",
     bounds = (float(src_xy[..., 0].min()) - margin, float(src_xy[..., 1].min()) - margin,
               float(src_xy[..., 0].max()) + margin, float(src_xy[..., 1].max()) + margin)
     if terrain is not None:
-        paths["elevation"] = write_raster_scaled(terrain, out / "elevation.tif", xy_scale=k,
-                                                 value_scale=z_unit_m, bounds=bounds)
-        if tpo_stride > 0:
-            with rasterio.open(paths["elevation"]) as ds:
-                a = ds.read(1, masked=True).astype("f8").filled(np.nan)[::tpo_stride,
-                                                                        ::tpo_stride]
-                rows, cols = np.mgrid[0:ds.height:tpo_stride, 0:ds.width:tpo_stride]
-                t = ds.transform
-            px = t.a * (cols + 0.5) + t.b * (rows + 0.5) + t.c
-            py = t.d * (cols + 0.5) + t.e * (rows + 0.5) + t.f
-            paths["elevation_points"] = write_tpo(out / "elevation.tpo", px, py, a)
+        stack = [terrain] if isinstance(terrain, (str, Path)) else list(terrain)
+        written = 0
+        for one in stack:
+            name = "elevation" if len(stack) == 1 else f"elevation_{written + 1}"
+            try:
+                paths[name] = write_raster_scaled(Path(one), out / f"{name}.tif", xy_scale=k,
+                                                  value_scale=z_unit_m, bounds=bounds)
+            except ValueError:
+                continue                         # this raster does not reach the grid
+            written += 1
+        if tpo_spacing > 0:
+            gx, gy = np.meshgrid(np.arange(bounds[0], bounds[2] + tpo_spacing / 2, tpo_spacing),
+                                 np.arange(bounds[1], bounds[3] + tpo_spacing / 2, tpo_spacing))
+            gz = sample_raster(stack, gx, gy) * z_unit_m
+            paths["elevation_points"] = write_tpo(out / "elevation.tpo", gx * k, gy * k, gz)
     if roughness is not None:
         paths["manning_n"] = write_raster_scaled(roughness, out / "manning_n.tif", xy_scale=k,
                                                  value_scale=1.0, bounds=bounds)

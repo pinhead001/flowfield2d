@@ -11,6 +11,7 @@ units of the inputs; no unit conversion happens here.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -99,18 +100,31 @@ def build_grid(centerline: LineString, width: float | ArrayLike, ni: int, nj: in
     return grid
 
 
-def sample_raster(raster: Path, x: ArrayLike, y: ArrayLike, *,
+def sample_raster(raster: Path | Sequence[Path], x: ArrayLike, y: ArrayLike, *,
                   method: Literal["bilinear", "nearest"] = "bilinear", band: int = 1) -> F:
     """Raster values at points (any shape; CRS coordinates of the raster). NaN outside the
     raster and where a nodata cell is involved. Bilinear interpolates between cell centres and
-    holds the edge value within the outer half cell."""
+    holds the edge value within the outer half cell. A sequence of rasters is a stack: each
+    point takes the value of the last raster that has one (no resampling of the rasters)."""
     xa = np.asarray(x, dtype=np.float64)
     ya = np.asarray(y, dtype=np.float64)
+    if method not in ("bilinear", "nearest"):
+        raise ValueError(f"unknown method {method!r}")
+    stack = [raster] if isinstance(raster, (str, Path)) else list(raster)
+    if not stack:
+        raise ValueError("no raster given")
+    out = np.full(xa.size, np.nan)
+    for one in stack:
+        v = _sample_one(Path(one), xa.ravel(), ya.ravel(), method, band)
+        out = np.where(np.isfinite(v), v, out)
+    return out.reshape(xa.shape)
+
+
+def _sample_one(raster: Path, xr: F, yr: F, method: str, band: int) -> F:
     with rasterio.open(raster) as ds:
         a = np.asarray(ds.read(band, masked=True).astype("f8").filled(np.nan), dtype=np.float64)
         inv = ~ds.transform
         h, w = ds.height, ds.width
-    xr, yr = xa.ravel(), ya.ravel()
     col = inv.a * xr + inv.b * yr + inv.c
     row = inv.d * xr + inv.e * yr + inv.f
     inside = (col >= 0) & (col <= w) & (row >= 0) & (row <= h)
@@ -119,10 +133,8 @@ def sample_raster(raster: Path, x: ArrayLike, y: ArrayLike, *,
         r = np.clip(np.floor(row[inside]).astype(np.int64), 0, h - 1)
         c = np.clip(np.floor(col[inside]).astype(np.int64), 0, w - 1)
         out[inside] = a[r, c]
-    elif method == "bilinear":
+    else:
         coords = np.vstack([np.clip(row[inside] - 0.5, 0, h - 1),
                             np.clip(col[inside] - 0.5, 0, w - 1)])
         out[inside] = map_coordinates(a, coords, order=1, mode="nearest")
-    else:
-        raise ValueError(f"unknown method {method!r}")
-    return out.reshape(xa.shape)
+    return out

@@ -84,7 +84,10 @@ def runs_worker(
 @export_app.command("iric")
 def export_iric(
     out: Path = typer.Option(..., help="Output folder."),
-    terrain: Path = typer.Option(..., help="Terrain raster."),
+    terrain: list[Path] = typer.Option([],
+        help="Terrain raster (repeat for a stack; later ones cover earlier ones)."),
+    ras_terrain: Path | None = typer.Option(None,
+        help="RAS terrain layer (.h5) instead of --terrain: its rasters, in its order."),
     centerline: Path = typer.Option(..., help="Line along the flow, upstream to downstream: a "
                                               "WKT text file, or a GeoPackage with --layer."),
     width: float = typer.Option(..., help="Grid width across the line (terrain CRS units)."),
@@ -96,6 +99,12 @@ def export_iric(
     layer: str = typer.Option("", help="GeoPackage layer holding the centerline."),
     roughness: Path | None = typer.Option(None, help="Manning's n raster."),
     manning_n: float | None = typer.Option(None, help="One Manning's n for the whole grid."),
+    ras_n_layer: Path | None = typer.Option(None,
+        help="RAS n-value layer (.h5), with --ras-class-layer: n from its class polygons."),
+    ras_class_layer: Path | None = typer.Option(None,
+        help="RAS classification layer (.h5) of --ras-n-layer."),
+    n_res: float = typer.Option(0.0,
+        help="Cell size of the n raster built from RAS layers (CRS units)."),
     results: Path | None = typer.Option(None, help="RAS 2025 result file for the flow state."),
     area: str = typer.Option("", help="2D area name (default: the only one)."),
     time_index: int = typer.Option(-1, help="Output index (negative counts from the end)."),
@@ -108,12 +117,15 @@ def export_iric(
     solver: str = typer.Option("fastmech", help="fastmech or nays2dh."),
     drag_depth: str = typer.Option("", help="FaSTMECH only: depth in m for Cd = g n^2/h^(1/3), "
                                             "or 'local' for the model depth at each node."),
-    tpo_stride: int = typer.Option(0, help="Also write every Nth terrain cell as a .tpo cloud."),
+    tpo_spacing: float = typer.Option(0.0,
+        help="Also write the terrain as a .tpo cloud at this spacing (CRS units)."),
     margin: float = typer.Option(0.0, help="Raster clip margin around the grid (CRS units)."),
     template: Path | None = typer.Option(None, help="iRIC project (.ipro) saved by iRIC for the "
                                                     "solver; writes project.ipro from it."),
     definition: Path | None = typer.Option(None, help="The solver's definition.xml (fills "
                                                       "grid attributes left at defaults)."),
+    duration: float = typer.Option(0.0,
+        help="Nays2DH project only: seconds to hold the steady discharge and stage."),
 ) -> None:
     """Write an iRIC grid, geographic data and flow summary (and, with --template, a project)."""
     from shapely import wkt
@@ -139,11 +151,18 @@ def export_iric(
             if not isinstance(geom, LineString):
                 raise ValueError(f"{centerline}: expected a LINESTRING")
             line = geom
-        if roughness is not None and manning_n is not None:
-            raise ValueError("give --roughness or --manning-n, not both")
+        ras_n = ras_n_layer is not None or ras_class_layer is not None
+        if sum([roughness is not None, manning_n is not None, ras_n]) > 1:
+            raise ValueError("give one of --roughness, --manning-n or the RAS n layers")
+        if bool(terrain) == (ras_terrain is not None):
+            raise ValueError("give --terrain or --ras-terrain (one of them)")
+        if ras_terrain is not None:
+            from flowfield2d.engines.ras2025.export import terrain_sources
+
+            terrain = terrain_sources(ras_terrain)
         k_xy, k_z = length_unit_m(xy_unit), length_unit_m(z_unit)
         flow = None
-        extra: dict[str, object] = {"terrain": terrain.name}
+        extra: dict[str, object] = {"terrain": [t.name for t in terrain]}
         if results is not None:
             from flowfield2d.engines.ras2025.export import flow_state
             from flowfield2d.engines.ras2025.results import ResultsReader
@@ -162,21 +181,44 @@ def export_iric(
         if drag_depth:
             depth = "local" if drag_depth == "local" else float(drag_depth)
         grid = build_grid(line, width, ni, nj)
+        if ras_n:
+            from flowfield2d.engines.ras2025.export import polygon_n
+            from flowfield2d.roughness import rasterize_n
+
+            if ras_n_layer is None or ras_class_layer is None or not n_res > 0:
+                raise ValueError("--ras-n-layer, --ras-class-layer and --n-res go together")
+            pairs, default_n = polygon_n(ras_class_layer, ras_n_layer)
+            pad = max(margin, n_res)
+            gx, gy = grid.xy[..., 0], grid.xy[..., 1]
+            box = (float(gx.min()) - pad, float(gy.min()) - pad,
+                   float(gx.max()) + pad, float(gy.max()) + pad)
+            roughness = rasterize_n(pairs, default_n, box, n_res, out / "n_source.tif")
         rough: Path | float | None = roughness if roughness is not None else manning_n
         pkg = iric.prepare(grid, terrain, xy_unit_m=k_xy, z_unit_m=k_z, roughness=rough,
                            flow=flow)
         paths = iric.write_package(pkg, out, solver=solver, drag_depth=depth,
                                    terrain=terrain, z_unit_m=k_z, roughness=roughness, flow=flow,
-                                   tpo_stride=tpo_stride, margin=margin, extra=extra)
+                                   tpo_spacing=tpo_spacing, margin=margin, extra=extra)
         if template is not None:
-            from flowfield2d.export.iric_project import fastmech_conditions, write_project
+            from flowfield2d.export.iric_project import (
+                fastmech_conditions,
+                nays2dh_conditions,
+                write_project,
+            )
 
             node, cell = iric.grid_attributes(pkg, solver, drag_depth=depth)
-            conditions = (fastmech_conditions(pkg, roughness_by_node="roughness" in node)
-                          if solver == "fastmech" and flow is not None else None)
+            conditions = None
+            functions = None
+            if flow is not None and solver == "fastmech":
+                conditions = fastmech_conditions(pkg, roughness_by_node="roughness" in node)
+            elif flow is not None and solver == "nays2dh":
+                if not duration > 0:
+                    raise ValueError("--duration is required for a Nays2DH project")
+                conditions, functions = nays2dh_conditions(pkg, duration)
             paths["project"] = write_project(template, out / "project.ipro", pkg.xy, node, cell,
-                                             conditions, definition=definition)
-    except (ValueError, KeyError, IndexError) as e:
+                                             conditions, functions=functions,
+                                             definition=definition)
+    except (ValueError, KeyError, IndexError, FileNotFoundError) as e:
         raise typer.BadParameter(str(e)) from e
     for name, p in paths.items():
         typer.echo(f"{name}\t{p}")

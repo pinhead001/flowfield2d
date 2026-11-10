@@ -164,7 +164,7 @@ def test_write_package(tmp_path: Path) -> None:
     pkg = prepare(g, terrain, xy_unit_m=1.0, z_unit_m=1.0, roughness=nras, flow=flow,
                   wse_max_dist=30.0)
     paths = write_package(pkg, tmp_path / "out", solver="fastmech", drag_depth=2.0,
-                          terrain=terrain, roughness=nras, flow=flow, tpo_stride=10, margin=5.0,
+                          terrain=terrain, roughness=nras, flow=flow, tpo_spacing=10.0, margin=5.0,
                           extra={"source": "unit test"})
     assert set(paths) == {"grid", "elevation", "elevation_points", "manning_n", "wse", "summary"}
     head = paths["grid"].read_text().splitlines()
@@ -172,7 +172,7 @@ def test_write_package(tmp_path: Path) -> None:
     assert len(head) == 3 + 50
     with rasterio.open(paths["elevation"]) as ds:
         assert ds.bounds.left == 5.0 and ds.bounds.right == 195.0 and ds.bounds.top == 25.0
-    assert int(paths["elevation_points"].read_text().splitlines()[0]) == 19 * 5
+    assert int(paths["elevation_points"].read_text().splitlines()[0]) == 20 * 6
     w = paths["wse"].read_text().splitlines()
     assert w[0] == "X,Y,WaterSurfaceElevation,Depth" and len(w) == 1 + len(cells) - 1
     info = json.loads(paths["summary"].read_text())
@@ -180,3 +180,25 @@ def test_write_package(tmp_path: Path) -> None:
     assert info["node_attributes"] == ["Elevation", "roughness"]
     assert math.isclose(info["stage_downstream_m"], 102.0 - 1.85)
     assert len(info["wse_profile"]) == 10 and info["roughness"]["fastmech_drag_depth"] == 2.0
+
+
+def test_write_package_terrain_stack(tmp_path: Path) -> None:
+    base = _raster(tmp_path / "base.tif", lambda x, y: 10.0 + 0.0 * x)
+    patch = tmp_path / "patch.tif"                       # 0.5-unit cells over x 50..100, y -5..5
+    with rasterio.open(patch, "w", driver="GTiff", height=20, width=100, count=1,
+                       dtype="float32", transform=from_origin(50, 5, 0.5, 0.5),
+                       nodata=-9999.0) as ds:
+        ds.write(np.full((20, 100), 7.0, dtype="float32"), 1)
+    far = tmp_path / "far.tif"                           # nowhere near the grid
+    with rasterio.open(far, "w", driver="GTiff", height=2, width=2, count=1, dtype="float32",
+                       transform=from_origin(5000, 5000, 1, 1), nodata=-9999.0) as ds:
+        ds.write(np.zeros((2, 2), dtype="float32"), 1)
+    g = _grid()
+    pkg = prepare(g, [base, far, patch], xy_unit_m=1.0, z_unit_m=1.0)
+    on_patch = (g.xy[..., 0] > 51) & (g.xy[..., 0] < 99) & (np.abs(g.xy[..., 1]) < 4)
+    assert on_patch.any() and np.allclose(pkg.elevation[on_patch], 7.0)
+    assert np.allclose(pkg.elevation[np.abs(g.xy[..., 1]) > 6], 10.0)
+    paths = write_package(pkg, tmp_path / "out", terrain=[base, far, patch])
+    assert {"elevation_1", "elevation_2"} <= set(paths) and "elevation_3" not in paths
+    with rasterio.open(paths["elevation_2"]) as ds:
+        assert ds.res == (0.5, 0.5) and float(ds.read(1).max()) == 7.0

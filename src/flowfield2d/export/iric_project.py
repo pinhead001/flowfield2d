@@ -16,7 +16,9 @@ CGNS-in-HDF5 layout written here (as iRIC 4 writes it; read back from its own fi
 - `GridConditions/<name>/Value` (R8 or I4) flat, i fastest: ni*nj values on nodes,
   (ni-1)*(nj-1) on cells.
 - `CalculationConditions/<name>/Value` one value (R8 or I4).
-Functional (table) conditions and boundary-condition groups are not written.
+- a table (functional) condition is `CalculationConditions/<name>` with one R8 array per column,
+  named as the definition names its parameter and values (as iRIC's own library writes them).
+Boundary-condition groups (`ZoneBC`) are not written.
 """
 
 from __future__ import annotations
@@ -78,6 +80,32 @@ def grid_attributes_of(definition: Path) -> list[GridAttribute]:
                 default = None
             out.append(GridAttribute(str(item.get("name")), str(d.get("position")),
                                      d.get("valueType") == "integer", default))
+    return out
+
+
+def conditions_of(definition: Path) -> dict[str, float | int]:
+    """Default of every scalar real or integer calculation condition in a solver's
+    `definition.xml` (what a project saved by the GUI holds before anything is changed).
+    Table, text and file conditions are left out."""
+    root = ET.parse(definition).getroot()
+    out: dict[str, float | int] = {}
+    for el in root.iter():
+        if el.tag.rsplit("}", 1)[-1] != "CalculationCondition":
+            continue
+        for item in el.iter():
+            if item.tag.rsplit("}", 1)[-1] != "Item":
+                continue
+            d = next((c for c in item if c.tag.rsplit("}", 1)[-1] == "Definition"), None)
+            if d is None or d.get("conditionType", "constant") != "constant":
+                continue
+            kind, name = d.get("valueType"), item.get("name")
+            if name is None or kind not in ("real", "integer"):
+                continue
+            try:
+                out[name] = int(d.get("default", "")) if kind == "integer" else float(
+                    d.get("default", ""))
+            except ValueError:
+                continue
     return out
 
 
@@ -149,16 +177,26 @@ def write_zone(cgns: Path, xy: ArrayLike, node_attrs: Mapping[str, ArrayLike],
         _node(zone, "ZoneBC", "ZoneBC_t", "MT")
 
 
-def set_conditions(cgns: Path, conditions: Mapping[str, float | int]) -> None:
-    """Set scalar calculation conditions that the file already holds, keeping each one's type.
-    KeyError names every condition the file lacks; ValueError for a non-integer value given to
-    an integer condition or for a condition that is not one number."""
+def set_conditions(cgns: Path, conditions: Mapping[str, float | int], *,
+                   create: bool = False) -> None:
+    """Set scalar calculation conditions, keeping each existing one's type. A condition the
+    file lacks is a KeyError (naming them all) unless `create`, which adds it as I4 for an int
+    value and R8 for a float. ValueError for a non-integer value given to an integer condition
+    or for a condition that is not one number."""
     with h5py.File(cgns, "r+") as f:
         cc = f[f"{BASE}/CalculationConditions"]
         missing = sorted(k for k in conditions if k not in cc or "Value" not in cc[k])
-        if missing:
+        if missing and not create:
             raise KeyError(f"calculation conditions not in the template: {', '.join(missing)}")
         for k, v in conditions.items():
+            if k in missing:
+                if k in cc:
+                    del cc[k]
+                is_int = isinstance(v, (int, np.integer)) and not isinstance(v, bool)
+                typ = "I4" if is_int else "R8"
+                _node(_node(cc, k, "UserDefinedData_t", "MT"), "Value", "DataArray_t", typ,
+                      np.array([v], dtype=_TYPES[typ]))
+                continue
             node = cc[k]["Value"]
             old = node[DATA]
             if old.shape != (1,) or old.dtype.kind not in "if":
@@ -168,6 +206,24 @@ def set_conditions(cgns: Path, conditions: Mapping[str, float | int]) -> None:
             new = np.array([v], dtype=old.dtype)
             del node[DATA]                       # recreate, never resize
             node.create_dataset(DATA, data=new)
+
+
+def set_functions(cgns: Path, functions: Mapping[str, Mapping[str, ArrayLike]]) -> None:
+    """Write table conditions: name -> {column name -> values}, columns of equal length named
+    as the solver definition names the parameter and values. An existing table is replaced."""
+    with h5py.File(cgns, "r+") as f:
+        cc = f[f"{BASE}/CalculationConditions"]
+        for name, columns in functions.items():
+            arrays = {k: np.asarray(v, dtype=np.float64).ravel() for k, v in columns.items()}
+            if not arrays or len({len(a) for a in arrays.values()}) != 1:
+                raise ValueError(f"table {name!r} needs columns of one length")
+            if not all(np.isfinite(a).all() for a in arrays.values()):
+                raise ValueError(f"table {name!r} has non-finite values")
+            if name in cc:
+                del cc[name]
+            node = _node(cc, name, "UserDefinedData_t", "MT")
+            for col, a in arrays.items():
+                _node(node, col, "DataArray_t", "R8", a)
 
 
 def fastmech_conditions(pkg: Package, *, roughness_by_node: bool) -> dict[str, float | int]:
@@ -188,6 +244,22 @@ def fastmech_conditions(pkg: Package, *, roughness_by_node: bool) -> dict[str, f
     }
 
 
+def nays2dh_conditions(pkg: Package, duration_s: float
+                       ) -> tuple[dict[str, float | int], dict[str, dict[str, list[float]]]]:
+    """Nays2DH conditions for one steady state held for `duration_s`: downstream water surface
+    from the time series, times in seconds, and the series itself (constant discharge and
+    downstream stage). Returns (scalars, tables). Time step, output interval and the initial
+    surface stay as the template has them."""
+    if pkg.discharge is None or pkg.stage_downstream is None:
+        raise ValueError("package has no discharge or downstream stage; a flow state is required")
+    if not duration_s > 0:
+        raise ValueError("duration_s must be positive")
+    q, h = float(pkg.discharge), float(pkg.stage_downstream)
+    return ({"j_wl": 2, "i_sec_hour": 1},
+            {"discharge_waterlevel": {"time": [0.0, float(duration_s)], "discharge": [q, q],
+                                      "water_level": [h, h]}})
+
+
 def _cgns_member(names: list[str], project_xml: bytes) -> tuple[str, str]:
     root = ET.fromstring(project_xml)
     solver = str(root.get("solverName", ""))
@@ -203,14 +275,15 @@ def write_project(template: Path, out: Path, xy: ArrayLike,
                   node_attrs: Mapping[str, ArrayLike],
                   cell_attrs: Mapping[str, ArrayLike] | None = None,
                   conditions: Mapping[str, float | int] | None = None, *,
+                  functions: Mapping[str, Mapping[str, ArrayLike]] | None = None,
                   definition: Path | None = None, solver: str | None = None) -> Path:
     """Clone `template` (.ipro) to `out` with the grid, grid attributes and conditions set.
 
     With `definition` (the solver's definition.xml) every declared real/integer node or cell
     attribute is written: ones not supplied take the definition's default, an attribute with no
     numeric default must be supplied, and a supplied name the definition lacks is an error.
-    Without it only the supplied attributes are written, as reals. `solver`, when given, must
-    match the template's solver name."""
+    Without it only the supplied attributes are written, as reals. `functions` are table
+    conditions (`set_functions`). `solver`, when given, must match the template's solver name."""
     template, out = Path(template), Path(out)
     if out.resolve() == template.resolve():
         raise ValueError("out must differ from the template")
@@ -249,6 +322,8 @@ def write_project(template: Path, out: Path, xy: ArrayLike,
             write_zone(tmp, a, node, cell, frozenset(integer))
             if conditions:
                 set_conditions(tmp, conditions)
+            if functions:
+                set_functions(tmp, functions)
             with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zout:
                 for info in zin.infolist():
                     if info.filename == member:

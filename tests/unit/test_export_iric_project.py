@@ -13,9 +13,12 @@ from numpy.typing import NDArray
 from flowfield2d.export.iric import Package
 from flowfield2d.export.iric_project import (
     _node,
+    conditions_of,
     fastmech_conditions,
     grid_attributes_of,
+    nays2dh_conditions,
     set_conditions,
+    set_functions,
     write_project,
     write_zone,
 )
@@ -174,3 +177,49 @@ def test_write_project_refusals(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="flow state"):
         fastmech_conditions(Package(xy=xy, chainage=np.arange(4.0), elevation=z),
                             roughness_by_node=True)
+
+
+NAYS_DEFINITION = """<?xml version="1.0"?>
+<SolverDefinition xmlns="www.iric.net/SolverDefinition/1.0" name="nays2dh">
+  <CalculationCondition><Tab name="t"><Content><Items>
+    <Item name="j_wl"><Definition valueType="integer" default="1"/></Item>
+    <Item name="dt"><Definition valueType="real" default="0.01"/></Item>
+    <Item name="file"><Definition valueType="filename" default=""/></Item>
+    <Item name="qt"><Definition conditionType="functional"/></Item>
+  </Items></Content></Tab></CalculationCondition>
+</SolverDefinition>"""
+
+
+def test_create_conditions_and_tables(tmp_path: Path) -> None:
+    cg = _cgns(tmp_path / "c.cgn")
+    set_conditions(cg, {"j_wl": 2, "dt": 0.5}, create=True)
+    set_functions(cg, {"discharge_waterlevel": {"time": [0, 60], "discharge": [3, 3],
+                                                "water_level": [9.5, 9.5]}})
+    set_functions(cg, {"discharge_waterlevel": {"time": [0, 60, 120], "discharge": [3, 3, 4],
+                                                "water_level": [9.5, 9.5, 9.6]}})   # replaces
+    with h5py.File(cg) as f:
+        cc = f["iRIC/CalculationConditions"]
+        assert cc["j_wl/Value/ data"].dtype == np.int32 and cc["dt/Value/ data"][0] == 0.5
+        assert cc["j_wl/Value"].attrs["type"].tolist() == [b"I4"]
+        t = cc["discharge_waterlevel"]
+        assert list(t) == ["time", "discharge", "water_level"]
+        assert t["discharge/ data"][()].tolist() == [3.0, 3.0, 4.0]
+        assert t["time"].attrs["label"].tolist() == [b"DataArray_t"]
+        assert t.attrs["label"].tolist() == [b"UserDefinedData_t"]
+    with pytest.raises(ValueError, match="one length"):
+        set_functions(cg, {"x": {"time": [0, 1], "discharge": [1]}})
+
+
+def test_conditions_of_and_nays2dh(tmp_path: Path) -> None:
+    d = tmp_path / "definition.xml"
+    d.write_text(NAYS_DEFINITION)
+    assert conditions_of(d) == {"j_wl": 1, "dt": 0.01}
+    assert isinstance(conditions_of(d)["j_wl"], int)
+    pkg = Package(xy=_xy(), chainage=np.arange(4.0), elevation=np.ones((4, 3)), discharge=2.0,
+                  stage_downstream=1.5)
+    scalars, tables = nays2dh_conditions(pkg, 3600.0)
+    assert scalars == {"j_wl": 2, "i_sec_hour": 1}
+    assert tables["discharge_waterlevel"] == {"time": [0.0, 3600.0], "discharge": [2.0, 2.0],
+                                              "water_level": [1.5, 1.5]}
+    with pytest.raises(ValueError):
+        nays2dh_conditions(pkg, 0.0)
