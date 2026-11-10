@@ -121,6 +121,28 @@ def test_to_geojson_features(tmp_path: Path) -> None:
     assert f0["properties"]["length"] == pytest.approx((500**2 + 250**2) ** 0.5, rel=0.01)
 
 
+def test_page_size_other_than_the_figure_size_raises(tmp_path: Path) -> None:
+    """A figure saved with bbox_inches="tight" has a smaller page: every fraction would shift."""
+    layout = PanelLayout(figsize_in=FIGSIZE, pages=["pageA"], axes={})
+    pdf = tmp_path / "tight.pdf"
+    fig, axs = plt.subplots(1, 2, figsize=FIGSIZE)
+    for ax, v in zip(axs, VIEWS, strict=True):
+        ax.set_xlim(v[0], v[1])
+        ax.set_ylim(v[2], v[3])
+    layout_from_figure(layout, fig, list(axs), "pageA")
+    fig.savefig(pdf, bbox_inches="tight")
+    plt.close(fig)
+    with pytest.raises(MarkupError, match="page size"):
+        annotations_to_geo(pdf, layout)
+
+
+def test_pdf_is_closed_after_reading(tmp_path: Path) -> None:
+    pdf, layout = _figure_pdf(tmp_path)
+    marked = _annotate(pdf, layout)
+    annotations_to_geo(marked, layout)
+    marked.unlink()                      # Windows refuses while the document is still open
+
+
 def test_panel_is_a_plain_record() -> None:
     p = Panel(box=(0.1, 0.1, 0.4, 0.8), view=(0.0, 1.0, 0.0, 1.0))
     assert p.box[2] == 0.4 and p.view[1] == 1.0

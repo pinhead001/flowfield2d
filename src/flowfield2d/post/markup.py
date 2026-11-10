@@ -99,27 +99,46 @@ def annotations_to_geo(pdf: Path, layout: PanelLayout,
     w_pt, h_pt = (72.0 * s for s in layout.figsize_in)
     markups: list[Markup] = []
     skipped: list[tuple[str, str, str]] = []
-    doc: Any = pymupdf.open(str(pdf))
-    for i, page in enumerate(doc):
-        if i >= len(layout.pages):
-            raise MarkupError(f"PDF page {i + 1} has no entry in the layout's pages")
-        name = layout.pages[i]
-        for a in page.annots():
-            kind = a.type[1]
-            content = str(a.info.get("content", ""))
-            if kind not in kinds:
-                skipped.append((name, kind, content))
-                continue
-            fxy = [(p[0] / w_pt, 1.0 - p[1] / h_pt) for p in a.vertices]
-            hits = [k for k, panel in enumerate(layout.axes.get(name, []))
-                    if all(panel.contains(fx, fy) for fx, fy in fxy)]
-            if len(hits) != 1:
-                where = "no panel" if not hits else f"panels {hits}"
-                raise MarkupError(f"page {name}: {kind} annotation {content!r} lies in {where}")
-            panel = layout.axes[name][hits[0]]
-            markups.append(Markup(name, hits[0], kind, content,
-                                  [panel.to_data(fx, fy) for fx, fy in fxy]))
+    with pymupdf.open(str(pdf)) as doc:
+        for i, page in enumerate(doc):
+            _check_page(page, i, layout, w_pt, h_pt)
+            name = layout.pages[i]
+            _page_markups(page, name, layout.axes.get(name, []), kinds, w_pt, h_pt, markups,
+                          skipped)
     return markups, skipped
+
+
+def _check_page(page: Any, i: int, layout: PanelLayout, w_pt: float, h_pt: float) -> None:
+    """The page must be the figure's page: `figsize x 72` points, unrotated. A figure saved
+    with `bbox_inches="tight"`, or a cropped or rotated page, would shift every fraction."""
+    if i >= len(layout.pages):
+        raise MarkupError(f"PDF page {i + 1} has no entry in the layout's pages")
+    r = page.rect
+    if abs(r.width - w_pt) > 1.0 or abs(r.height - h_pt) > 1.0 or page.rotation:
+        raise MarkupError(
+            f"page {i + 1} ({layout.pages[i]}): page size {r.width:.1f} x {r.height:.1f} pt, "
+            f"rotation {page.rotation}, is not the figure's {w_pt:.1f} x {h_pt:.1f} pt (save the "
+            "figure without bbox_inches='tight' and do not crop or rotate pages)")
+
+
+def _page_markups(page: Any, name: str, panels: Sequence[Panel], kinds: Sequence[str],
+                  w_pt: float, h_pt: float, markups: list[Markup],
+                  skipped: list[tuple[str, str, str]]) -> None:
+    for a in page.annots():
+        kind = a.type[1]
+        content = str(a.info.get("content", ""))
+        if kind not in kinds:
+            skipped.append((name, kind, content))
+            continue
+        fxy = [(p[0] / w_pt, 1.0 - p[1] / h_pt) for p in a.vertices]
+        hits = [k for k, panel in enumerate(panels)
+                if all(panel.contains(fx, fy) for fx, fy in fxy)]
+        if len(hits) != 1:
+            where = "no panel" if not hits else f"panels {hits}"
+            raise MarkupError(f"page {name}: {kind} annotation {content!r} lies in {where}")
+        panel = panels[hits[0]]
+        markups.append(Markup(name, hits[0], kind, content,
+                              [panel.to_data(fx, fy) for fx, fy in fxy]))
 
 
 def to_geojson(markups: Sequence[Markup]) -> dict[str, Any]:
