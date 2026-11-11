@@ -127,6 +127,9 @@ def export_iric(
                                                     "solver; writes project.ipro from it."),
     definition: Path | None = typer.Option(None, help="The solver's definition.xml (fills "
                                                       "grid attributes left at defaults)."),
+    condition: list[str] = typer.Option(
+        [], help="Project only: NAME=VALUE for a scalar solver condition in the template "
+                 "(repeat). Applied after the conditions the export sets."),
     duration: float = typer.Option(0.0,
         help="Nays2DH project only: seconds to hold the steady discharge and stage."),
 ) -> None:
@@ -222,6 +225,17 @@ def export_iric(
                 if not duration > 0:
                     raise ValueError("--duration is required for a Nays2DH project")
                 conditions, functions = nays2dh_conditions(pkg, duration)
+            if condition:
+                merged: dict[str, float | int] = dict(conditions or {})
+                for item in condition:
+                    name, sep, text = item.partition("=")
+                    if not sep or not name.strip():
+                        raise ValueError(f"--condition wants NAME=VALUE (got {item!r})")
+                    try:
+                        merged[name.strip()] = int(text)
+                    except ValueError:
+                        merged[name.strip()] = float(text)
+                conditions = merged
             paths["project"] = write_project(template, out / "project.ipro", pkg.xy, node, cell,
                                              conditions, functions=functions,
                                              definition=definition)

@@ -55,7 +55,8 @@ def test_export_iric_project(tmp_path: Path) -> None:
     (tmp_path / "definition.xml").write_text(DEFINITION)
     tmpl = _template(tmp_path)
     r = runner.invoke(app, [*_inputs(tmp_path), "--out", str(out), "--template", str(tmpl),
-                            "--definition", str(tmp_path / "definition.xml")])
+                            "--definition", str(tmp_path / "definition.xml"),
+                            "--condition", "FM_HydAttWSType=1", "--condition", "FM_HydAttWS2=7.5"])
     assert r.exit_code == 0, r.output
     with zipfile.ZipFile(out / "project.ipro") as z:
         z.extract("Case1.cgn", tmp_path / "x")
@@ -64,6 +65,8 @@ def test_export_iric_project(tmp_path: Path) -> None:
         q = f["iRIC/CalculationConditions/FM_HydAttQ/Value/ data"][0]
         assert abs(q - 5.0 * 0.3048**3) < 1e-12
         assert f["iRIC/CalculationConditions/FM_HydAttCDType/Value/ data"][0] == 0
+        assert f["iRIC/CalculationConditions/FM_HydAttWSType/Value/ data"][0] == 1
+        assert f["iRIC/CalculationConditions/FM_HydAttWS2/Value/ data"][0] == 7.5   # overrides
 
 
 def test_export_iric_bad_arguments(tmp_path: Path) -> None:
@@ -73,3 +76,12 @@ def test_export_iric_bad_arguments(tmp_path: Path) -> None:
     wide = [a if a != "0.8" else "50" for a in args]            # grid runs off the terrain
     r = runner.invoke(app, [*wide, "--out", str(tmp_path / "o")])
     assert r.exit_code != 0 and "no terrain value" in r.output
+
+
+def test_export_iric_bad_condition(tmp_path: Path) -> None:
+    (tmp_path / "definition.xml").write_text(DEFINITION)
+    tmpl = _template(tmp_path)
+    for bad in ("FM_HydAttQ", "FM_Nope=1"):
+        r = runner.invoke(app, [*_inputs(tmp_path), "--out", str(tmp_path / "o"), "--template",
+                                str(tmpl), "--condition", bad])
+        assert r.exit_code != 0

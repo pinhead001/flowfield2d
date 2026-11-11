@@ -226,6 +226,29 @@ def set_functions(cgns: Path, functions: Mapping[str, Mapping[str, ArrayLike]]) 
                 _node(node, col, "DataArray_t", "R8", a)
 
 
+def read_solution(cgns: Path, step: int = -1) -> dict[str, NDArray[np.float64]]:
+    """Grid coordinates and one solution step of a solved iRIC CGNS file, as (ni, nj) arrays
+    keyed by the solver's field names, plus `x` and `y`. `step` counts solutions in the order
+    written (negative from the end). Fields not on the grid nodes are left out."""
+    with h5py.File(cgns, "r") as f:
+        zone = f[f"{BASE}/{ZONE}"]
+        x = np.asarray(zone[f"GridCoordinates/CoordinateX/{DATA}"][()], dtype=np.float64).T
+        y = np.asarray(zone[f"GridCoordinates/CoordinateY/{DATA}"][()], dtype=np.float64).T
+        names = sorted((k for k in zone if k.startswith("FlowSolution") and k[12:].isdigit()),
+                       key=lambda k: int(k[12:]))
+        if not names:
+            raise ValueError(f"{cgns}: no solution in the file")
+        sol = zone[names[step]]
+        out: dict[str, NDArray[np.float64]] = {"x": x, "y": y}
+        for k in sol:
+            node = sol[k]
+            if isinstance(node, h5py.Group) and DATA in node:
+                a = np.asarray(node[DATA][()])
+                if a.dtype.kind in "if" and a.T.shape == x.shape:
+                    out[k] = a.T.astype(np.float64)
+    return out
+
+
 def fastmech_conditions(pkg: Package, *, roughness_by_node: bool) -> dict[str, float | int]:
     """FaSTMECH conditions for one steady state: constant discharge, constant downstream stage,
     initial water surface from the upstream stage, and node roughness when the grid carries it."""

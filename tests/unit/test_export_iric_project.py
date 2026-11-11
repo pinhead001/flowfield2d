@@ -17,6 +17,7 @@ from flowfield2d.export.iric_project import (
     fastmech_conditions,
     grid_attributes_of,
     nays2dh_conditions,
+    read_solution,
     set_conditions,
     set_functions,
     write_project,
@@ -223,3 +224,23 @@ def test_conditions_of_and_nays2dh(tmp_path: Path) -> None:
                                               "water_level": [1.5, 1.5]}
     with pytest.raises(ValueError):
         nays2dh_conditions(pkg, 0.0)
+
+
+def test_read_solution(tmp_path: Path) -> None:
+    cg = _cgns(tmp_path / "c.cgn")
+    xy = _xy()
+    write_zone(cg, xy, {"Elevation": np.zeros((4, 3))})
+    with pytest.raises(ValueError, match="no solution"):
+        read_solution(cg)
+    with h5py.File(cg, "r+") as f:
+        zone = f["iRIC/iRICZone"]
+        for n, base in ((1, 0.0), (2, 10.0), (10, 20.0)):
+            sol = _node(zone, f"FlowSolution{n}", "FlowSolution_t", "MT")
+            depth = base + np.arange(12.0).reshape(3, 4)             # stored (nj, ni)
+            _node(sol, "Depth", "DataArray_t", "R8", depth)
+            _node(sol, "CellThing", "DataArray_t", "R8", np.zeros((2, 3)))
+    last = read_solution(cg)
+    assert set(last) == {"x", "y", "Depth"} and last["Depth"].shape == (4, 3)
+    assert np.array_equal(last["x"], xy[..., 0]) and np.array_equal(last["y"], xy[..., 1])
+    assert last["Depth"][1, 0] == 21.0 and last["Depth"][0, 2] == 28.0   # step 10 is the last
+    assert read_solution(cg, 0)["Depth"][3, 2] == 11.0
