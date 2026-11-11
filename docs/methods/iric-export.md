@@ -76,6 +76,31 @@ All lengths are metres. x and y are the terrain coordinates times the metres per
 The left-hand settings are solver judgment. Review them before trusting a run; a run at the defaults can
 finish without converging.
 
+## Solver settings: starting points
+From the FaSTMECH manual (v2.1), the Nays2DH solver manual and tutorials, and test runs on one small
+split-flow channel (2026-11-11). They are starting points; pass them with `--condition NAME=VALUE`.
+
+FaSTMECH
+| Setting | Start with | Note |
+|---|---|---|
+| `FM_HydAttWSType`, `FM_HydAttWS1DCD` | 2 (1D step-backwater); 1D drag 0.05-0.2 | The initial surface fixes which nodes are wet. Too low a drag leaves a dry section and the solver stops at the first iteration ("Error at qprms"); too high floods the grid. Expect to tune it per discharge. |
+| `FM_HydAttLEVType`, `FM_HydAttEVC` | Constant; (0.001 to 0.01) x depth x velocity, m2/s | The manual's rule. On cells well under 1 m wide, values of 0.01 and above diverged in testing; 0.001-0.003 held. |
+| `FM_SolAttERlx`, `FM_SolAttURlx`, `FM_SolAttARlx` | 0.3, 0.5, 0.5 | The defaults (0.4, 0.2, 0.2) drifted upward after about 1,000 iterations in testing. |
+| `FM_SolAttItm` | 3,000-6,000 | Converged means the mean error on discharge is flat and under 1-2 %. |
+| `FM_HydAttCalcWetting` | Off | Re-wetting stopped the solver in every test on a wide, mostly dry grid. |
+
+Nays2DH
+| Setting | Start with | Note |
+|---|---|---|
+| `dt` | Well under the smallest cell size / (velocity + sqrt(g x depth)) | 0.05 s ran on 0.35 m cells at 0.5 m depth. |
+| `i_flow` | 2 (uniform flow) | A constant-slope initial surface (0) failed at once on a wide, mostly dry grid. |
+| `j_upv`, `j_upv_slope`, `upv_slope` | 1, 1, the reach slope | The slope taken from the grid's upstream end is noisy on a wide grid. |
+| `j_cip`, `j_snu` | Defaults (CIP, zero-equation) | `j_snu` and `n_parallel` need `edition` = 1. |
+| Duration, `tuk` | Three to five travel times of the reach; output interval about a tenth of that | Check that the last outputs no longer change. |
+
+Both solvers take one stage across the whole downstream section. Where the source model has outlets at
+different levels on that section, the second solver cannot reproduce both.
+
 ## Roughness
 - Nays2DH: Manning's n per cell (`roughness_cell`). The fixed-bed elevation `Elevation_zb` is written equal
   to the bed (no erodible layer), which only matters with bed deformation on.
