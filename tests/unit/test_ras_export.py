@@ -39,7 +39,7 @@ def test_flow_state_in_si(tmp_path: Path) -> None:
     assert s.cell_xy[:2].tolist() == [[0.5, 0.5], [1.5, 0.5]]  # coordinates stay in CRS units
     assert np.allclose(s.wse[:2], np.array([101.0, 103.0]) * FT)
     assert s.depth is not None and np.allclose(s.depth[:2], np.array([1.0, 2.0]) * FT)
-    assert s.speed is not None and np.allclose(s.speed[:2], 0.5 * FT)
+    assert s.velocity is not None and np.allclose(s.velocity[:2], 0.5 * FT)
     assert np.isnan(s.wse[2])                                 # dry cell
 
 

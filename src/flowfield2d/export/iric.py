@@ -78,7 +78,7 @@ class FlowState:
     cell_xy: F
     wse: F
     depth: F | None = None
-    speed: F | None = None
+    velocity: F | None = None
 
 
 @dataclass(frozen=True)
@@ -393,8 +393,8 @@ def write_package(pkg: Package, out_dir: Path, *, solver: str = "fastmech",
         columns: dict[str, ArrayLike] = {"WaterSurfaceElevation": flow.wse}
         if flow.depth is not None:
             columns["Depth"] = flow.depth
-        if flow.speed is not None:
-            columns["Velocity"] = flow.speed
+        if flow.velocity is not None:
+            columns["Velocity"] = flow.velocity
         paths["wse"] = write_points_csv(out / "wse.csv", flow.cell_xy[:, 0] * k,
                                         flow.cell_xy[:, 1] * k, columns)
     info = summary(pkg, solver, node, cell, drag_depth, extra)

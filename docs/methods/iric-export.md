@@ -34,7 +34,7 @@ For Nays2DH: `--solver nays2dh --duration <seconds>` with a Nays2DH template and
 | `elevation.tif`, or `elevation_1.tif` ... for a stack | Import > Geographic Data > Elevation. Set the project coordinate system in iRIC first; the importer asks for it. For a stack import every file; the highest number has priority. |
 | `elevation.tpo` | The same terrain as a point cloud (`--tpo-spacing`). |
 | `manning_n.tif` | Geographic data for a roughness attribute that takes n. |
-| `wse.csv` | Import > Measured Data: the source model's WSE, depth and speed at wet cells. |
+| `wse.csv` | Import > Measured Data: the source model's WSE, depth and velocity at wet cells. |
 | `summary.json` | Discharge, downstream and upstream stage, WSE by section, units. |
 | `project.ipro` | Open directly (with `--template`). |
 

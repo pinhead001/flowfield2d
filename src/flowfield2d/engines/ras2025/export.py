@@ -46,7 +46,7 @@ def flow_state(results: ResultsReader, area: str, t: int, unit_m: float, *,
     table = cell_table_from_results(results, area, k, unit_m, min_depth)
     return FlowState(discharge=float(discharge),
                      cell_xy=np.column_stack([table["x"], table["y"]]),
-                     wse=table["wse_m"], depth=table["depth_m"], speed=table["vel_mps"])
+                     wse=table["wse_m"], depth=table["depth_m"], velocity=table["vel_mps"])
 
 
 def _text(v: Any) -> str:
