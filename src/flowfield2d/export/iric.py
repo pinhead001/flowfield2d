@@ -107,14 +107,40 @@ class Package:
         return int(self.xy.shape[1])
 
 
+def _spacing(flow: FlowState) -> float:
+    """Median distance from a wet cell to its nearest wet neighbour (0 with fewer than two)."""
+    ok = np.isfinite(np.asarray(flow.wse, dtype=np.float64))
+    pts = np.asarray(flow.cell_xy, dtype=np.float64)[ok]
+    if len(pts) < 2:
+        return 0.0
+    dist, _ = cKDTree(pts).query(pts, k=2)
+    return float(np.median(dist[:, 1]))
+
+
+def _end_stage(wse: F, dist: F, limit: float) -> float | None:
+    """Mean water surface of the first section (in the order given) that has any, no farther
+    than `limit` from the end: model cell centres sit inside the boundary, so on a fine grid
+    the end section itself can have none within reach."""
+    for row, d in zip(wse, dist, strict=True):
+        if d > limit:
+            break
+        ok = np.isfinite(row)
+        if ok.any():
+            return float(row[ok].mean())
+    return None
+
+
 def prepare(grid: CurviGrid, terrain: Path | Sequence[Path], *, xy_unit_m: float, z_unit_m: float,
             roughness: Path | float | None = None, flow: FlowState | None = None,
             wse_max_dist: float | None = None) -> Package:
     """`terrain` is one raster or a stack (later rasters win where they have values).
     Sample terrain (bilinear) and Manning's n (nearest; a raster or one value) onto `grid` and
     attach the flow state. Node WSE and depth come from the nearest wet cell within
-    `wse_max_dist` (CRS units; default 2 section spacings); the stages are the mean node WSE of
-    the last and first sections. ValueError if any node has no terrain value."""
+    `wse_max_dist` (CRS units; default the larger of 2 section spacings and 1.5 times the
+    typical spacing of the wet cells, so a grid finer than the source model still finds
+    them); the stages are the mean node WSE of the end sections, or of the nearest section
+    within twice that distance when an end section has none. ValueError if any node has no
+    terrain value."""
     x, y = grid.xy[..., 0], grid.xy[..., 1]
     z = sample_raster(terrain, x, y) * z_unit_m
     if not np.isfinite(z).all():
@@ -137,15 +163,15 @@ def prepare(grid: CurviGrid, terrain: Path | Sequence[Path], *, xy_unit_m: float
     wse = depth = None
     q = ds = us = None
     if flow is not None:
-        step = float(grid.s[1] - grid.s[0])
-        reach = 2.0 * step if wse_max_dist is None else float(wse_max_dist)
+        if wse_max_dist is None:
+            reach = max(2.0 * float(grid.s[1] - grid.s[0]), 1.5 * _spacing(flow))
+        else:
+            reach = float(wse_max_dist)
         wse = nearest_values(flow.cell_xy, flow.wse, grid.xy, reach)
         depth = np.where(np.isfinite(wse), np.maximum(wse - z, 0.0), np.nan)
         q = float(flow.discharge)
-        if np.isfinite(wse[-1]).any():
-            ds = float(np.nanmean(wse[-1]))
-        if np.isfinite(wse[0]).any():
-            us = float(np.nanmean(wse[0]))
+        ds = _end_stage(wse[::-1], grid.s[-1] - grid.s[::-1], 2.0 * reach)
+        us = _end_stage(wse, grid.s - grid.s[0], 2.0 * reach)
     return Package(xy=grid.xy * xy_unit_m, chainage=grid.s * xy_unit_m, elevation=z,
                    n_node=n_node, n_cell=n_cell, wse=wse, depth=depth, discharge=q,
                    stage_downstream=ds, stage_upstream=us, xy_unit_m=float(xy_unit_m))

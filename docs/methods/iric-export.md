@@ -80,6 +80,13 @@ finish without converging.
 From the FaSTMECH manual (v2.1), the Nays2DH solver manual and tutorials, and test runs on one small
 split-flow channel (2026-11-11). They are starting points; pass them with `--condition NAME=VALUE`.
 
+FaSTMECH needs a grid whose centerline follows the flow. On a wide grid laid along the valley, with a
+narrow channel meandering inside it, the solution pooled 0.4-0.5 m above the source model and stopped or
+drifted at every setting tried; halving the cell size once removed the stops but not the pooling, and
+halving it again diverged. A grid 40 ft wide along the channel itself converged at every initial surface
+tried and matched within 0.03 m. Use one channel-following grid per flow path, and Nays2DH where one grid
+has to span several paths.
+
 FaSTMECH
 | Setting | Start with | Note |
 |---|---|---|

@@ -204,3 +204,33 @@ def test_write_package_terrain_stack(tmp_path: Path) -> None:
     assert {"elevation_1", "elevation_2"} <= set(paths) and "elevation_3" not in paths
     with rasterio.open(paths["elevation_2"]) as ds:
         assert ds.res == (0.5, 0.5) and float(ds.read(1).max()) == 7.0
+
+
+def test_prepare_fine_grid_still_finds_coarse_cells(tmp_path: Path) -> None:
+    """Sections 1 unit apart over model cells 10 units apart: the default search reach follows
+    the cell spacing, so every section still gets a water surface."""
+    terrain = _raster(tmp_path / "z.tif", lambda x, y: 0.0 * x)
+    g = build_grid(LineString([(10, 0), (190, 0)]), width=10.0, ni=181, nj=3)
+    cells = np.array([[x, 0.0] for x in np.arange(5.0, 200.0, 10.0)])
+    flow = FlowState(discharge=1.0, cell_xy=cells, wse=np.full(len(cells), 2.0))
+    pkg = prepare(g, terrain, xy_unit_m=1.0, z_unit_m=1.0, flow=flow)
+    assert pkg.wse is not None and np.isfinite(pkg.wse[:, 1]).all()
+    assert pkg.stage_downstream == 2.0 and pkg.stage_upstream == 2.0
+    tight = prepare(g, terrain, xy_unit_m=1.0, z_unit_m=1.0, flow=flow, wse_max_dist=1.0)
+    assert tight.wse is not None and not np.isfinite(tight.wse[:, 1]).all()
+
+
+def test_stage_from_nearest_section_inside_the_end(tmp_path: Path) -> None:
+    """Cells stop short of the grid ends: the stages come from the nearest sections that have
+    a water surface, but not from farther than twice the search reach."""
+    terrain = _raster(tmp_path / "z.tif", lambda x, y: 0.0 * x)
+    g = build_grid(LineString([(10, 0), (190, 0)]), width=10.0, ni=181, nj=3)
+    cells = np.array([[x, 0.0] for x in np.arange(14.0, 187.0, 1.0)])
+    flow = FlowState(discharge=1.0, cell_xy=cells, wse=3.0 - 0.01 * cells[:, 0])
+    pkg = prepare(g, terrain, xy_unit_m=1.0, z_unit_m=1.0, flow=flow, wse_max_dist=1.5)
+    assert pkg.wse is not None and not np.isfinite(pkg.wse[0]).any()
+    assert pkg.stage_upstream is not None and pkg.stage_downstream is not None
+    assert math.isclose(pkg.stage_upstream, 3.0 - 0.14, abs_tol=1e-9)
+    assert math.isclose(pkg.stage_downstream, 3.0 - 1.86, abs_tol=1e-9)
+    far = prepare(g, terrain, xy_unit_m=1.0, z_unit_m=1.0, flow=flow, wse_max_dist=0.6)
+    assert far.stage_upstream is None and far.stage_downstream is None
