@@ -22,6 +22,12 @@ dependencies = [
 flowfield2d = "flowfield2d.cli:app"
 agentops = "flowfield2d.agentops.cli:main"
 
+[project.optional-dependencies]
+# post/markup: reading PDF annotations drawn on review figures.
+markup = ["pymupdf>=1.24"]
+# figure-side helpers (post/markup.layout_from_figure records matplotlib panel boxes).
+plots = ["matplotlib>=3.8"]
+
 [dependency-groups]
 dev = [
     "pytest>=8.0",
