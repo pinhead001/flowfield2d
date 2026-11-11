@@ -30,13 +30,22 @@ def _read(stdin: TextIO) -> dict[str, Any]:
 
 
 def _deny(stdout: TextIO, reason: str) -> None:
-    stdout.write(json.dumps({"hookSpecificOutput": {
-        "hookEventName": "PreToolUse", "permissionDecision": "deny",
-        "permissionDecisionReason": reason}}))
+    stdout.write(
+        json.dumps(
+            {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": reason,
+                }
+            }
+        )
+    )
 
 
-def check(cfg: AgentOpsConfig, tool: str, tool_input: Any,
-          now: datetime | None = None) -> str | None:
+def check(
+    cfg: AgentOpsConfig, tool: str, tool_input: Any, now: datetime | None = None
+) -> str | None:
     """Return a denial reason, or None to defer to the normal permission flow."""
     blob = json.dumps(tool_input, default=str).lower()
     for s in cfg.hooks.deny_substrings:
@@ -54,8 +63,9 @@ def check(cfg: AgentOpsConfig, tool: str, tool_input: Any,
     return None
 
 
-def pre_tool_use(cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO,
-                 now: datetime | None = None) -> None:
+def pre_tool_use(
+    cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO, now: datetime | None = None
+) -> None:
     d = _read(stdin)
     tool = d.get("tool_name")
     if not isinstance(tool, str):
@@ -65,15 +75,19 @@ def pre_tool_use(cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO,
         _deny(stdout, reason)
 
 
-def session_start(cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO,
-                  now: datetime | None = None) -> None:
+def session_start(
+    cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO, now: datetime | None = None
+) -> None:
     _read(stdin)
     try:
         text = governor.render(governor.status(cfg, now=now))
     except Exception as e:  # noqa: BLE001 - never block session start
         text = f"governor: unavailable ({e})"
-    stdout.write(json.dumps({"hookSpecificOutput": {
-        "hookEventName": "SessionStart", "additionalContext": text}}))
+    stdout.write(
+        json.dumps(
+            {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": text}}
+        )
+    )
 
 
 def task_completed(cfg: AgentOpsConfig, stdin: TextIO, stderr: TextIO) -> int:
@@ -83,10 +97,12 @@ def task_completed(cfg: AgentOpsConfig, stdin: TextIO, stderr: TextIO) -> int:
     if not cmd:
         return 0
     cwd = Path(str(d.get("cwd") or "."))
-    p = subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True,
-                       encoding="utf-8", errors="replace")
+    p = subprocess.run(
+        cmd, cwd=cwd, shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace"
+    )
     if p.returncode == 0:
         return 0
-    stderr.write(f"acceptance failed ({cmd}, exit {p.returncode}):\n"
-                 f"{(p.stdout + p.stderr)[-3000:]}\n")
+    stderr.write(
+        f"acceptance failed ({cmd}, exit {p.returncode}):\n{(p.stdout + p.stderr)[-3000:]}\n"
+    )
     return 2

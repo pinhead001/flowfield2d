@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- agentops: brought level with the standalone `agentops` package (its Unreleased lead usability pass): queue
+  state `archived`, `cards show | diff | new | accept | reject`, `cards list --state S --json`, add-time
+  validation of `base` and `depends_on`, `gov check`, `ledger --card --kind`, 7-day tokens per quota pool in
+  `gov status`, one-line CLI errors, restage once after a refused commit. New module `agentops/review.py`.
 - `units.length_unit_m`: metres per length unit from a CRS WKT or sidecar unit name (foot, US survey foot,
   metre and spellings); for the consumers' terrain vertical-unit guard (A1).
 

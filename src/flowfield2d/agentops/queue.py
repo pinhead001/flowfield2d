@@ -1,12 +1,15 @@
 """TOML task cards and a directory-backed queue.
 
 A card targets exactly one repo. States are directories under the queue:
-pending, running, done, escalated. Moving a file is the state change.
+pending, running, done (delegate finished, awaiting the lead's review), escalated
+(the lead must finish or decide) and archived (reviewed and accepted). Moving a
+file is the state change.
 """
 
 from __future__ import annotations
 
 import os
+import subprocess
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -16,7 +19,8 @@ from filelock import FileLock
 
 from flowfield2d.agentops.config import AgentOpsConfig
 
-STATES = ("pending", "running", "done", "escalated")
+STATES = ("pending", "running", "done", "escalated", "archived")
+FINISHED = ("done", "archived")  # states that satisfy another card's depends_on
 REQUIRED = ("id", "repo", "title", "prompt", "acceptance")
 
 
@@ -47,10 +51,17 @@ class Card:
         if not all(c.isalnum() or c in "-_." for c in cid):
             raise CardError(f"card id must be [A-Za-z0-9._-]: {cid!r}")
         return cls(
-            id=cid, repo=str(d["repo"]), title=str(d["title"]), prompt=str(d["prompt"]),
-            acceptance=str(d["acceptance"]), base=str(d.get("base", "main")),
-            model=d.get("model"), print_timeout=d.get("print_timeout"),
-            max_retries=d.get("max_retries"), depends_on=list(d.get("depends_on", [])), raw=d,
+            id=cid,
+            repo=str(d["repo"]),
+            title=str(d["title"]),
+            prompt=str(d["prompt"]),
+            acceptance=str(d["acceptance"]),
+            base=str(d.get("base", "main")),
+            model=d.get("model"),
+            print_timeout=d.get("print_timeout"),
+            max_retries=d.get("max_retries"),
+            depends_on=list(d.get("depends_on", [])),
+            raw=d,
         )
 
     @classmethod
@@ -70,12 +81,34 @@ class Queue:
         card = Card.load(path)
         if card.repo not in self.cfg.repos:
             raise CardError(f"unknown repo {card.repo!r}; known: {sorted(self.cfg.repos)}")
+        if not self._ref_exists(self.cfg.repos[card.repo], card.base):
+            raise CardError(f"base {card.base!r} is not a ref in repo {card.repo!r}")
         with self._lock:
             if self.state_of(card.id) is not None:
                 raise CardError(f"card {card.id} already queued")
+            unknown = [d for d in card.depends_on if self.state_of(d) is None]
+            if unknown:
+                raise CardError(f"depends_on names cards not in the queue: {', '.join(unknown)}")
             (self.root / "pending" / f"{card.id}.toml").write_text(
-                path.read_text(encoding="utf-8"), encoding="utf-8")
+                path.read_text(encoding="utf-8"), encoding="utf-8"
+            )
         return card
+
+    @staticmethod
+    def _ref_exists(repo: Path, ref: str) -> bool:
+        if not repo.is_dir():
+            return False
+        r = subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+        )
+        return r.returncode == 0
+
+    def blocked_by(self, card: Card) -> list[str]:
+        """Dependencies of a pending card that are not finished yet."""
+        return [d for d in card.depends_on if self.state_of(d) not in FINISHED]
 
     def state_of(self, card_id: str) -> str | None:
         for s in STATES:
@@ -87,8 +120,19 @@ class Queue:
         return [Card.load(p) for p in sorted((self.root / state).glob("*.toml"))]
 
     def ready(self) -> list[Card]:
-        done = {p.stem for p in (self.root / "done").glob("*.toml")}
-        return [c for c in self.cards("pending") if set(c.depends_on) <= done]
+        return [c for c in self.cards("pending") if not self.blocked_by(c)]
+
+    def review(self, card_id: str, decision: str, reason: str = "") -> str:
+        """Record the lead's decision on a `done` card: accept -> archived, reject -> escalated."""
+        target = {"accept": "archived", "reject": "escalated"}[decision]
+        with self._lock:
+            cur = self.state_of(card_id)
+            if cur is None:
+                raise CardError(f"card {card_id} not in queue")
+            if cur != "done":
+                raise CardError(f"card {card_id} is {cur}, not done; only done cards are reviewed")
+            self._move(card_id, target)
+        return target
 
     def claim_next(self) -> Card | None:
         with self._lock:

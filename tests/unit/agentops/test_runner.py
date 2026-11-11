@@ -1,6 +1,4 @@
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -9,41 +7,8 @@ from flowfield2d.agentops import ledger, runner
 from flowfield2d.agentops.config import AgentOpsConfig
 from flowfield2d.agentops.queue import Card, CardError, Queue
 
-FAKE = Path(__file__).resolve().parents[2] / "fixtures" / "fake_agy.py"
-ACCEPT = ('python -c "import pathlib,sys; '
-          "sys.exit(0 if pathlib.Path('hello.txt').read_text()=='hi' else 1)\"")
-
-
-def _git(cwd: Path, *a: str) -> str:
-    return subprocess.run(["git", *a], cwd=cwd, check=True, capture_output=True,
-                          text=True).stdout.strip()
-
-
-@pytest.fixture
-def repo_cfg(cfg: AgentOpsConfig, monkeypatch: pytest.MonkeyPatch,
-             tmp_path: Path) -> AgentOpsConfig:
-    repo = cfg.repos["lib"]
-    repo.mkdir(parents=True)
-    _git(repo, "init", "-q", "-b", "main")
-    _git(repo, "config", "user.email", "t@example.com")
-    _git(repo, "config", "user.name", "T")
-    (repo / "README").write_text("x")
-    _git(repo, "add", "-A")
-    _git(repo, "commit", "-q", "-m", "init")
-    cfg.agy.command = [sys.executable, str(FAKE)]
-    monkeypatch.setenv("FAKE_AGY_LOG", str(tmp_path / "agy_calls.jsonl"))
-    monkeypatch.delenv("FAKE_AGY_MODE", raising=False)
-    return cfg
-
-
-def _card(cfg: AgentOpsConfig, prompt: str = "WRITE hello.txt=hi", **kw: object) -> Card:
-    fields = {"id": "c1", "repo": "lib", "title": "hello", "prompt": prompt,
-              "acceptance": ACCEPT, **kw}
-    body = "\n".join(f"{k} = {json.dumps(v)}" for k, v in fields.items())
-    p = cfg.state_dir / "incoming.toml"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(body, encoding="utf-8")
-    return Queue(cfg).add(p)
+from .conftest import git as _git
+from .conftest import make_card as _card
 
 
 def test_card_validation(cfg: AgentOpsConfig) -> None:
@@ -55,9 +20,8 @@ def test_card_validation(cfg: AgentOpsConfig) -> None:
 
 def test_claim_respects_dependencies(repo_cfg: AgentOpsConfig) -> None:
     q = Queue(repo_cfg)
-    _card(repo_cfg, id="c2", depends_on=["c1"])
-    assert q.claim_next() is None
     _card(repo_cfg)
+    _card(repo_cfg, id="c2", depends_on=["c1"])
     claimed = q.claim_next()
     assert claimed is not None and claimed.id == "c1"
     q.move("c1", "done")
@@ -92,8 +56,9 @@ def test_run_card_argv(repo_cfg: AgentOpsConfig, tmp_path: Path) -> None:
     assert argv[argv.index("--print-timeout") + 1] == "1m"
 
 
-def test_acceptance_failure_retries_then_escalates(repo_cfg: AgentOpsConfig,
-                                                  tmp_path: Path) -> None:
+def test_acceptance_failure_retries_then_escalates(
+    repo_cfg: AgentOpsConfig, tmp_path: Path
+) -> None:
     card = _card(repo_cfg, prompt="WRITE hello.txt=nope")
     res = runner.run_card(repo_cfg, card)
     assert res.state == "escalated" and res.attempts == 2
@@ -104,7 +69,8 @@ def test_acceptance_failure_retries_then_escalates(repo_cfg: AgentOpsConfig,
 
 
 def test_success_envelope_with_empty_response_is_a_failed_call(
-        repo_cfg: AgentOpsConfig, monkeypatch: pytest.MonkeyPatch) -> None:
+    repo_cfg: AgentOpsConfig, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("FAKE_AGY_MODE", "denied")
     res = runner.run_card(repo_cfg, _card(repo_cfg))
     assert res.state == "escalated"
@@ -115,11 +81,40 @@ def test_success_envelope_with_empty_response_is_a_failed_call(
 def test_pre_acceptance_runs_before_acceptance(repo_cfg: AgentOpsConfig) -> None:
     # The delegate writes the wrong text; a mechanical pre-acceptance step repairs it.
     repo_cfg.agy.pre_acceptance = [
-        'python -c "import pathlib; pathlib.Path(\'hello.txt\').write_text(\'hi\')"',
+        "python -c \"import pathlib; pathlib.Path('hello.txt').write_text('hi')\"",
         'python -c "import sys; sys.exit(5)"',  # failures here are ignored
     ]
     res = runner.run_card(repo_cfg, _card(repo_cfg, prompt="WRITE hello.txt=nope"))
     assert res.state == "done" and res.attempts == 1
+
+
+def _pre_commit_hook(repo: Path, body: str) -> None:
+    hook = repo / ".git" / "hooks" / "pre-commit"
+    hook.write_text("#!/bin/sh\n" + body + "\n", encoding="utf-8", newline="\n")
+    hook.chmod(0o755)
+
+
+def test_commit_restaged_after_a_formatting_hook(repo_cfg: AgentOpsConfig) -> None:
+    # Like ruff-format: the hook rewrites a file and fails; the restaged second commit passes.
+    _pre_commit_hook(
+        repo_cfg.repos["lib"],
+        "if [ -f formatted.txt ] && git diff --quiet; then exit 0; fi\n"
+        "echo formatted > formatted.txt\nexit 1",
+    )
+    res = runner.run_card(repo_cfg, _card(repo_cfg))
+    assert res.state == "done", res
+    assert _git(repo_cfg.repos["lib"], "show", "card/c1:formatted.txt") == "formatted"
+    assert Queue(repo_cfg).state_of("c1") == "done"
+
+
+def test_refused_commit_escalates_instead_of_raising(repo_cfg: AgentOpsConfig) -> None:
+    _pre_commit_hook(repo_cfg.repos["lib"], "echo 'refused by hook' >&2\nexit 1")
+    res = runner.run_card(repo_cfg, _card(repo_cfg))
+    assert res.state == "escalated" and res.attempts == 1
+    assert "refused by hook" in res.detail
+    assert Queue(repo_cfg).state_of("c1") == "escalated"
+    saved = json.loads((repo_cfg.results_dir / "c1.json").read_text())
+    assert saved["state"] == "escalated" and "commit refused" in saved["detail"]
 
 
 def test_ledger_keeps_response_tail(repo_cfg: AgentOpsConfig) -> None:
@@ -127,8 +122,9 @@ def test_ledger_keeps_response_tail(repo_cfg: AgentOpsConfig) -> None:
     assert ledger.read(repo_cfg.ledger_path)[-1]["response_tail"] == "done"
 
 
-def test_quota_event_requeues_and_saves_raw(repo_cfg: AgentOpsConfig,
-                                           monkeypatch: pytest.MonkeyPatch) -> None:
+def test_quota_event_requeues_and_saves_raw(
+    repo_cfg: AgentOpsConfig, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("FAKE_AGY_MODE", "quota")
     card = _card(repo_cfg)
     res = runner.run_card(repo_cfg, card)
@@ -141,8 +137,9 @@ def test_quota_event_requeues_and_saves_raw(repo_cfg: AgentOpsConfig,
     assert recs[-1]["kind"] == "quota" and recs[-1]["pool"] == "b"
 
 
-def test_print_timeout_is_flagged(repo_cfg: AgentOpsConfig,
-                                  monkeypatch: pytest.MonkeyPatch) -> None:
+def test_print_timeout_is_flagged(
+    repo_cfg: AgentOpsConfig, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("FAKE_AGY_MODE", "timeout")
     runner.run_card(repo_cfg, _card(repo_cfg))
     rec = [r for r in ledger.read(repo_cfg.ledger_path) if r["kind"] == "agy"][-1]

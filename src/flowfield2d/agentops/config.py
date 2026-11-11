@@ -22,7 +22,7 @@ class GovernorConfig:
     conserve_min_remaining: float
     weekly_pace_slack: float
     unknown_mode: str
-    profile: str = ""                                    # active set in [governor.profiles], if any
+    profile: str = ""  # active set in [governor.profiles], if any
     profiles: list[str] = field(default_factory=list)
 
 
@@ -104,8 +104,9 @@ def _governor(g: dict[str, Any]) -> GovernorConfig:
     t = g
     if profiles:
         if name not in profiles:
-            raise KeyError(f"governor profile {name!r} not in [governor.profiles] "
-                           f"({', '.join(profiles)})")
+            raise KeyError(
+                f"governor profile {name!r} not in [governor.profiles] ({', '.join(profiles)})"
+            )
         t = profiles[name]
     return GovernorConfig(
         normal_min_remaining=float(t["normal_min_remaining"]),
@@ -131,7 +132,7 @@ def set_governor_profile(path: Path | str, name: str) -> None:
         raise KeyError(f"unknown governor profile {name!r} ({', '.join(profiles)})")
     new, n = _PROFILE_LINE.subn(lambda m: f"{m.group(1)}{name}{m.group(2)}", text, count=1)
     if n != 1:
-        raise ValueError(f"{src}: no profile = \"...\" line under [governor]")
+        raise ValueError(f'{src}: no profile = "..." line under [governor]')
     src.write_text(new, encoding="utf-8")
 
 
@@ -155,8 +156,10 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
         governor=_governor(g),
         agy=AgyConfig(
             command=list(exe) if isinstance(exe, list) else [str(exe)],
-            models=([str(m) for m in a.get("models", [])]
-                    or ([str(a["model"])] if a.get("model") else [])),
+            models=(
+                [str(m) for m in a.get("models", [])]
+                or ([str(a["model"])] if a.get("model") else [])
+            ),
             pools={str(k): [str(m) for m in v] for k, v in a.get("pools", {}).items()},
             default_cooldown_min=float(a.get("default_cooldown_min", 60)),
             print_timeout=str(a["print_timeout"]),
@@ -174,6 +177,7 @@ def load_config(path: Path | str | None = None) -> AgentOpsConfig:
             teammate_tools=[str(x) for x in h.get("teammate_tools", [])],
             task_acceptance=str(h.get("task_acceptance", "")),
         ),
-        extra={k: v for k, v in raw.items()
-               if k not in {"paths", "repos", "governor", "agy", "hooks"}},
+        extra={
+            k: v for k, v in raw.items() if k not in {"paths", "repos", "governor", "agy", "hooks"}
+        },
     )
