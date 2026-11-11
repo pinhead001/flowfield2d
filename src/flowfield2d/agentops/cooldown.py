@@ -23,8 +23,10 @@ def parse_reset(text: str) -> timedelta | None:
     m = RESET_RE.search(text)
     if not m:
         return None
-    secs = sum(int(n) * UNIT_S[u.lower()] for n, u in re.findall(r"(\d+)\s*([dhms])", m.group(1),
-                                                                    re.IGNORECASE))
+    secs = sum(
+        int(n) * UNIT_S[u.lower()]
+        for n, u in re.findall(r"(\d+)\s*([dhms])", m.group(1), re.IGNORECASE)
+    )
     return timedelta(seconds=secs)
 
 
@@ -60,8 +62,9 @@ def set_cooldown(cfg: AgentOpsConfig, pool: str, until: datetime) -> None:
     write_json_atomic(_path(cfg), {k: v.isoformat() for k, v in data.items()})
 
 
-def choose_model(cfg: AgentOpsConfig, preferred: str | None,
-                 now: datetime | None = None) -> str | None:
+def choose_model(
+    cfg: AgentOpsConfig, preferred: str | None, now: datetime | None = None
+) -> str | None:
     """The card's own model if its pool is free, else None; without one, the first free model."""
     cooling = active(cfg, now)
     if preferred:
@@ -72,8 +75,9 @@ def choose_model(cfg: AgentOpsConfig, preferred: str | None,
     return None
 
 
-def record_quota(cfg: AgentOpsConfig, model: str, text: str,
-                 now: datetime | None = None) -> datetime:
+def record_quota(
+    cfg: AgentOpsConfig, model: str, text: str, now: datetime | None = None
+) -> datetime:
     now = now or datetime.now(UTC)
     delta = parse_reset(text) or timedelta(minutes=cfg.agy.default_cooldown_min)
     until = now + delta

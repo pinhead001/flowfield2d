@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- agentops: brought level with the standalone `agentops` package (its Unreleased lead usability pass): queue
+  state `archived`, `cards show | diff | new | accept | reject`, `cards list --state S --json`, add-time
+  validation of `base` and `depends_on`, `gov check`, `ledger --card --kind`, 7-day tokens per quota pool in
+  `gov status`, one-line CLI errors, restage once after a refused commit. New module `agentops/review.py`.
 - iRIC export (ADR-0005): `curvigrid` (structured grid along a line, line smoothing, raster and raster-stack
   sampling), `export.iric` (grid CSV, terrain/n GeoTIFF, `.tpo`, WSE points, summary; SI at the boundary),
   `export.iric_project` (runnable `.ipro` cloned from an iRIC-saved template; scalar and table conditions;

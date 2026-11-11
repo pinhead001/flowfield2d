@@ -244,3 +244,29 @@ def test_read_solution(tmp_path: Path) -> None:
     assert np.array_equal(last["x"], xy[..., 0]) and np.array_equal(last["y"], xy[..., 1])
     assert last["Depth"][1, 0] == 21.0 and last["Depth"][0, 2] == 28.0   # step 10 is the last
     assert read_solution(cg, 0)["Depth"][3, 2] == 11.0
+
+
+def test_write_project_adds_declared_conditions(tmp_path: Path) -> None:
+    """A condition the definition declares but the template lacks is added with its type."""
+    tmpl = _template(tmp_path)
+    d = tmp_path / "definition.xml"
+    d.write_text(DEFINITION.replace("<GridRelatedCondition>", """<CalculationCondition>
+    <Item name="FM_Stage1D"><Definition valueType="real" default="100"/></Item>
+    <Item name="FM_Mode"><Definition valueType="integer" default="0"/></Item>
+  </CalculationCondition>
+  <GridRelatedCondition>"""))
+    xy, z = _xy(), np.ones((4, 3))
+    out = write_project(tmpl, tmp_path / "o.ipro", xy, {"Elevation": z},
+                        conditions={"FM_Stage1D": 3, "FM_Mode": 2, "FM_HydAttQ": 4.0},
+                        definition=d)
+    with zipfile.ZipFile(out) as zf:
+        zf.extract("Case1.cgn", tmp_path / "y")
+    with h5py.File(tmp_path / "y" / "Case1.cgn") as f:
+        cc = f["iRIC/CalculationConditions"]
+        assert cc["FM_Stage1D/Value/ data"].dtype == np.float64
+        assert cc["FM_Stage1D/Value/ data"][0] == 3.0
+        assert cc["FM_Mode/Value/ data"].dtype == np.int32 and cc["FM_Mode/Value/ data"][0] == 2
+        assert cc["FM_HydAttQ/Value/ data"][0] == 4.0
+    with pytest.raises(KeyError, match="FM_Unknown"):
+        write_project(tmpl, tmp_path / "p.ipro", xy, {"Elevation": z},
+                      conditions={"FM_Unknown": 1.0}, definition=d)

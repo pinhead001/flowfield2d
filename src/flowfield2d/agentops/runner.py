@@ -46,8 +46,9 @@ def _child_env() -> dict[str, str]:
 
 
 def _git(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True,
-                          encoding="utf-8", errors="replace")
+    return subprocess.run(
+        ["git", *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace"
+    )
 
 
 def ensure_worktree(cfg: AgentOpsConfig, card: Card) -> tuple[Path, str]:
@@ -58,8 +59,11 @@ def ensure_worktree(cfg: AgentOpsConfig, card: Card) -> tuple[Path, str]:
         return wt, branch
     _git(repo, "worktree", "prune")
     exists = _git(repo, "rev-parse", "--verify", "--quiet", branch).returncode == 0
-    args = ["worktree", "add", str(wt), branch] if exists else \
-        ["worktree", "add", "-b", branch, str(wt), card.base]
+    args = (
+        ["worktree", "add", str(wt), branch]
+        if exists
+        else ["worktree", "add", "-b", branch, str(wt), card.base]
+    )
     r = _git(repo, *args)
     if r.returncode != 0:
         raise RuntimeError(f"git worktree add failed: {r.stderr.strip()}")
@@ -77,7 +81,7 @@ def agy_argv(cfg: AgentOpsConfig, card: Card, prompt: str, model: str | None = N
 
 def _envelope(stdout: str) -> dict[str, Any]:
     text = stdout.strip()
-    for candidate in (text, text[text.find("{"):] if "{" in text else ""):
+    for candidate in (text, text[text.find("{") :] if "{" in text else ""):
         try:
             d = json.loads(candidate)
             if isinstance(d, dict):
@@ -88,8 +92,16 @@ def _envelope(stdout: str) -> dict[str, Any]:
 
 
 def _shell(cmd: str, cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True,
-                          encoding="utf-8", errors="replace", env=_child_env())
+    return subprocess.run(
+        cmd,
+        cwd=cwd,
+        shell=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=_child_env(),
+    )
 
 
 def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
@@ -105,24 +117,46 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
         model = cooldown.choose_model(cfg, card.model)
         if model is None and (card.model or cfg.agy.models):
             q.move(card.id, "pending")
-            result = RunResult(card.id, "quota", attempt, wt, branch,
-                               f"all delegate pools cooling: {cooldown.active(cfg)}")
+            result = RunResult(
+                card.id,
+                "quota",
+                attempt,
+                wt,
+                branch,
+                f"all delegate pools cooling: {cooldown.active(cfg)}",
+            )
             break
         attempt += 1
         argv = agy_argv(cfg, card, prompt, model)
         t0 = time.monotonic()
-        p = subprocess.run(argv, cwd=wt, capture_output=True, text=True, encoding="utf-8",
-                           errors="replace", env=_child_env())
+        p = subprocess.run(
+            argv,
+            cwd=wt,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=_child_env(),
+        )
         env = _envelope(p.stdout)
         usage = env.get("usage") if isinstance(env.get("usage"), dict) else {}
         response = str(env.get("response") or "")
         # A headless auto-deny reports SUCCESS with exit 0 and an empty response.
-        ok_call = (p.returncode == 0 and str(env.get("status", "")).upper() != "ERROR"
-                   and bool(response.strip()))
+        ok_call = (
+            p.returncode == 0
+            and str(env.get("status", "")).upper() != "ERROR"
+            and bool(response.strip())
+        )
         rec: dict[str, Any] = {
-            "ts": datetime.now(UTC).isoformat(), "kind": "agy", "card": card.id,
-            "repo": card.repo, "attempt": attempt, "model": model or "",
-            "exit": p.returncode, "status": env.get("status"), "ok": ok_call,
+            "ts": datetime.now(UTC).isoformat(),
+            "kind": "agy",
+            "card": card.id,
+            "repo": card.repo,
+            "attempt": attempt,
+            "model": model or "",
+            "exit": p.returncode,
+            "status": env.get("status"),
+            "ok": ok_call,
             "total_tokens": usage.get("total_tokens") if usage else None,
             "duration_seconds": env.get("duration_seconds"),
             "wall_seconds": round(time.monotonic() - t0, 2),
@@ -136,15 +170,26 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
 
         if not ok_call and QUOTA_RE.search(p.stderr + p.stdout):
             until = cooldown.record_quota(cfg, model or "", p.stderr + p.stdout)
-            rec_q = {"ts": datetime.now(UTC).isoformat(), "kind": "quota", "card": card.id,
-                     "model": model, "pool": cooldown.pool_of(cfg, model or ""),
-                     "until": until.isoformat()}
+            rec_q = {
+                "ts": datetime.now(UTC).isoformat(),
+                "kind": "quota",
+                "card": card.id,
+                "model": model,
+                "pool": cooldown.pool_of(cfg, model or ""),
+                "until": until.isoformat(),
+            }
             ledger.append(cfg.ledger_path, rec_q)
             cfg.quota_events_dir.mkdir(parents=True, exist_ok=True)
             stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
-            ledger.write_json_atomic(cfg.quota_events_dir / f"{stamp}-{card.id}.json",
-                                     {"argv_tail": argv[3:], "exit": p.returncode,
-                                      "stdout": p.stdout, "stderr": p.stderr})
+            ledger.write_json_atomic(
+                cfg.quota_events_dir / f"{stamp}-{card.id}.json",
+                {
+                    "argv_tail": argv[3:],
+                    "exit": p.returncode,
+                    "stdout": p.stdout,
+                    "stderr": p.stderr,
+                },
+            )
             if cooldown.choose_model(cfg, card.model) is not None:
                 attempt -= 1  # another pool is free: a quota hit is not a failed attempt
                 continue
@@ -161,19 +206,31 @@ def run_card(cfg: AgentOpsConfig, card: Card) -> RunResult:
             model = rec["model"] or "default"
             msg = f"card {card.id}: {card.title}\n\nImplemented by agy ({model})."
             c = _git(wt, "commit", "-q", "--allow-empty", "-m", msg)
-            if c.returncode != 0:
-                raise RuntimeError(f"commit failed: {c.stderr.strip()}")
+            if c.returncode != 0:  # a formatting hook may have rewritten files: restage once
+                _git(wt, "add", "-A")
+                c = _git(wt, "commit", "-q", "--allow-empty", "-m", msg)
+            if c.returncode != 0:  # the lead finishes it; raising left the card in running/
+                out = (c.stdout + c.stderr).strip()[-900:]
+                result = RunResult(
+                    card.id, "escalated", attempt, wt, branch, f"commit refused: {out}"
+                )
+                break
             q.move(card.id, "done")
             result = RunResult(card.id, "done", attempt, wt, branch)
             break
         out = (acc.stdout + acc.stderr)[-TAIL:]
         if not ok_call:
             out = f"delegate stderr: {p.stderr[-1500:]}\n{out}"[-TAIL:]
-        why = f"delegate call failed (exit {p.returncode}, status {env.get('status')})" \
-            if not ok_call else "acceptance command failed"
-        prompt = (f"{card.prompt}\n\n---\nPrevious attempt {attempt}: {why}.\n"
-                  f"Acceptance command: {card.acceptance}\nAcceptance output (tail):\n{out}\n"
-                  "Fix the code so the acceptance command passes. Do not edit the tests.")
+        why = (
+            f"delegate call failed (exit {p.returncode}, status {env.get('status')})"
+            if not ok_call
+            else "acceptance command failed"
+        )
+        prompt = (
+            f"{card.prompt}\n\n---\nPrevious attempt {attempt}: {why}.\n"
+            f"Acceptance command: {card.acceptance}\nAcceptance output (tail):\n{out}\n"
+            "Fix the code so the acceptance command passes. Do not edit the tests."
+        )
         result = RunResult(card.id, "escalated", attempt, wt, branch, out[-1000:])
 
     assert result is not None

@@ -306,7 +306,9 @@ def write_project(template: Path, out: Path, xy: ArrayLike,
     attribute is written: ones not supplied take the definition's default, an attribute with no
     numeric default must be supplied, and a supplied name the definition lacks is an error.
     Without it only the supplied attributes are written, as reals. `functions` are table
-    conditions (`set_functions`). `solver`, when given, must match the template's solver name."""
+    conditions (`set_functions`). `solver`, when given, must match the template's solver name.
+    A condition the template lacks is an error unless the definition declares it as a scalar:
+    the GUI leaves out conditions whose option was never switched on, so those are added."""
     template, out = Path(template), Path(out)
     if out.resolve() == template.resolve():
         raise ValueError("out must differ from the template")
@@ -344,7 +346,15 @@ def write_project(template: Path, out: Path, xy: ArrayLike,
                 fh.write(zin.read(member))
             write_zone(tmp, a, node, cell, frozenset(integer))
             if conditions:
-                set_conditions(tmp, conditions)
+                known = conditions_of(definition) if definition is not None else {}
+                typed: dict[str, float | int] = {
+                    k: (int(v) if isinstance(known.get(k), int) and float(v) == int(v)
+                        else float(v) if k in known and not isinstance(known[k], int) else v)
+                    for k, v in conditions.items()}
+                declared_only = {k: v for k, v in typed.items() if k in known}
+                others = {k: v for k, v in typed.items() if k not in known}
+                set_conditions(tmp, declared_only, create=True)
+                set_conditions(tmp, others)
             if functions:
                 set_functions(tmp, functions)
             with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zout:

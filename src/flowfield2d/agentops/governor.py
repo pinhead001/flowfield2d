@@ -16,7 +16,7 @@ calibration minus ledger tokens since then divided by `tokens_per_pct`
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -42,6 +42,7 @@ class Status:
     agy_concurrency: int
     usage_updated_at: str | None
     agy_cooldowns: dict[str, str]
+    agy_tokens_7d: dict[str, int] = field(default_factory=dict)  # per quota pool
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -74,8 +75,9 @@ def _last_calibration(cfg: AgentOpsConfig) -> dict[str, Any] | None:
 
 def calibrate(cfg: AgentOpsConfig, agy_remaining_pct: float, now: datetime | None = None) -> None:
     now = now or datetime.now(UTC)
-    ledger.append(cfg.calibration_path,
-                  {"ts": now.isoformat(), "agy_remaining_pct": float(agy_remaining_pct)})
+    ledger.append(
+        cfg.calibration_path, {"ts": now.isoformat(), "agy_remaining_pct": float(agy_remaining_pct)}
+    )
 
 
 def status(cfg: AgentOpsConfig, now: datetime | None = None) -> Status:
@@ -114,8 +116,10 @@ def status(cfg: AgentOpsConfig, now: datetime | None = None) -> Status:
     tokens_since = 0
     agy_remaining: float | None = None
     if cal is not None:
-        tokens_since = sum(int(r.get("total_tokens") or 0)
-                           for r in ledger.since(calls, datetime.fromisoformat(cal["ts"])))
+        tokens_since = sum(
+            int(r.get("total_tokens") or 0)
+            for r in ledger.since(calls, datetime.fromisoformat(cal["ts"]))
+        )
         agy_remaining = float(cal["agy_remaining_pct"])
         if cfg.agy.tokens_per_pct > 0:
             agy_remaining = max(0.0, agy_remaining - tokens_since / cfg.agy.tokens_per_pct)
@@ -129,10 +133,28 @@ def status(cfg: AgentOpsConfig, now: datetime | None = None) -> Status:
     cooling = cooldown.active(cfg, now)
     if cooldown.choose_model(cfg, None, now) is None and (cfg.agy.models or cooling):
         conc = 0
+    tokens_7d: dict[str, int] = {}
+    for r in ledger.since(calls, now - timedelta(seconds=WEEK_S)):
+        pool = cooldown.pool_of(cfg, str(r.get("model") or ""))
+        tokens_7d[pool] = tokens_7d.get(pool, 0) + int(r.get("total_tokens") or 0)
 
-    return Status(mode, reason, five, five_reset, seven, seven_reset, pace_ok, agy_remaining,
-                  cal["ts"] if cal else None, tokens_since, errors, conc,
-                  usage.get("updated_at"), {k: v.isoformat() for k, v in cooling.items()})
+    return Status(
+        mode,
+        reason,
+        five,
+        five_reset,
+        seven,
+        seven_reset,
+        pace_ok,
+        agy_remaining,
+        cal["ts"] if cal else None,
+        tokens_since,
+        errors,
+        conc,
+        usage.get("updated_at"),
+        {k: v.isoformat() for k, v in cooling.items()},
+        agy_tokens_7d=tokens_7d,
+    )
 
 
 def _fmt_reset(epoch: int | None) -> str:
@@ -149,14 +171,23 @@ def render(s: Status) -> str:
     agy = pct(s.agy_remaining_pct)
     if s.agy_calibrated_at:
         agy += f" (calibrated {s.agy_calibrated_at[:16]}, +{s.agy_tokens_since_calibration} tok)"
-    return "\n".join([
-        f"governor: {s.mode} ({s.reason})",
-        f"claude 5h used {pct(s.five_hour_used)} resets {_fmt_reset(s.five_hour_resets_at)}; "
-        f"7d used {pct(s.seven_day_used)} resets {_fmt_reset(s.seven_day_resets_at)}; "
-        f"weekly pace {pace}",
-        f"agy remaining {agy}; recent errors {s.agy_errors_recent}; "
-        f"concurrency {s.agy_concurrency}",
-        "agy cooldowns: " + (", ".join(f"{k} until {v[:16]}" for k, v in s.agy_cooldowns.items())
-                             or "none"),
-        f"meter updated {s.usage_updated_at or 'never'}",
-    ])
+    return "\n".join(
+        [
+            f"governor: {s.mode} ({s.reason})",
+            f"claude 5h used {pct(s.five_hour_used)} resets {_fmt_reset(s.five_hour_resets_at)}; "
+            f"7d used {pct(s.seven_day_used)} resets {_fmt_reset(s.seven_day_resets_at)}; "
+            f"weekly pace {pace}",
+            f"agy remaining {agy}; recent errors {s.agy_errors_recent}; "
+            f"concurrency {s.agy_concurrency}",
+            "agy cooldowns: "
+            + (", ".join(f"{k} until {v[:16]}" for k, v in s.agy_cooldowns.items()) or "none"),
+            "agy 7d tokens: "
+            + (", ".join(f"{k} {v}" for k, v in sorted(s.agy_tokens_7d.items())) or "none"),
+            f"meter updated {s.usage_updated_at or 'never'}",
+        ]
+    )
+
+
+def headline(s: Status) -> str:
+    """The first line of `render`: mode and reason."""
+    return render(s).splitlines()[0]

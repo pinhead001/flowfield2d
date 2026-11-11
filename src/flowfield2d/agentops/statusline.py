@@ -35,9 +35,11 @@ def run(cfg: AgentOpsConfig, stdin: TextIO, stdout: TextIO, now: datetime | None
     except json.JSONDecodeError:
         payload = {}
     rl = payload.get("rate_limits") if isinstance(payload, dict) else None
-    usage: dict[str, Any] = {"updated_at": now.isoformat(),
-                             "five_hour": _window(rl, "five_hour"),
-                             "seven_day": _window(rl, "seven_day")}
+    usage: dict[str, Any] = {
+        "updated_at": now.isoformat(),
+        "five_hour": _window(rl, "five_hour"),
+        "seven_day": _window(rl, "seven_day"),
+    }
     try:
         write_json_atomic(cfg.claude_usage_path, usage)
     except OSError:

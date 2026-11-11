@@ -1,6 +1,6 @@
 import io
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from flowfield2d.agentops import governor, ledger, statusline
 from flowfield2d.agentops.config import AgentOpsConfig
@@ -16,8 +16,12 @@ def test_config_resolves_relative_paths(cfg: AgentOpsConfig) -> None:
 
 
 def test_statusline_writes_usage(cfg: AgentOpsConfig) -> None:
-    payload = {"rate_limits": {"five_hour": {"used_percentage": 23.5, "resets_at": T + 3600},
-                               "seven_day": {"used_percentage": 41.2}}}
+    payload = {
+        "rate_limits": {
+            "five_hour": {"used_percentage": 23.5, "resets_at": T + 3600},
+            "seven_day": {"used_percentage": 41.2},
+        }
+    }
     out = io.StringIO()
     statusline.run(cfg, io.StringIO(json.dumps(payload)), out, now=NOW)
     data = json.loads(cfg.claude_usage_path.read_text())
@@ -33,18 +37,32 @@ def test_statusline_survives_garbage(cfg: AgentOpsConfig) -> None:
     assert data["five_hour"]["used_percentage"] == "unknown"
 
 
-def _usage(cfg: AgentOpsConfig, five: float | str, seven: float | str,
-           seven_reset: int | str = T + 3 * 86400) -> None:
+def _usage(
+    cfg: AgentOpsConfig,
+    five: float | str,
+    seven: float | str,
+    seven_reset: int | str = T + 3 * 86400,
+) -> None:
     cfg.claude_usage_path.parent.mkdir(parents=True, exist_ok=True)
-    cfg.claude_usage_path.write_text(json.dumps({
-        "five_hour": {"used_percentage": five, "resets_at": T + 3600},
-        "seven_day": {"used_percentage": seven, "resets_at": seven_reset}}))
+    cfg.claude_usage_path.write_text(
+        json.dumps(
+            {
+                "five_hour": {"used_percentage": five, "resets_at": T + 3600},
+                "seven_day": {"used_percentage": seven, "resets_at": seven_reset},
+            }
+        )
+    )
 
 
 def test_mode_thresholds(cfg: AgentOpsConfig) -> None:
     # 3 days left of 7 -> elapsed 4/7 = 57%; pace limit 67%
-    for five, mode in [(10, "normal"), (40.1, "conserve"), (74, "conserve"),
-                       (80, "review-only"), (100, "wait")]:
+    for five, mode in [
+        (10, "normal"),
+        (40.1, "conserve"),
+        (74, "conserve"),
+        (80, "review-only"),
+        (100, "wait"),
+    ]:
         _usage(cfg, five, 30)
         assert governor.status(cfg, now=NOW).mode == mode, five
 
@@ -63,17 +81,23 @@ def test_unknown_usage_uses_unknown_mode(cfg: AgentOpsConfig) -> None:
 
 def test_expired_window_counts_as_reset(cfg: AgentOpsConfig) -> None:
     cfg.claude_usage_path.parent.mkdir(parents=True, exist_ok=True)
-    cfg.claude_usage_path.write_text(json.dumps({
-        "five_hour": {"used_percentage": 100, "resets_at": T - 10},
-        "seven_day": {"used_percentage": 30, "resets_at": T + 3 * 86400}}))
+    cfg.claude_usage_path.write_text(
+        json.dumps(
+            {
+                "five_hour": {"used_percentage": 100, "resets_at": T - 10},
+                "seven_day": {"used_percentage": 30, "resets_at": T + 3 * 86400},
+            }
+        )
+    )
     assert governor.status(cfg, now=NOW).mode == "normal"
 
 
 def test_agy_concurrency_halves_on_errors_and_stops_low(cfg: AgentOpsConfig) -> None:
     _usage(cfg, 10, 30)
     assert governor.status(cfg, now=NOW).agy_concurrency == 2
-    ledger.append(cfg.ledger_path, {"ts": NOW.isoformat(), "kind": "agy", "ok": False,
-                                    "total_tokens": 5})
+    ledger.append(
+        cfg.ledger_path, {"ts": NOW.isoformat(), "kind": "agy", "ok": False, "total_tokens": 5}
+    )
     assert governor.status(cfg, now=NOW).agy_concurrency == 1
     governor.calibrate(cfg, agy_remaining_pct=5, now=NOW)
     s = governor.status(cfg, now=NOW)
@@ -83,7 +107,34 @@ def test_agy_concurrency_halves_on_errors_and_stops_low(cfg: AgentOpsConfig) -> 
 def test_agy_estimate_uses_tokens_since_calibration(cfg: AgentOpsConfig) -> None:
     governor.calibrate(cfg, agy_remaining_pct=50, now=NOW)
     later = NOW.replace(hour=13)
-    ledger.append(cfg.ledger_path, {"ts": later.isoformat(), "kind": "agy", "ok": True,
-                                    "total_tokens": 3000})
+    ledger.append(
+        cfg.ledger_path, {"ts": later.isoformat(), "kind": "agy", "ok": True, "total_tokens": 3000}
+    )
     cfg.agy.tokens_per_pct = 100
     assert governor.status(cfg, now=later).agy_remaining_pct == 20
+
+
+def test_status_sums_7d_tokens_per_pool(cfg: AgentOpsConfig) -> None:
+    _usage(cfg, 10, 30)
+    rows = [
+        (NOW - timedelta(days=1), "m1", 1000),
+        (NOW - timedelta(days=2), "m1", 500),
+        (NOW - timedelta(hours=1), "m2", 70),
+        (NOW - timedelta(days=8), "m1", 999_999),  # outside the window
+        (NOW - timedelta(hours=2), "other", 5),  # not in any pool: its own pool
+    ]
+    for ts, model, tok in rows:
+        ledger.append(
+            cfg.ledger_path,
+            {"ts": ts.isoformat(), "kind": "agy", "ok": True, "model": model, "total_tokens": tok},
+        )
+    s = governor.status(cfg, now=NOW)
+    assert s.agy_tokens_7d == {"a": 1500, "b": 70, "other": 5}
+    text = governor.render(s)
+    assert "agy 7d tokens" in text and "a 1500" in text and "b 70" in text
+    assert "agy_tokens_7d" in s.as_dict()
+
+
+def test_render_without_calls_says_none(cfg: AgentOpsConfig) -> None:
+    _usage(cfg, 10, 30)
+    assert "agy 7d tokens: none" in governor.render(governor.status(cfg, now=NOW))
