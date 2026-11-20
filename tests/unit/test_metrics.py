@@ -1,7 +1,13 @@
 import numpy as np
 import pytest
 
-from flowfield2d.post.metrics import METRIC_COLUMNS, feature_metrics, shear_stress
+from flowfield2d.post.metrics import (
+    METRIC_COLUMNS,
+    depth_slope_shear,
+    feature_metrics,
+    fit_slope,
+    shear_stress,
+)
 
 
 def test_shear_stress_hand_calculations() -> None:
@@ -64,3 +70,27 @@ def test_feature_metrics_with_roughness_and_dry_feature() -> None:
         feature_metrics("f", "s", depth, vel[:2], mask, cell_area=1.0, length=1.0)
     with pytest.raises(ValueError):
         feature_metrics("f", "s", depth, vel, mask, cell_area=1.0, length=0.0)
+
+
+def test_depth_slope_shear_hand_calculations() -> None:
+    # SI: tau = rho g h S;  9810 * 2 * 0.005 = 98.1 Pa.  US: 62.4 * 3 * 0.01 = 1.872 lb/ft^2
+    assert depth_slope_shear(2.0, 0.005) == pytest.approx(98.1)
+    assert depth_slope_shear(3.0, 0.01, units="US") == pytest.approx(1.872)
+    arr = depth_slope_shear(np.array([2.0, 0.0, np.nan]), 0.005)
+    assert arr[0] == pytest.approx(98.1) and np.isnan(arr[1]) and np.isnan(arr[2])
+    with pytest.raises(ValueError):
+        depth_slope_shear(2.0, 0.005, units="furlongs")
+
+
+def test_fit_slope_least_squares_with_gaps_and_degenerate_input() -> None:
+    slope, r2 = fit_slope([0.0, 10.0, 20.0, 30.0], [5.0, 4.0, 3.0, np.nan])
+    assert slope == pytest.approx(-0.1) and r2 == pytest.approx(1.0)
+    slope, r2 = fit_slope([0.0, 10.0, 20.0], [1.0, 3.0, 2.0])     # scatter: slope 0.05, r2 0.25
+    assert slope == pytest.approx(0.05) and r2 == pytest.approx(0.25)
+    flat, r2 = fit_slope([0.0, 10.0], [2.0, 2.0])                 # level surface: r2 undefined
+    assert flat == 0.0 and np.isnan(r2)
+    for s, z in (([5.0, 5.0], [1.0, 2.0]), ([1.0], [1.0]), ([], [])):   # no spread along the line
+        slope, r2 = fit_slope(s, z)
+        assert np.isnan(slope) and np.isnan(r2)
+    with pytest.raises(ValueError):
+        fit_slope([0.0, 1.0], [1.0])

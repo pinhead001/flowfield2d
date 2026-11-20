@@ -40,6 +40,42 @@ def shear_stress(n: ArrayLike, velocity: ArrayLike, depth: ArrayLike,
     return float(tau) if tau.ndim == 0 else tau
 
 
+def depth_slope_shear(depth: ArrayLike, slope: ArrayLike, units: str = "SI") -> Any:
+    """Depth-slope bed shear tau = rho g h S (SI, Pa; US gamma h S, lb/ft^2), with the depth
+    standing in for the hydraulic radius (wide channel). Cells with h <= 0 or NaN give NaN.
+    Scalars in, scalar out."""
+    if units == "SI":
+        coef = RHO_G_SI
+    elif units == "US":
+        coef = GAMMA_US
+    else:
+        raise ValueError(f"units must be 'SI' or 'US', not {units!r}")
+    h, s = (np.asarray(x, dtype=np.float64) for x in (depth, slope))
+    with np.errstate(invalid="ignore"):
+        tau = np.where(h > 0, coef * h * s, np.nan)
+    return float(tau) if tau.ndim == 0 else tau
+
+
+def fit_slope(chainage: ArrayLike, elevation: ArrayLike) -> tuple[float, float]:
+    """Least-squares slope dz/ds of `elevation` against `chainage` over the finite pairs, and
+    the fit's r^2 (NaN for a level surface). (NaN, NaN) with fewer than two points or no spread
+    in chainage. The sign follows the chainage direction."""
+    s = np.asarray(chainage, dtype=np.float64).ravel()
+    z = np.asarray(elevation, dtype=np.float64).ravel()
+    if s.shape != z.shape:
+        raise ValueError("chainage and elevation must have the same length")
+    ok = np.isfinite(s) & np.isfinite(z)
+    s, z = s[ok], z[ok]
+    if s.size < 2:
+        return float("nan"), float("nan")
+    ds, dz = s - s.mean(), z - z.mean()
+    sxx, szz = float(ds @ ds), float(dz @ dz)
+    if sxx <= 0:
+        return float("nan"), float("nan")
+    sxz = float(ds @ dz)
+    return sxz / sxx, (sxz * sxz / (sxx * szz) if szz > 0 else float("nan"))
+
+
 def _stats(values: NDArray[np.float64], prefix: str,
            percentiles: Sequence[float]) -> dict[str, float]:
     finite = values[np.isfinite(values)]
