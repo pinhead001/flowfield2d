@@ -15,6 +15,8 @@
   metre and spellings); for the consumers' terrain vertical-unit guard (A1).
 - `post.metrics`: `depth_slope_shear` (tau = rho g h S, SI or US) and `fit_slope` (least-squares slope and
   r^2 of elevation against chainage), for consumers whose solver writes no shear or energy slope.
+- Fix: `flowfield2d.__version__` said 0.0.1 while the package is 0.1.0, so manifests and consumer exports
+  recorded the wrong version; a test now holds it to `pyproject.toml`.
 
 ## 0.1.0 — 2026-10-30
 First tagged release (G2 item 5, Chris 2026-10-30): the library as used by the Methow 3 ft pre-production run.
